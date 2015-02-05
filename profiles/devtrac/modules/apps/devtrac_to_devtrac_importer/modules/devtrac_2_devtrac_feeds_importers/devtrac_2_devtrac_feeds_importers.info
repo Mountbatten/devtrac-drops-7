@@ -1,0 +1,25 @@
+name = Devtrac 2 Devtrac Feeds Importers
+description = Contains importers that can import csv exports from another Devtrac installation. Part of an App.
+core = 7.x
+package = Devtrac Apps Features
+version = 7.x-1.0
+project = devtrac_2_devtrac_feeds_importers
+dependencies[] = ctools
+dependencies[] = feeds
+features[ctools][] = feeds:feeds_importer_default:1
+features[features_api][] = api:2
+features[feeds_importer][] = devtrac_2_devtrac_action_item_import
+features[feeds_importer][] = devtrac_2_devtrac_field_trip_import
+features[feeds_importer][] = devtrac_2_devtrac_location_import
+features[feeds_importer][] = devtrac_2_devtrac_site_reports_import
+features[feeds_importer][] = devtrac_2_devtrac_user_import
+features[feeds_tamper][] = devtrac_2_devtrac_action_item_import-responsible-explode
+features[feeds_tamper][] = devtrac_2_devtrac_action_item_import-responsible-trim
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

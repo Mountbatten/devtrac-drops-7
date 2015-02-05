@@ -1,0 +1,13 @@
+
+base.url=http://localhost
+db.url=mysql://username:password@host/db
+
+#sites.subdir=default
+#site.mail=test@example.com
+#account.name=admin
+#account.pass=admin
+#account.mail=test@example.com
+account-mail=ishmael@mountbatten.net
+site.mail=ishmael@mountbatten.net
+install_configure_form.site_default_country=UG
+install_configure_form.date_default_timezone=Africa/Kampala

@@ -1,0 +1,132 @@
+@CHARSET "UTF-8";
+
+.ext_wrapper {
+  background: none;
+  background: url(../images/alpha-black-bg.png);
+  opacity: 0.9;
+  border:none;
+  font-family:Arial, Helvetica, sans-serif;
+  height:100% !important;
+}
+
+.ext_wrapper .extruder-content {
+  background: none;
+  border-right:none !important;
+}
+
+#Extruderfacet_block {
+  font-size:0.85em;
+  background:none;
+  text-shadow:none;
+  color:#FFF;
+}
+
+#Extruderfacet_block a {
+  color:#CCC;
+}
+
+#Extruderfacet_block .flapLabel {
+  display:none;
+}
+
+#Extruderfacet_block .flap {
+  top: 50px;
+  padding: 0;
+  margin: -0;
+  background: url(../images/flapTabSprite.png) no-repeat;
+  background-position:0 -60px;
+  width: 30px;
+  height:60px;
+  position: absolute;
+  right: -30px;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+#Extruderfacet_block.isOpened .flap {
+  background: url(../images/flapTabSprite.png) no-repeat;
+  background-position:0 0;
+}
+
+#Extruderfacet_block .text  {
+  background: none;
+  height:100%;
+  padding-left:0;
+}
+
+#Extruderfacet_block .block-facetapi {
+  margin-top:5px;
+  margin-bottom:10px;
+}
+
+#Extruderfacet_block .block-facetapi .content.clearfix {
+  padding: 5px 5px 5px 0px;
+}
+
+#Extruderfacet_block .block-facetapi h2.block-title {
+  font-weight:bold;
+  background: #000000 url(../images/collapse-icon.png) no-repeat 95% 50%;
+  opacity:0.9;
+  padding:5px 5px 5px 15px;
+  border-top:thin solid #999;
+  border-bottom:thin solid #999;
+}
+
+#Extruderfacet_block .block-facetapi ul {
+  width:250px;
+  margin:0;
+}
+
+#Extruderfacet_block .block-facetapi li {
+  border-bottom:thin solid #CCC;
+  list-style:none;
+  padding:5px 10px 5px 20px;
+}
+
+#Extruderfacet_block .block-facetapi li span ,
+#Extruderfacet_block .block-facetapi li span.counter_number ,
+#Extruderfacet_block .block-facetapi li span.placetype_match_to_counter_number {
+  display:inline;
+  font-size:0.85em;
+  padding-right:5px;
+  font-weight:normal;
+}
+
+/*=======================facetapi-search-api-swatches================================*/
+
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li {
+  padding:5px 10px 5px 0px;
+  clear:both;
+  width:220px;
+  border:none;
+}
+
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li span.facetapi-search-api-swatches-text {
+  padding-left:5px;
+}
+
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li .facetapi-active {
+  padding:5px 10px;
+  font-size:1.1em;
+}
+
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li ul.expanded {
+  width:100%;
+}
+
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li ul.expanded li {
+  padding:5px 0px 5px 25px;
+  font-size:1.1em;
+  width:225px;
+}
+
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li.leaf ,
+#Extruderfacet_block .block-facetapi ul.facetapi-search-api-swatches li.collapsed {
+  padding-left: 20px;
+  font-size:1.1em;
+  border-bottom:thin solid #CCC;
+}

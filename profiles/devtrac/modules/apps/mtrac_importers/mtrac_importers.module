@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ */
+
+// Making Mtrac Importers an app.
+
+/**
+ * Implements hook_apps_app_info()
+ */
+function mtrac_importers_apps_app_info() {
+  return array(
+    'demo content description' => 'This is the Mtrac Importers app.',
+    // This form will be rendered on the app config page:
+    'post install callback' => 'devtrac_to_devtrac_importer_app_post_install',
+  );
+}
+
+function mtrac_importers_app_post_install() {
+  drupal_set_message(t("We are happy to tell you that the Mtrac Importers App is successfully installed."));
+}

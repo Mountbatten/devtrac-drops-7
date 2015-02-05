@@ -1,0 +1,147 @@
+<?php
+/**
+ * @file
+ * Testing the Devtrac facets on a logged in user.
+ */
+module_load_include('test', 'simpletest_clone');
+class FacetsVisibilityTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $fieldWorker;
+  public static function getInfo() {
+    return array(
+      'name' => 'Devtrac facets access',
+      'description' => t('User accesses facets on the pages designed to have them'),
+      'group' => 'Devtrac',
+    );
+  }
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param$user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw,
+    );
+    $this->drupalPost('user', $edit, t('Log in'));
+    // If a "log out" link appears on the page, it is almost certainly because,
+    // the login was successful.
+    $pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+    if ($pass) {
+      $this->loggedInUser = $user;
+    }
+  }
+  public function setUp() {
+    parent::setUp();
+    $this->public_files_directory = variable_get('file_public_path');
+    // Create and log in a permitted user.
+    $this->fieldWorker = $this->drupalCreateUser(array(
+    'bypass node access',
+    'access content',
+    'create fieldtrip content',
+    'administer nodes',
+    'administer permissions',
+    'access user profiles',
+    'administer site configuration',
+    'administer modules'));
+    $this->drupalLogin($this->fieldWorker);
+   $this->fieldWorker->roles[] = 'field worker';
+    user_save($this->fieldWorker);
+    $this->drupalLogin($this->fieldWorker);
+    $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+    $this->assertNoText(t('You do not have items in your inbox'), t('User is successifuly logged in'), 'Devtrac');
+  }
+  /**
+   * On the user home page there should be. No facets of any kind.
+   */
+  public function testAdminHomePageHasNoFacetstest() {
+    // Making sure the home page has no facets at all.
+    $this->drupalGet('user/' . $this->fieldWorker->uid);
+    $this->assertNoText(t('You do not have items in your inbox'), t('User is successifuly logged in'), 'Devtrac');
+    $this->assertText(t('Overview'), 'User is successifuly logged in', 'Devtrac');
+    $this->assertNoRaw('<h2 class="block-title">' . t('Date Visited')  . '</h2>');
+    $this->assertNoText('Date Visited', 'Date Visited facet is not found on user home page', 'DevTrac');
+    $this->assertNoText('May 2011 (60)', 'Date Visited facet is not found on user home page', 'DevTrac');
+    $this->assertNoLink('May 2011 (60)', 0, 'Link to field trip not visited page showing');
+  }
+  /**
+   * User once accesses the Sitereports must.
+   * 
+   * See the facet with it's sections minus alterating links.
+   */
+  public function testSitereportsfacetstest() {
+    // Now to sitereports to test for facets.
+    $this->drupalGet('activities');
+    $this->assertNoRaw('<h2>' . t('Date Visited')  . '</h2>');
+    $this->assertNoText('Date Visited', 'Date Visited facet section is changed is not found on site report', 'DevTrac');
+    $this->assertNoLink('Date Visited', 0, 'Date Visited facet link is changed');
+    $this->assertNoTitle(t('DevTrac | Real time reporting on public services in Uganda'), 'The site report page title is found', 'DevTrac');
+    $this->assertNoLink(t('2013 (2)'), 0, 'Link to field trip visited page is not showing');
+  }
+  /**
+   * User accesses the Action Items page.
+   * 
+   * The facet must show and all it's sections. 
+   */
+  public function testActionItemFacetstest() {
+    // Now to action items page to test for facets.
+    $this->drupalGet('actionitems');
+    $this->assertNoRaw('<h2 class="block-title">' . t('Current search')  . '</h2>');
+    $this->assertNoRaw('<h2 class="block-title">' . t('Current search')  . '</h2>');
+    $this->assertNoText(t('Current search'), t('Current search facet is not found on action items page'), 'DevTrac');
+    $this->assertNoRaw('<title>' . t('Action Items: List | DevTrac')  . '</title>');
+    $this->assertNoText(t('Due Date'), t('Due date provision on Action Items search facet is found on action items page'), 'DevTrac');
+    $this->assertNoText(t('Status'), t('Status provision on Action Items search facet is found on action items page'), 'DevTrac');
+    $this->assertNoText(t('Priority'), t('Priority provision on Action Items search facet is found on action items page'), 'DevTrac');
+    $this->assertNoTitle(t('Action Items: List | DevTrac'), t('The Action Items page title is found'), 'DevTrac');
+    $this->assertNoLink(t('High (58)'), 0, t('Link to high priority page showing on action items page'));
+    $this->assertNoRaw('<h2 class="block-title">' . t('Current search')  . '</h2>');
+  }
+  /**
+   * User accesses the fieldtrips page and the face must show.
+   * 
+   * All sections on the facets section must be showing.
+   * 
+   * Sublinks show should fail because the link keep on change(increase).
+   */
+  public function testFieldTripFacettest() {
+    // Testing the field trips facets.
+    $this->drupalGet('fieldtrips');
+    $this->assertNoText(t('FieldTrips: List'), 'The Field Trip list page title is found', 'DevTrac');
+    $this->assertNoRaw('<h1 id="page-title" class="title">' . t('FieldTrips: List')  . '</h1>');
+    $this->assertNoRaw('<h2 class="block-title">' . t('Current search')  . '</h2>');
+    $this->assertText('Date', 'Date provision on Field trips list search facet is nolonger found on field trips page', 'DevTrac');
+    $this->assertText('Status', 'Status provision on Field trips list search facet is found on field trips page', 'DevTrac');
+    $this->assertNoRaw('<h2 class="block-title">' . t('Current search')  . '</h2>');
+    // For these links are not stable they keep on changing due to updates.
+    $this->assertNoLink('Approved(737)', 0, 'Link to approved fieldtrips page is not showing on the facet');
+    $this->assertNoLink('In Progress(216)', 0, 'Link to in progress fieldtrips is not showing on the facet');
+    $this->assertNoLink('Submitted(83)', 0, 'Link to submitted fieldtrips is not showing on the facet');
+  }
+}

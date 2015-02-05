@@ -1,0 +1,167 @@
+<?php
+// $Id: questionnaire_views.module,v 1.1.2.1 2010/12/21 07:38:27 batje Exp $
+
+
+/**
+ * Implements hook_views_api().
+ */
+function questionnaire_views_views_api() {
+  return array(
+      'api' => 3.0,
+      'path' => drupal_get_path('module', 'questionnaire_views') . '/views',
+  );
+}
+
+
+/**
+ * Implements hook_views_plugins().
+ */
+function questionnaire_views_views_plugins() {
+  return array(
+    'access' => array(
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_access',
+        'parent' => '',
+      ),
+      'arguments' => array(
+        'title' => t('questionnaire'),
+        'help' => t('Access will be granted to users with permissions based on questionnaire magic.'),
+        'handler' => 'views_plugin_access_arguments',
+        'uses options' => TRUE,
+        'path' => drupal_get_path('module', 'questionnaire_views') . '/views/plugins',
+      ),
+    ),
+  );
+}
+
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function questionnaire_views_menu() {
+/*  $items['node/%/questions'] = array(
+    'title' => t('Questions'),
+    'description' => t('View the Questions for this Node.'),
+    'page callback' => 'questionnaire_views_questions',
+    'page arguments' => array(1),
+    'access callback' => 'questionnaire_views_questions_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  */
+/*  $charts = array('Pie', 'Bar', 'Timeline');
+  foreach ($charts as $chart) {
+    $items['node/%/questions/%/' . strtolower($chart)] = array(
+      'title' => t($chart . ' Chart'),
+      'description' => t('View ' . $chart . ' Chart.'),
+      'page callback' => 'questionnaire_views_display_view_answers',
+      'page arguments' => array(1, 3, 4),
+      'access callback' => 'questionnaire_views_charts_access',
+      'access arguments' => array(1, 3, strtolower($chart)),
+      'type' => MENU_LOCAL_TASK,
+    );
+  }
+  return $items;
+  */
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function questionnaire_views_ourviews_access($arguments) {
+  global $user;
+  $viewpath = explode("/", $arguments);
+  $node = node_load(arg(1));
+//      drupal_set_message("coount ". $count);
+//      drupal_set_message("arg 3 ". arg(3));
+//      drupal_set_message("vp 3 ". $viewpath[3]);
+  switch ($viewpath[3]) {
+    case 'questionnaire':
+    case 'submissions_questionnaire':
+      return (((arg(3) == 'questionnaire') | (arg(3) == 'submissions_questionnaire')) && questionnaire_views_isquestionnaire($node->type));
+      break;
+    case 'context':
+    case 'submissions_context':
+      $sql = 'SELECT COUNT(qa.context) FROM {questionnaire_answer} qa WHERE qa.context = %d';
+      $count = db_query('SELECT COUNT(qa.context) FROM {questionnaire_answer} qa WHERE qa.context = :qa.context', array(':qa.context' => $node->nid))->fetchField();
+
+      return (((arg(3) == 'context') | (arg(3) == 'submissions_context')) && ($count > 0) ); // TODO or there are no answers yet, so getquestions > 0
+      break;
+  }
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function questionnaire_views_charts_title($context, $qid) {
+  $contextnode = node_load($context);
+  $question = node_load($qid);
+  return ($question->title . t(' for ') . $contextnode->title);
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function questionnaire_views_charts_access($context, $qid, $chart) {
+  return TRUE;
+  // only show the menu if there is at least anwser
+  $sql = 'SELECT COUNT(qa.context) FROM {questionnaire_answer} qa WHERE qa.context = %d';
+  $count = db_query('SELECT COUNT(qa.context) FROM {questionnaire_answer} qa WHERE qa.context = :qa.context', array(':qa.context' => $context))->fetchField();
+  if ($count == 0 ) {
+    return FALSE;
+  }
+  if (!(is_numeric($context) && is_numeric($qid))) {
+    return FALSE;
+  }
+  switch ($chart) {
+    case 'answers':
+      return TRUE;
+//      return (in_array('administrator', array_values($user->roles)));
+      break;
+    case 'bar':
+      return TRUE;
+//      return (in_array('administrator', array_values($user->roles)));
+      break;
+    case 'pie':
+      return TRUE;
+//      return (in_array('administrator', array_values($user->roles)));
+      break;
+    case 'timeline':
+      return FALSE;
+//      return (in_array('administrator', array_values($user->roles)));
+      break;
+  }
+
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function questionnaire_views_display_view_answers($context, $qid, $charttype) {
+  $view = views_get_view('Answers');
+  /* This section is for overriding stuff. */
+  switch ($charttype) {
+    case 'pie':
+      $display_id = 'page_2';
+      break;
+    case 'bar':
+      $display_id = 'page_3';
+      $view->display['page_3']->display_options['style_options']['y_min'] = -0.000000000000000000000000001;
+
+      break;
+    case 'timeline':
+      $display_id = 'page_4';
+      $view->display['page_4']->display_options['style_options']['y_min'] = -0.000000000000000000000000001;
+      break;
+  }
+
+  drupal_set_title(questionnaire_views_charts_title($context, $qid));
+  return $view->preview($display_id, array($context, $qid));
+}
+

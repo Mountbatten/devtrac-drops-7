@@ -1,0 +1,13 @@
+name = Questionnaire AutoLearn Module
+description = Module that automatically saves fuzzy answers that have already been matched to structured answers.
+
+package = Questionnaire
+core = 7.x
+dependencies[] = questionnaire_fuzzy
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

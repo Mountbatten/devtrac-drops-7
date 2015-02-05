@@ -1,0 +1,176 @@
+<?php 
+
+/**
+ * @file
+ * Testing the full text search.
+ */
+module_load_include('test', 'simpletest_clone');
+class FullTextSearchTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $fieldWorker;
+  public static function getInfo() {
+    return array(
+      'name' => 'DevTrac saved search',
+      'description' => t('Testing the user saved searches'),
+      'group' => 'Devtrac',
+      
+    );
+  }
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   *
+   * 1. Create a new User with all permissions of role "Unicef" (rid = 5).
+   * 2. Log the user into the system.
+   */
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw);
+    $this->drupalPost('user', $edit, t('Log in'));
+    // If a "log out" link appears on the page, it is almost certainly because
+    // the login was successful.
+    $pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array(
+      '%name' => $edit['name'])),
+      t('User login'));
+    if ($pass) {
+      $this->loggedInUser = $user;
+    }
+ }
+  /**
+   * Creating an admin who is to create an.
+   *  
+   * Authenticated user to create a fieldtrip later on.
+   */
+  public function setUp() {
+    parent::setUp();
+    $this->public_files_directory = variable_get('file_public_path');
+    $this->fieldWorker = $this->drupalCreateUser(array(
+      'get any binary files',
+      'get own binary files',
+      'hide own comments',
+      'post comments',
+      'save file information',
+      'skip comment approval',
+      'submit questions',
+      'view taxonomy_vocabulary_1',
+      'access comments',
+      'access content',
+      'access proxy router',
+      'access user profiles',
+      'administer own comments',
+      'create taxonomy_vocabulary_1',
+      'create fieldtrip content',));
+     // Loading a user by role name 
+    $this->fieldWorker->roles[] = 'field worker';
+    user_save($this->fieldWorker);
+    $this->drupalLogin($this->fieldWorker);
+    $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+  }
+  /**
+   * In order to receive new email.
+   * 
+   * for every new action item every week.
+   *  
+   * User needs to click an enverope.
+   */
+  public function testActionItemsFullTextsearch() {
+    $this->drupalGet('actionitems');
+    $this->assertNoText('Email new Action Items', 'Email new Action Items section is found', 'Detrac');
+    $this->assertNoText('Click the button to email me new Action Items every week', 'Label to click the button to email new action item is not found', 'Detrac');
+    $this->assertNoField('op', 'Email new Action Items button is not found', 'Detrac');
+  }
+  /**
+   * Due to to alterations the button was removed.
+   *  
+   * And replaced with an icon (enverope).
+   */
+  public function testEmailSendButtontest() {
+    $this->drupalGet('actionitems');
+    $this->assertResponse(200, 'uploaded');
+    $this->assertField('search_api_aggregation_1', 'Full text search field is showing');
+    $this->drupalPost(NULL, NULL, t('Search'));
+  }
+  /**
+   * Changed the the way links on the action items facet.
+   * 
+   * Should be accessed.
+   */
+  public function testSearchItem() {
+    $this->drupalGet('actionitems', array(
+      'f[0]' => 'field_actionitem_due_date%3A[2011-01-01T00%3A00%3A00Z TO 2012-01-01T00%3A00%3A00Z]'));
+    $this->assertResponse(200, 'page loaded successfuly');
+    $this->assertNoLink('2011 (630)', 0, 'Item is clicked');
+    $this->assertNoLink('2011 (630)', 0, 'Item is not clicked');
+    $this->assertNoLink('status', 0, 'Status link is not showing');
+    //$this->clickLink('Status', 0, 'Status link is clicked');
+    $this->drupalGet('user/' . $this->loggedInUser->uid);
+  }
+  /**
+   * Changed the the way links on the action items facet.
+   * 
+   * Should be accessed.
+   */
+  public function testFieldTripSavedSearch() {
+    $this->drupalGet('fieldtrips', array('f[0]' => 'field_fieldtrip_status%3ASubmitted'));
+    $this->assertResponse(200, 'page loaded successfuly');
+    // $this->drupalPost(NULL, NULL, t('Email new Field Trips'));
+    $this->assertNoText('Your saved search was successfully created. You will receive e-mail notifications for new results in the future', 'Email notification is sent', 'Detrac');
+    $this->drupalGet('user/' . $this->loggedInUser->uid);
+    $this->assertNoLink('Assessment (1)', 0, 'Devtarc');
+  }
+  /**
+   * User type in the full text search and then see results.
+   */
+  public function testFieldTripFullTextSearch() {
+    $this->drupalGet('actionitems', array(
+      'query' => array(
+        'search_api_aggregation_1' => 'Open')));
+   $this->assertResponse(200, 'response positively responded');
+    $this->assertNoText('Closed', 'Search results are found');
+    $this->assertNoLink('End User Feedback PQA Soroti', 0, 'End User Feedback PQA Soroti link is not found');
+  }
+  /**
+   * More tests new sections on fieldtrip page.
+   *  
+   * User type in the full text search and then see results.
+   */
+  public function testFieldTripFullTextSearchClickResults() {
+    $this->drupalGet('actionitems', array(
+      'query' => array(
+        'search_api_aggregation_1' => 'Open')));
+    $this->assertNoText('Closed', 'Search results are found');
+    $this->assertNoLink('End User Feedback PQA Soroti', 0, 'End User Feedback PQA Soroti is not found');
+  }
+  // More tests new sections on fieldtrip page.
+}

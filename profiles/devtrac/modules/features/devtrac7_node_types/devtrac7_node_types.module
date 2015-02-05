@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the DevTrac7 Node Types feature.
+ */
+
+include_once('devtrac7_node_types.features.inc');

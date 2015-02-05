@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Imports and Removes data for the Devtrac 2 Devtrac Demo.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function devtrac_to_devtrac_demodata_enable() {
+  devtrac_to_devtrac_demodata_import('devtrac_2_devtrac_user_import', 'devtrac_solr_view_users.csv');
+  devtrac_to_devtrac_demodata_import('devtrac_2_devtrac_location_import', 'devtrac_solr_view_locations.csv');
+  devtrac_to_devtrac_demodata_import('devtrac_2_devtrac_field_trip_import', 'devtrac_solr_view_fieldtrips.csv');
+  devtrac_to_devtrac_demodata_import('devtrac_2_devtrac_site_reports_import', 'devtrac_solr_view_sitevisits.csv');
+  devtrac_to_devtrac_demodata_import('devtrac_2_devtrac_action_item_import', 'devtrac_solr_view_actionitems.csv');
+  node_access_rebuild();
+  drupal_set_message("All Data has been imported. It will take a little while before the data will appear on the overview pages.");
+}
+
+/**
+ * Implements hook_disable().
+ */
+function devtrac_to_devtrac_demodata_disable() {
+  $myfeed = feeds_source('devtrac_2_devtrac_action_item_import');
+  $myfeed->startClear();
+  $myfeed = feeds_source('devtrac_2_devtrac_site_reports_import');
+  $myfeed->startClear();
+  $myfeed = feeds_source('devtrac_2_devtrac_field_trip_import');
+  $myfeed->startClear();
+  $myfeed = feeds_source('devtrac_2_devtrac_location_import');
+  $myfeed->startClear();
+  $myfeed = feeds_source('devtrac_2_devtrac_user_import');
+  $myfeed->startClear();
+  drupal_set_message(t("Deleted all Sample data."));
+}
+
+/**
+ * Helper function for importing.
+ */
+function devtrac_to_devtrac_demodata_import($importer, $file) {
+  $dir = drupal_get_path('module', 'devtrac_to_devtrac_demodata') . '/data/';
+  $myfeed = feeds_source($importer);
+  $config = array('FeedsFileFetcher' => array('source' => $dir . $file));
+  $myfeed->addConfig($config);
+  $myfeed->save();
+  try {
+    $myfeed->startImport();
+  }
+  catch (Exception $exept) {
+    drupal_set_message("error", $except->getMessage(), "error");
+  }
+}

@@ -1,0 +1,230 @@
+<?php
+
+/**
+ * @file
+ *   Sending questionnaires, questions and receiving answers by SMS.
+ */
+
+/**
+ * Implementation of hook_cron().
+ *
+ * Not using hook_cron_queue_info() because we need to control deletion of the
+ * items.
+ */
+function questionnaire_sms_cron() {
+  $queue = DrupalQueue::get('questionnaire_sms_campaign');
+  $queue->createQueue();
+  $end = time() + 15; // @todo Allow configuration of time.
+  // Remember lease time needs to be longer than cron run time ;)
+  while (time() < $end && ($item = $queue->claimItem(600))) {
+    if (questionnaire_sms_start_campaign($item->data)) {
+      $queue->deleteItem($item);
+    }
+  }
+}
+
+
+/**
+ * Implementation of hook_questionnaire_campaign_sending_handlers().
+ */
+function questionnaire_sms_questionnaire_campaign_sending_handlers() {
+  $path = drupal_get_path('module', 'questionnaire_sms') . '/plugins/sending_handlers';
+
+  $plugins['questionnaire_sms'] = array(
+    'handler' => array(
+      'class' => 'QuestionnaireSmsCampaignSend',
+      'file' => 'QuestionnaireSmsCampaignSend.inc',
+      'path' => $path,
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
+ * Worker callback - start campaign questionnaire.
+ *
+ * @see QuestionnaireSmsCampaignSend
+ */
+function questionnaire_sms_start_campaign($item) {
+  list($campaign, $entity_type, $id) = $item;
+
+  //
+  // Check if we can start the campaign item.
+  // Early returns follow.
+  //
+
+  // Check that none of the related entities have been deleted since creation.
+  $campaign = entity_load('questionnaire_campaign', array($campaign));
+  if (empty($campaign)) {
+    watchdog('Questionnaire SMS', 'Did not send SMS to deleted campaign id: @id', array('@id' => $campaign));
+    return TRUE; // Still want this item deleted.
+  }
+  $campaign = reset($campaign);
+  $recipient = entity_load($entity_type, array($id), array(), TRUE);
+  if (empty($recipient)) {
+    watchdog('Questionnaire SMS', 'Did not send SMS to deleted recipient id: @entity_type @id', array('@entity_type' => $entity_type, '@id' => $id));
+    return TRUE; // Still want this item deleted.
+  }
+  $recipient = reset($recipient);
+
+  // Check that the campaign is currently active.
+  if (! $campaign->enabled) {
+    watchdog('Questionnaire SMS', 'Did not send to paused campaign @name', array('@name' => $campaign->name));
+    return FALSE; // Allowing for the possibility of 'paused', don't delete.
+  }
+
+  // Check if there is already an SMS campaign active for entity.
+  // We can only handle one at a time.
+  if ($campaign_field = questionnaire_campaign_user_campaign_field($entity_type, $recipient, 'questionnaire_sms')) {
+    watchdog('Questionnaire SMS', 'Did not send to user already in a campaign @name', array('@name' => $recipient->name));
+    watchdog('debug', 'Campaign field ' . print_r($campaign_field, true));
+    return FALSE;
+  }
+
+  // An attempt to put the user into a campaign they have already done. Return TRUE - don't try again.
+  $items = field_get_items($entity_type, $recipient, $campaign->questionnaire_field);
+  foreach ($items as $delta => $item) {
+    if ($item['id'] == $campaign->nid
+      && $item['context_type'] == 'questionnaire_campaign'
+      && $item['context_id'] == $campaign->id
+    ) {
+      watchdog('debug', 'Did not enter user ' . $recipient->name . ' into a campaign they already have attached id ' . $campaign->id);
+      return TRUE;
+    }
+  }
+
+  //
+  // Start the campaign.
+  //
+
+  // Add the questionnaire to the entity.
+  $questionnaire = array('id' => $campaign->nid, 'context_type' => 'questionnaire_campaign', 'context_id' => $campaign->id, 'started' => time(), 'updated' => 0, 'completed' => 0, 'qid' => 0);
+  questionnaire_field_entity_add_questionnaire($entity_type, $recipient, $campaign->questionnaire_field, $questionnaire);
+  // Reload the entity cache.
+  $recipient = entity_load($entity_type, array($id), array(), TRUE);
+  $recipient = reset($recipient);
+
+  // Get first question. Now that recipient entity has questionnaire added.
+  $recipient_array = array(
+    'entity_type' => $entity_type,
+    'entity' => $recipient,
+    'medium' => 'questionnaire_sms',
+  );
+  $context = questionnaire_question_getcontext(NULL, NULL, $recipient_array);
+  if (empty($context)) {
+    watchdog('Questionnaire SMS', 'Did not send to user @name no context', array('@name' => $recipient->name));
+    return FALSE;
+  }
+  $question_array = questionnaire_question_getquestions($context, $recipient_array, 1);
+  if (empty($question_array)) {
+    watchdog('Questionnaire SMS', 'Did not send to user @name no question', array('@name' => $recipient->name));
+    return FALSE;
+  }
+
+  $question_array = reset($question_array);
+  $question = $question_array['node'];
+  // Send SMS.
+  watchdog('Questionnaire SMS', 'sms_user_send(' . $id . ', ' . $question->title .')');
+  if ($result = sms_user_send($id, $question->title)) {
+    // Set nid of question sent.
+    questionnaire_sms_update_questionnaire_field($entity_type, $recipient, $campaign, 'qid', $question->nid);
+    if (!empty ($question_array['callback'])) {
+      call_user_func($question_array['callback'], $context, $recipient_array, $question);
+    }
+  }
+  else {
+    // Failed delete this field.
+    questionnaire_sms_update_questionnaire_field($entity_type, $recipient, $campaign, 'deleted', 1);
+  }
+
+  return $result;
+}
+
+/**
+ * Internal function to update the questionnaire field.
+ */
+function questionnaire_sms_update_questionnaire_field($entity_type, &$entity, $campaign, $field_id, $field_value) {
+  // Update the questionnaire ID on the field.
+  $items = field_get_items($entity_type, $entity, $campaign->questionnaire_field);
+  foreach ($items as $delta => $item) {
+    if ($item['id'] == $campaign->nid
+      && $item['context_type'] == 'questionnaire_campaign'
+      && $item['context_id'] == $campaign->id
+    ) {
+      $entity->{$campaign->questionnaire_field}['und'][$delta][$field_id] = $field_value;
+      entity_save($entity_type, $entity);
+      break;
+    }
+  }
+}
+
+/**
+ * Incoming SMS callback.
+ */
+function questionnaire_sms_sms_incoming($op, $number, $message, $options) {
+  if ($op == 'process') {
+    watchdog("Questionnaire SMS", "Received SMS from ". $number);
+    // sms_user specific.
+    $recipient_type = 'user';
+    if (!($recipient_id = sms_user_get_uid($number, $status = NULL))) {
+      // create the user and set uid; and campaign!?
+    }
+    $recipient_entity = entity_load($recipient_type, array($recipient_id), array(), TRUE);
+    $recipient_entity = reset($recipient_entity);
+
+    // Get present campaign for recipient.
+    // This is a questionnaire_campaign entity.
+    if ($campaign = questionnaire_campaign_user_campaign($recipient_type, $recipient_entity, 'questionnaire_sms')) {
+      // Get the field storing the campaign information from the user.
+      // This is a field array.
+      $campaign_field = questionnaire_campaign_user_campaign_field($recipient_type, $recipient_entity, 'questionnaire_sms');
+
+      $answers = array();
+      $answers['recipient_type'] = $recipient_type;
+      $answers['recipient_id'] = $recipient_id;
+      $answers['questionnaire_id'] = $campaign->nid;
+      $answers['context_type'] = 'questionnaire_campaign';
+      $answers['context_id'] = $campaign->id;
+      $answers['answers'][$campaign_field['qid']] = array(
+        'question' => $campaign_field['qid'],
+        'fuzzy' => $message, // @todo handle this.
+      );
+
+      //
+      // @todo This is way way too deep, to little error handling, and has
+      // updates on the field that should be handled by the field.
+      //
+      if ($sid = questionnaire_question_saveanswers($answers)) {
+        // get and send next question (or final message) if there is one.
+        $recipient_array = array(
+          'entity_type' => $recipient_type,
+          'entity' => $recipient_entity,
+          'medium' => 'questionnaire_sms',
+        );
+        $context = questionnaire_question_getcontext(NULL, NULL, $recipient_array);
+        if ($question = questionnaire_question_getquestions($context, $recipient_array, 1)) {
+          $question = reset($question);
+          if (sms_user_send($recipient_id, $question['node']->title)) {
+            // Error handling here, requeue message?
+            if (!empty ($question['callback'])) {
+              call_user_func($question['callback'], $context, $recipient_array, $question);
+            }
+            // Update the questionnaire field.
+            $items = field_get_items($recipient_type, $recipient_entity, $campaign->questionnaire_field);
+            foreach ($items as $delta => $item) {
+              if ($item['id'] == $campaign->nid
+                && $item['context_type'] == 'questionnaire_campaign'
+                && $item['context_id'] == $campaign->id
+              ) {
+                $recipient_entity->{$campaign->questionnaire_field}['und'][$delta]['qid'] = $question['node']->nid;
+                entity_save($recipient_type, $recipient_entity);
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

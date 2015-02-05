@@ -1,0 +1,3484 @@
+
+/*=============================================================================
+ * General Sytles
+ * ==========================================================================*/
+
+ #section-header {
+  background: #3E3E3E;
+ }
+
+.zone-highlighted,
+.zone-content-wrapper ,
+.zone-postscript-wrapper ,
+.zone-preface-wrapper ,
+.region-postscript-first ,
+.region-postscript-second {
+  margin-bottom: 10px;
+}
+
+#page-title {
+  padding: 0px 10px 0px 50px;
+  background: url(../images/title-icon.png) no-repeat 10px 0;
+  background-size: auto 40px;
+}
+
+.page-title img {
+  height: 40px;
+  width: auto;
+  float: left;
+  margin-right: 5px;
+}
+
+.page-node-add-questionnaire #page-title ,
+.node-type-questionnaire-question #page-title {
+  background-image: url(../images/title-icon-question.png);
+}
+
+.page-node-add-place #page-title ,
+.context-location #page-title {
+  background-image: url(../images/title-icon-location.png);
+}
+
+.page-node-add-district #page-title ,
+.context-district #page-title {
+  background-image: url(../images/title-icon-adminunit.png);
+}
+
+.page-node-add-ftritem #page-title ,
+.context-sitereport #page-title {
+  background-image: url(../images/title-icon-sitereport.png);
+}
+
+.page-node-add-actionitem #page-title ,
+.context-actionitems #page-title {
+  background-image: url(../images/title-icon-actionitem.png);
+}
+
+.page-node-add-fieldtrip #page-title ,
+.context-fieldtrip #page-title {
+  background-image: url(../images/title-icon-fieldtrip.png);
+  padding-left: 55px;
+}
+
+th {
+  white-space: nowrap;
+}
+
+tr:hover td a:link ,
+tr:hover td a:visited {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+table tbody tr td, 
+table tbody tr td, 
+table tbody tr.odd td, 
+table tbody tr.even td, 
+table tbody tr.odd td.active, 
+table tbody tr.even td.active {
+  vertical-align: top;
+}
+
+/*=============================================================================
+ * Header Sytles
+ * ==========================================================================*/
+
+/*================================ zone-branding ============================*/
+
+.region-menu ,
+.region-branding {
+  display: inline-block;
+  width: auto;
+}
+
+.region-branding {
+  float: left;
+}
+
+.region-menu {
+  float: right;
+}
+
+.region-menu {
+  margin-left: 0 !important;
+}
+
+#region-branding {
+  width: 265px;
+  float: left;
+  margin-right: 0;
+}
+
+.zone-branding {
+  margin: 0;
+  width: 100%;
+}
+
+/*================================ zone-featured ============================*/
+
+.zone-featured ,
+#region-featured {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.block-nice-menus {
+  z-index: inherit;
+  display: inline-block;
+  float: right;
+}
+
+.zone-featured {
+  background: #3E3E3E;
+  color: #FFFFFF;
+  height: 27px;
+}
+
+.zone-featured .current-search-item h3 {
+  color: #EB8005;
+  background: #111111;
+  height: 22px;
+  border-right: 5px solid;
+  padding-left: 15px;
+  padding-right: 20px;
+  padding-top: 5px;
+  width: 275px;
+  line-height: 20px;
+  font-size: 1.3em !important;
+  font-weight: normal;
+  margin: 0px;
+}
+
+.view-modes-map .zone-featured .current-search-item h3 {
+  width: 250px;
+}
+
+.zone-featured .nice-menu {
+  float: right;
+  margin-right: 5px;
+}
+
+.zone-featured .nice-menu ,
+.zone-featured .nice-menu li ,
+.zone-featured .nice-menu li ul {
+  border: none;
+}
+
+.zone-featured .nice-menu li {
+  background-color: #3E3E3E;
+}
+
+.zone-featured .nice-menu li.menuparent {
+  position: relative;
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-nolink {
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-left: thin solid #555555;
+  border-right: thin solid #555555;
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-nolink > a {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.zone-featured .nice-menu li.menuparent:hover ,
+.zone-featured .nice-menu li.menuparent:hover ul li {
+  background-color: #222222;
+}
+
+.zone-featured .nice-menu li.menuparent ul {
+  position: absolute;
+  top: 27px;
+  left: auto;
+  right: 0px;
+}
+
+.zone-featured #view-modes {
+  border: thin solid #555555;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  margin: 0 5px;
+  padding: 0 5px;
+}
+
+.zone-featured #view-modes li a ,
+.zone-featured .nice-menu li a {
+  padding: 5px 5px;
+  color: #FFFFFF;
+}
+
+.zone-featured #view-modes li a:hover ,
+.zone-featured .nice-menu li a:hover {
+  text-decoration: none;
+  background-color: #000000;
+}
+
+.zone-featured #view-modes li a ,
+.zone-featured .nice-menu li a.map ,
+.zone-featured .nice-menu li a.list ,
+.zone-featured .nice-menu li a.graphs {
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: auto 13px;
+  height: 17px;
+  width: 21px;
+  overflow: hidden;
+  color: transparent;
+}
+
+.zone-featured #view-modes li a.images-map ,
+.zone-featured #view-modes li a.map {
+  background-image: url(../images/user-menu-icon-map.png);
+}
+
+.zone-featured #view-modes li.list a ,
+.zone-featured #view-modes li a.list ,
+.zone-featured #view-modes li a.users-list-page {
+  background-image: url(../images/user-menu-icon-list.png);
+}
+
+.zone-featured #view-modes li a.graphs ,
+.zone-featured #view-modes li a.answer-graphs ,
+.zone-featured #view-modes li.graphs a {
+  background-image: url(../images/user-menu-icon-graph.png);
+  margin-right: 5px;
+}
+
+.zone-featured #view-modes li a.grid ,
+.zone-featured #view-modes li.grid a {
+  background-image: url(../images/user-menu-icon-grid.png);
+  margin-right: 5px;
+}
+
+.zone-featured #view-modes li.tagcloud {
+  display: none;
+}
+
+.zone-featured #view-modes li a.views-modes-active.active {
+  background-color: #222222;
+}
+
+.zone-featured .nice-menu li.menuparent li {
+  border-top: thin solid #555555;
+  width: 200px;
+}
+
+.zone-featured .nice-menu li.menuparent li a {
+  padding: 10px 5px 10px 33px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-position: 10px 50%;
+  background-size: auto 14px;
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-nolink li a.csv {
+  background-image: url(../images/user-menu-icon-csv.png);
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-nolink li a.kml {
+  background-image: url(../images/user-menu-icon-kml.png);
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-nolink li a.rss {
+  background-image: url(../images/user-menu-icon-rss.png);
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-user li.menu-path-devtrac-mycurrentfieldtrip a {
+  background-image: url(../images/user-menu-icon-current-fieldtrip.png);
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-user li.menu-path-node-add-fieldtrip a {
+  background-image: url(../images/user-menu-icon-add.png);
+}
+
+.zone-featured .nice-menu li.menuparent.menu-path-user li.menu-path-user-me-edit a {
+  background-image: url(../images/user-menu-icon-edit.png);
+}
+
+.region-featured-inner {
+  position: relative;
+  height: 27px;
+  padding-right: 20px;
+}
+
+.zone-featured .block-current-search {
+  display: inline-block;
+/*  position: absolute;
+  top: 0px;*/
+}
+
+.zone-featured .block-views-modes-modes {
+  display: inline-block;
+  float: right;
+}
+
+.zone-featured .block-views-modes-modes ul {
+  margin: 0;
+  height: 27px;
+}
+
+.zone-featured .block-views-modes-modes ul li {
+  display: inline-block;
+  height: 27px;
+  width: 31px;
+  list-style: none;
+  float: left;
+}
+
+.zone-featured .block-views-modes-modes ul li a {
+  display: inline-block;
+  height: 27px;
+  width: 31px;
+  overflow: hidden;
+}
+
+.zone-featured .block-current-search h3 {
+  margin: 0;
+  font-size: 1em;
+}
+
+
+.zone-featured .block-pane {
+  width: 31px;
+  height: 27px;
+  display: inline-block;
+  float: right;
+}
+
+.zone-featured .block-pane .block-inner {
+  position: relative;
+  width: 31px;
+  height: 27px;
+  float: right;
+  z-index: 3;
+}
+
+.zone-featured .block-pane .block-title.collapsiblock.collapsiblockCollapsed {
+  background-color: #333333;
+}
+
+.zone-featured .block-pane .block-title.collapsiblock {
+  width: 31px;
+  height: 27px;
+  background-color: #111111;
+  background-image: url(../images/user-menu-icon-info.png);
+  background-repeat: no-repeat;
+  background-size: auto 17px;
+  background-position: 50% 50%;
+}
+
+.zone-featured .block-pane .content {
+  position: absolute;
+  top: 27px;
+  right: 0;
+  max-height: 200px;
+  width: 300px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border-top: thin solid #555555;
+}
+
+.block-search-api-saved-searches {
+  display: none;
+}
+
+/*=============================================================================
+ * Content Styles
+ * ==========================================================================*/
+
+
+
+.zone-preface .region-inner ,
+.zone-content .region-inner {
+  padding: 20px;
+}
+
+.region-preface-third-inner {
+  border: thin solid #CCCCCC;
+}
+
+.page-images .zone-content-wrapper ,
+.page-locations .zone-content-wrapper ,
+.page-adminunits .zone-content-wrapper ,
+.page-sitereports .zone-content-wrapper ,
+.page-images .zone-content .grid-12 ,
+.page-locations .zone-content .grid-12 ,
+.page-adminunits .zone-content .grid-12 ,
+.page-sitereports .zone-content .grid-12 ,
+.page-images .zone-content .grid-12 .region-inner ,
+.page-locations .zone-content .grid-12 .region-inner ,
+.page-adminunits .zone-content .grid-12 .region-inner ,
+.page-sitereports .zone-content .grid-12 .region-inner {
+  padding: 0px;
+  margin: 0px;
+}
+
+.page-user-login #page-title {
+  display: none;
+}
+
+.zone-content .grid-8 .region-inner {
+  padding: 0px 5px;
+}
+
+.zone-content .grid-8 .region-inner .block-title {
+  display: none;
+}
+
+.zone-preface .grid-4.region-content ,
+.zone-content .grid-4.region-content {
+  background: #EBEBEB;
+}
+
+.context-sitereport .zone-content .grid-4.region-content .action-links {
+  display: none;
+}
+
+.fluid .view-modes-graphs .block-system-main .views-table {
+  display: none;
+}
+
+
+@media screen and (min-width: 845px) {
+
+.page-images .zone-content ,
+.page-locations .zone-content ,
+.page-adminunits .zone-content ,
+.page-sitereports .zone-content ,
+.page-actionitems .zone-content ,
+.page-fieldtrips .zone-content ,
+.page-statistics .zone-content ,
+.page-users .zone-content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.page-images aside.grid-3 ,
+.page-locations aside.grid-3 ,
+.page-adminunits aside.grid-3 ,
+.page-sitereports aside.grid-3 ,
+.page-actionitems aside.grid-3 ,
+.page-fieldtrips aside.grid-3 ,
+.page-statistics aside.grid-3 ,
+.page-users aside.grid-3 {
+  margin: 0;
+  float: left;
+  width: 310px;
+  z-index: 1;
+}
+
+.page-images .grid-9.region-content ,
+.page-locations .grid-9.region-content ,
+.page-adminunits .grid-9.region-content ,
+.page-sitereports .grid-9.region-content ,
+.page-actionitems .grid-9.region-content ,
+.page-fieldtrips .grid-9.region-content ,
+.page-statistics .grid-9.region-content ,
+.page-users .grid-9.region-content {
+  float: left;
+  width: 100%;
+  margin-right: 0;
+  margin-left: -310px
+}
+
+.page-images .grid-9.region-content .region-content-inner ,
+.page-locations .grid-9.region-content .region-content-inner ,
+.page-adminunits .grid-9.region-content .region-content-inner ,
+.page-sitereports .grid-9.region-content .region-content-inner ,
+.page-actionitems .grid-9.region-content .region-content-inner ,
+.page-fieldtrips .grid-9.region-content .region-content-inner ,
+.page-statistics .grid-9.region-content .region-content-inner ,
+.page-users .grid-9.region-content .region-content-inner {
+  margin-left: 310px;
+}
+
+}
+
+.block-without-title h2.views-field-questionnaire-answer-question {
+  display: none;
+}
+
+
+/*============================== summary icons ==============================*/
+
+.page-node .field-label ,
+.node-place .field-label ,
+.node-ftritem .field-label ,
+.node-fieldtrip .field-label ,
+.node-actionitem .field-label {
+  padding-left: 20px;
+  background-size: auto 14px;
+  background-repeat: no-repeat;
+  background-position: left top;
+
+  color: transparent;
+  width: 20px;
+  height: 21px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.node-ftritem .field ,
+.node-fieldtrip .field {
+  padding-bottom: 5px;
+}
+
+.field-name-field-ftritem-place .field-label {
+  background-image: url(../images/summary-icon-location.png);
+}
+
+.field-name-taxonomy-vocabulary-1 .field-label {
+  background-image: url(../images/summary-icon-placetype.png);
+}
+
+.field-name-field-ftritem-field-trip .field-label {
+  background-image: url(../images/summary-icon-report-fieldtrip.png);
+}
+
+.field-name-taxonomy-vocabulary-7 .field-label ,
+.field-name-field-actionitem-ftreportitem .field-label {
+  background-image: url(../images/summary-icon-report-sitevisit.png);
+}
+
+.field-name-field-ftritem-status .field-label ,
+.field-name-field-fieldtrip-status .field-label {
+  background-image: url(../images/summary-icon-progress.png);
+}
+
+.field-name-field-actionitem-due-date .field-label ,
+.field-name-field-ftritem-date-visited .field-label ,
+.field-name-field-fieldtrip-start-end-date .field-label {
+  background-image: url(../images/summary-icon-date.png);
+}
+
+.field-name-field-fieldtrip-user .field-label {
+  background-image: url(../images/summary-icon-user.png);
+}
+
+.field-name-taxonomy-vocabulary-6.field-label-inline .field-label {
+  background-image: url(../images/summary-icon-adminunit.png);
+}
+
+.field-name-field-actionitem-resp-place .field-label {
+  background-image: url(../images/summary-icon-location.png);
+}
+
+.field-name-field-actionitem-status .field-label {
+  background-image: url(../images/summary-icon-status.png);
+}
+
+.field-name-field-actionitem-severity .field-label {
+  background-image: url(../images/summary-icon-priority.png);
+}
+
+.vocabulary-vocabulary-8 ,
+.field-name-taxonomy-vocabulary-8 .field-item {
+  display: inline-block;
+  margin-right: 2px;
+}
+
+.region-content .block-system-main {
+  margin-bottom: 10px;
+}
+
+/*.page-locations .region-content .block-system-main ,
+.page-adminunits .region-content .block-system-main ,
+.page-sitereports .region-content .block-system-main */
+
+.view-modes-default .region-content .block-system-main {
+  margin-bottom: 0;
+}
+
+.region-content .block-views.contextual-links-region {
+  padding-top: 10px;
+  border-top: thin solid #CCCCCC; 
+}
+
+.region-content .block-views.contextual-links-region .views-label {
+  font-size: 1.5em;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/*========================= Follow Up Task Section =============================*/
+
+#block-views-dvtrc-action-items-block-2 .content {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.region-preface-third .views-field-field-actionitem-responsible {
+  margin-bottom: 20px;
+}
+
+.region-preface-third .views-field-field-actionitem-responsible .field-content {
+  display: inline-block;
+}
+
+.views-label-field-actionitem-followuptask {
+  display: none;
+}
+
+/*======================= Quicktab Recent Locations ============================*/
+
+.view-dvtrc-locations {
+
+}
+
+.view-dvtrc-locations .views-field-view {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: thin solid #CCCCCC;
+}
+
+.view-dvtrc-locations .views-field-view span.views-label-view ,
+.view-dvtrc-locations .views-field-nothing-1 {
+  margin-bottom: 10px;
+  font-size: 1.5em;
+}
+
+.view-dvtrc-locations .views-field-field-ftritem-images ,
+.view-dvtrc-locations .views-field-nothing-1 .latest-report-image {
+  display: inline-block;
+}
+
+.view-dvtrc-locations .views-field-field-ftritem-images {
+  float: left;
+  margin-right: 10px;
+}
+
+.view-dvtrc-locations .views-field-field-ftritem-date-visited {
+
+}
+
+.view-dvtrc-locations .views-label-title ,
+.view-dvtrc-locations .views-label-field-ftritem-date-visited {
+  background-size: auto 14px;
+  background-repeat: no-repeat;
+  background-position: left 50%;
+  width: 20px;
+  height: 20px;
+  color: transparent;
+  overflow: hidden;
+  display: inline-block;
+  float: left;
+}
+
+.view-dvtrc-locations .views-label-title {
+  background-image: url(../images/summary-icon-report-sitevisit.png);
+}
+
+.view-dvtrc-locations .views-label-field-ftritem-date-visited {
+  background-image: url(../images/summary-icon-date.png);
+}
+
+.view-dvtrc-locations .views-field-field-ftritem-date-visited .field-content {
+  display: inline-block;
+}
+
+.view-dvtrc-locations .views-label-field-ftritem-public-summary {
+  display: none;
+}
+
+.view-dvtrc-locations .views-field .views-field-field-ftritem-public-summary {
+  margin-top: 10px;
+}
+
+.view-dvtrc-locations .views-field-nothing {
+  clear: both;
+  margin-top: 20px;
+}
+
+.views-field-taxonomy-vocabulary-1 .views-label-taxonomy-vocabulary-1 ,
+.views-field-taxonomy-vocabulary-1 .field-content {
+  display: inline-block;
+}
+
+.view-dvtrc-locations a {
+  display: inline-block;
+}
+
+.view-dvtrc-locations a .dv-seeall {
+  color: #FFFFFF;
+  background-color: #777777;
+  border-radius: 2px;
+  display: inline-block;
+  padding: 8px 10px;
+}
+
+.view-dvtrc-locations a:hover .dv-seeall {
+  background-color: #555555;
+}
+
+/*.view-dvtrc-locations .views-row-1 > div.views-field-title > .field-content {
+  padding-left: 20px;
+  background: url(../images/summary-icon-location.png) no-repeat 0 50%;
+  background-size: auto 14px;
+}*/
+
+.quicktabs-tabpage .item-list ul li ,
+.quicktabs-tabpage ul.links {
+  margin: 0px;
+  padding: 0px;
+}
+
+.quicktabs-tabpage ul.links li {
+  list-style-image: url(../images/bullet.png);
+  list-style-position: inside;
+  margin: 0px;
+  padding: 0px;
+  padding-bottom: 5px;
+}
+
+.quicktabs-tabpage ul.links li.level-1 ,
+.quicktabs-tabpage ul.links li.level-2 ,
+.quicktabs-tabpage ul.links li.level-3 ,
+.quicktabs-tabpage ul.links li.level-4 {
+  list-style: none;
+  padding: 0px;
+  padding-top: 10px;
+  margin-bottom: 10px;
+}
+
+.quicktabs-tabpage ul.links li.level-1 {
+  border-top: thin solid #DDDDDD;
+}
+
+li.level-1 ul.links {
+  padding-left: 20px;
+}
+
+li.level-2 ul.links {
+  padding-left: 40px;
+}
+
+li.level-3 ul.links {
+  padding-left: 620px;
+}
+
+li.level-4 ul.links {
+  padding-left: 80px;
+}
+
+.quicktabs-tabpage ul.links li.devtrac7-progress-field-style-button ,
+.quicktabs-tabpage ul.links li.ctools-use-modal {
+  margin-bottom: 10px;
+  list-style: none;
+  display: inline-block;
+}
+
+.quicktabs-tabpage li.devtrac7-progress-field-style-button a ,
+.quicktabs-tabpage ul.links li.ctools-use-modal a.ctools-use-modal {
+  color: #FFFFFF;
+  background-color: #777777;
+  border-radius: 2px;
+  display: inline-block;
+  padding: 5px 10px;
+  margin-right: 10px;
+}
+
+.quicktabs-tabpage li.devtrac7-progress-field-style-button a:hover ,
+.quicktabs-tabpage ul.links li.ctools-use-modal a.ctools-use-modal:hover {
+  background-color: #333333;
+  text-decoration: none;
+}
+
+
+/*============================== image gallary ================================*/
+
+.region-postscript-second {
+  background-color: #555555;
+  color: #FFFFFF;
+}
+
+.region-postscript-second .item-list ul {
+  margin: 15px 14px;
+}
+
+.region-postscript-second .item-list ul li {
+  margin: 0px 5px;
+  display: inline-block;
+  position: relative;
+}
+
+.region-postscript-second .item-list ul li.first {
+  margin-left: 0px;
+}
+
+.region-postscript-second .item-list ul li.last {
+  margin-right: 0px;
+}
+
+.region-postscript-second .item-list ul li img.adaptive-image {
+  width: 185px;
+}
+
+.views-field-field-ftritem-images-3 {
+  position: absolute;
+  left: 5px;
+  bottom: 10px;
+}
+
+.views-field-field-ftritem-images-3 ,
+.views-field-field-ftritem-images-3 a {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+
+.views-field-field-ftritem-images-3 a {
+  background: rgba(51, 51, 51, 0.7) url(../images/gallery-icon-download.png) no-repeat 50% 50%;
+  background-size: 16px 16px;
+}
+
+.views-field-field-ftritem-images-3 a:hover {
+  background-color: #111111;
+}
+
+.views-field-field-ftritem-images-3 img {
+  display: none;
+}
+
+.views-field-field-ftritem-images-1 ,
+.views-field-field-ftritem-images-2 {
+  display: none;
+}
+
+/*============================= Normal Pager ===============================*/
+
+.item-list ul.pager {
+  overflow: hidden;
+  width: 100%;
+  height: 28px;
+  border: none;
+  background-color: #DDDDDD;
+  border-radius: 0;
+}
+
+.item-list ul.pager li.pager-current {
+  position: static;
+  width: 100%;
+  height: 28px;
+  padding: 7px 0;
+  text-align: center;
+  font-weight: normal;
+  font-family: inherit;
+  background: none;
+  color: #333333;
+}
+
+.item-list ul.pager li.pager-first ,
+.item-list ul.pager li.pager-previous ,
+.item-list ul.pager li.pager-next ,
+.item-list ul.pager li.pager-last {
+  position: absolute;
+  height: 28px;
+  top: 0;
+  border: none;
+}
+
+.item-list ul.pager li.pager-first ,
+.item-list ul.pager li.pager-previous {
+  position: absolute;
+  left: 0
+}
+
+.item-list ul.pager li.pager-next ,
+.item-list ul.pager li.pager-last {
+  position: absolute;
+  right: 0;
+}
+
+.item-list ul.pager li.pager-first a ,
+.item-list ul.pager li.pager-previous a ,
+.item-list ul.pager li.pager-next a ,
+.item-list ul.pager li.pager-last a {
+  display: inline-block;
+  background: #555555;
+  color: #FFFFFF;
+  padding: 7px;
+  font-weight: normal;
+  font-family: inherit;
+  text-transform: capitalize;
+  text-decoration: none;
+  white-space: nowrap;
+  width: auto;
+}
+
+.item-list ul.pager li a:hover {
+  background: #333333;
+}
+
+.item-list ul.pager li a > div {
+  display: none;
+}
+
+/*========================== Normal Pager with pages ============================*/
+
+.media-browser-tab .item-list ul.pager {
+  width: 90%;
+  padding-left: 10%;
+}
+
+.media-browser-tab ul.pager li.pager-current {
+  height: auto;
+  width: 28px;
+  padding: 7px 0;
+}
+
+.media-browser-tab ul.pager li.pager-item {
+  height: 28px;
+  padding: 0;
+}
+
+.media-browser-tab ul.pager li.pager-item a {
+  width: 28px;
+  height: auto;
+  padding: 7px 0;
+  text-align: center;
+  font-weight: normal;
+  font-family: inherit;
+  background: none;
+  display: inline-block;
+}
+
+.media-browser-tab .item-list ul.pager li a:hover {
+  color: #FFFFFF;
+  background: #333333;
+}
+
+/*========================== Image Gallery Pager ============================*/
+
+.region-postscript-second .item-list .pager {
+  position: static;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.region-postscript-second .item-list .pager li.pager-previous ,
+.region-postscript-second .item-list .pager li.pager-current ,
+.region-postscript-second .item-list .pager li.pager-next {
+  position: static;
+  margin: 0;
+  border: none;
+}
+
+.region-postscript-second .item-list .pager li.pager-previous ,
+.region-postscript-second .item-list .pager li.pager-next {
+  position: absolute;
+  top: 65px;
+  width: 20px;
+  height: 60px;
+}
+
+.region-postscript-second .item-list .pager li.pager-previous a ,
+.region-postscript-second .item-list .pager li.pager-next a {
+  width: 20px;
+  height: 60px;
+  border-radius: 0;
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.3);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  color: transparent;
+  transition: background-color 0.3s ease;
+  -webkit-transition: background-color 0.3s ease;
+  -moz-transition: background-color 0.3s ease;
+  -o-transition: background-color 0.3s ease;
+}
+
+.region-postscript-second .item-list .pager li.pager-previous a:hover ,
+.region-postscript-second .item-list .pager li.pager-next a:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.region-postscript-second .item-list .pager li.pager-previous {
+  left: 0px;
+}
+
+.region-postscript-second .item-list .pager li.pager-next {
+  right: 0px;
+}
+
+.region-postscript-second .item-list .pager li.pager-previous a:hover ,
+.region-postscript-second .item-list .pager li.pager-previous a {
+  background-image: url(../images/pager-icon-left.png);
+}
+
+.region-postscript-second .item-list .pager li.pager-next a:hover ,
+.region-postscript-second .item-list .pager li.pager-next a {
+  background-image: url(../images/pager-icon-right.png);
+}
+
+.region-postscript-second .item-list .pager li.pager-current {
+  position: static;
+  text-align: center;
+  background: transparent;
+  padding: 0;
+  padding-bottom: 10px;
+  width: 100%;
+  font-weight: normal;
+  font-family: inherit;
+  color: #FFFFFF;
+}
+
+/*================================ colorBox =================================*/
+
+div#cboxLoadedContent {
+  border-bottom: 3px solid #EA0001;
+}
+
+#cboxCurrent {
+  bottom: -31px;
+}
+
+#cboxNext ,
+#cboxPrevious {
+  bottom: -27px;
+}
+
+button#cboxNext:focus ,
+button#cboxPrevious:focus ,
+button#cboxNext:active ,
+button#cboxPrevious:active {
+-moz-box-shadow: none;
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+/*================================ list-page =================================*/
+
+article.comment {
+  width: 100%;
+  overflow: hidden;
+  border-top: thin solid #CCCCCC;
+  padding-top: 10px;
+  padding-bottom: 5px;
+}
+
+.indented {
+  margin-right: 30px;
+}
+
+.indented article.comment {
+  padding: 10px;
+  background-color: #EBEBEB;
+  margin: 5px 10px 10px 10px;
+  border: none;
+}
+
+article.comment header {
+  display: none;
+}
+
+article.comment .user-picture {
+  float: left;
+  margin-right: 10px;
+}
+
+article.comment .user-picture ,
+article.comment .user-picture a {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  background-color: #CCCCCC;
+  display: inline-block;
+}
+
+article.comment .user-picture a img {
+  max-width: 50px;
+  max-height: 50px;
+  display: inline-block;
+}
+
+article.comment .comment-submitted-main {
+  display: inline-block;
+  padding: 5px 0 5px 0;
+  float: left;
+  width: 100%;
+  margin-left: -70px;
+}
+
+article.comment .comment-submitted-main p {
+  margin-bottom: 5px;
+}
+
+article.comment .comment-submitted {
+  font-weight: bold;
+  margin-left: 70px;
+}
+
+article.comment .comment-submitted-main > div {
+  margin-left: 70px;
+}
+
+article.comment nav {
+  clear: both;
+  padding-top: 5px;
+  overflow: hidden;
+}
+
+article.comment nav ul {
+  float: right;
+  margin: 0;
+  margin-right: 10px;
+}
+
+.indented article.comment nav ul {
+  margin-right: 0px;
+}
+
+article.comment nav ul ,
+article.comment nav ul li ,
+article.comment nav ul li a {
+  display: inline-block;
+}
+
+article.comment nav ul li {
+  margin: 0px;
+  margin-left: 15px;
+  padding: 0px;
+}
+
+article.comment nav ul li a {
+  margin: 0px;
+  border-radius: 0px;
+  border: none;
+  background: transparent;
+  padding-left: 28px;
+  font-weight: normal;
+  text-transform: capitalize;
+  background-position: left 50%;
+  background-repeat: no-repeat;
+  background-size: auto 16px;
+  color: #777777;
+  font-size: inherit;
+}
+
+article.comment nav ul li a:hover {
+  background-position: left 50%;
+  background-repeat: no-repeat;
+  background-size: auto 18px;
+  background-color: transparent;
+  color: #A52A2A;
+  margin: 0;
+  padding-left: 28px;
+  font-size: inherit;
+}
+
+article.comment nav ul li.comment-delete a {
+  background-image: url(../images/comment-icon-delete.png);
+  background-position: 5px 50%;
+}
+
+article.comment nav ul li.comment-delete a:hover {
+  background-image: url(../images/comment-icon-delete-active.png);
+  background-position: 5px 50%;
+
+}
+
+article.comment nav ul li.comment-edit a {
+  background-image: url(../images/comment-icon-edit.png);
+}
+
+article.comment nav ul li.comment-edit a:hover {
+  background-image: url(../images/comment-icon-edit-active.png);
+
+}
+
+article.comment nav ul li.comment-reply a {
+  background-image: url(../images/comment-icon-reply.png);
+}
+
+article.comment nav ul li.comment-reply a:hover {
+  background-image: url(../images/comment-icon-reply-active.png);
+
+}
+
+article.comment nav ul li.hidden_comment_hide a {
+  background-image: url(../images/comment-icon-hide.png);
+}
+
+article.comment nav ul li.hidden_comment_hide a:hover {
+  background-image: url(../images/comment-icon-hide-active.png);
+
+}
+
+.title.comment-form {
+  border-top: thin solid #CCCCCC;
+  padding-top: 20px;
+}
+
+form.comment-form .form-item.form-type-item {
+  display: none;
+}
+
+.form-disabled {
+  display: none;
+}
+
+.zone-content .grid-8.region-preface-first .region-preface-first-inner {
+  padding: 10px 20px;
+  border: thin solid #CCCCCC;
+}
+
+.zone-content .grid-4.region-sidebar-second .region-sidebar-second-inner {
+  padding: 0;
+}
+
+.zone-content .grid-8.region-preface-first #edit-field-actionitem-status--2 ,
+.zone-content .grid-8.region-preface-first #edit-taxonomy-vocabulary-8--2 {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+/*================================ list-page =================================*/
+
+.zone-content-wrapper .grid-9.region-content .region-content-inner .view-empty p {
+  font-size: 1.1em;
+  color: #555555;
+  text-align: center;
+  width: 500px;
+  padding: 100px 20px 20px 20px;
+  margin: 100px auto 200px auto;
+  background: #CCCCCC url(../images/search-results-bg.png) no-repeat 50% 20px;
+  background-size: 70px auto;
+}
+
+
+/*================================ images-page =================================*/
+
+.masonry-item.masonry-brick .views-masonry-format-row-wrapper {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  display: inline-block;
+  width: 200px;
+  overflow: hidden;
+}
+
+.masonry-item.masonry-brick .views-field-field-file-image-title-text {
+  position: absolute;
+  bottom: 0;
+  color: #FFFFFF;
+  background-color: rgba(0,0,0,0.8);
+  width: 100%;
+  min-height: 50px;
+  display: block;
+  font-size: 0.9em;
+  opacity: 0;
+  -webkit-transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease;
+}
+
+.masonry-item.masonry-brick:hover .views-field-field-file-image-title-text {
+  opacity: 1;
+}
+
+.masonry-item.masonry-brick .views-field-field-file-image-title-text .field-content {
+    padding: 10px;
+}
+
+/*================================ statistics-page =================================*/
+
+.view-devtrac-solr-view-questions .view-grouping-header h2 {
+  margin: 0;
+}
+
+.view-devtrac-solr-view-questions .hiddentitle-done-processed {
+  display: none;
+}
+
+.view-devtrac-solr-view-questions .views-field-taxonomy-vocabulary-8 ,
+.view-devtrac-solr-view-questions .views-field-title {
+  display: inline-block;
+}
+
+/*================================ page-user =================================*/
+
+.page-user .region-content {
+  min-height: 190px;
+}
+
+.ds-1col.user-profile.view-mode-full {
+  background-color: #555555;
+  position: relative;
+  padding: 10px 10px 10px 170px;
+  margin-top: 65px;
+  min-height: 35px;
+  border-bottom: 2px solid #EA0001;
+}
+
+.ds-1col.user-profile.view-mode-full .field {
+  display: inline-block;
+  padding: 5px;
+  padding-right: 25px;
+  color: #FFFFFF;
+}
+
+.ds-1col.user-profile.view-mode-full .field .field-label {
+  font-weight: normal;
+  color: #BBBBBB;
+  padding-right: 5px;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-field-fieldtrip-button {
+  display: none;
+}
+
+.username-title-wrapper {
+  color: #333333;
+  position: absolute;
+  display: inline-block;
+  top: -40px;
+  font-size: 2.3em;
+}
+
+.ds-1col.user-profile.view-mode-full .field a {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.ds-1col.user-profile.view-mode-full .field a:hover {
+  text-decoration: none;
+}
+
+.username-title-wrapper .field .field-items {
+  margin-bottom: 0;
+  line-height: 20px;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-field-user-firstname ,
+.ds-1col.user-profile.view-mode-full .field-name-field-user-surname ,
+.ds-1col.user-profile.view-mode-full .field-name-field-user-title {
+  color: #333333;
+  padding: 0 5px;
+  float: left;
+  font-weight: normal;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-field-user-title {
+  font-size: 20px;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-field-user-title .field-label {
+  display: none;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-field-user-title .field-items {
+  border-left: thin solid #333333;
+  padding-left: 15px;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-ds-user-picture {
+  position: absolute;
+  left: 10px;
+  top: -60px;
+  background: #FFFFFF;
+  padding: 3px;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-ds-user-picture .field-items {
+  background-color: #EEEEEE;
+  border: 5px solid #555555;
+  border-radius: 5px;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-ds-user-picture .field-items img {
+  width: 130px;
+  height: auto;
+  margin: 0;
+}
+
+.ds-1col.user-profile.view-mode-full .field-name-field-term-icon {
+  padding: 0 1px;
+}
+
+.page-user .region-sidebar-first {
+  background: transparent;
+  color: inherit;
+}
+
+.page-user .quicktabs-tabpage table .views-align-right {
+  text-align: left;
+}
+
+/*================================= Custom Quicktab ================================*/
+
+.grid-8 .quicktabs-wrapper .quicktabs_main .quicktabs-tabpage {
+  margin: 10px;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs {
+  float: none;
+  margin-left: 10px;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li {
+  margin-right: 0px;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li.active a ,
+.quicktabs-wrapper ul.quicktabs-tabs li.active a:hover {
+  background-color: #FFFFFF;
+  border-bottom: thin solid #FFFFFF;
+}
+
+.page-user .view-dvtrc-field-trip .ctools-wrapper {
+  min-width: 100px;
+}
+
+
+/*=====================================================================================
+ * Footer Styles
+ * ==================================================================================*/
+
+.zone-footer .region-footer-first ,
+.zone-footer .region-footer-second {
+  margin: 0;
+  width: 50%;
+  display: inline-block;
+  float: left;
+}
+
+.zone-footer .region-inner {
+  padding: 0px 10px;
+}
+
+.zone-footer .region-footer-second .menu {
+  float: right;
+}
+
+.zone-footer .region-footer-second .menu li {
+  list-style: none;
+  display: inline-block;
+}
+
+/*=====================================================================================
+ * Crazy Table Styles
+ * ==================================================================================*/
+
+.view-devtrac-solr-view-questions .view-grouping-content table tbody {
+  border: none;
+}
+
+.view-devtrac-solr-view-questions .view-grouping-content table tr:hover {
+  color: #333333;
+}
+
+.view-devtrac-solr-view-questions .view-grouping-content table tr:hover a {
+  color: #A52A2A;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user {
+  margin-top: 10px;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user a:link ,
+.block-views-dvtrc-user-block-3 .view-dvtrc-user a:visited ,
+.block-views-dvtrc-user-block-3 .view-dvtrc-user tr:hover a:link ,
+.block-views-dvtrc-user-block-3 .view-dvtrc-user tr:hover a:visited {
+  color: #333333;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table {
+  margin-bottom: 10px;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table thead ,
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody {
+  border: none;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr {
+  padding: 0;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr td.views-field-name {
+  padding-left: 0;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr:hover {
+  background: transparent;
+  color: #333333;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr td {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr .views-field-title {
+  text-align: center;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr .views-field-title a {
+  padding: 2px 5px;
+  background-color: #777777;
+  color: #FFFFFF;
+  min-width: 20px;
+  display: inline-block;
+  float: right;
+}
+
+.block-views-dvtrc-user-block-3 .view-dvtrc-user table tbody tr:hover .views-field-title a {
+  background-color: #333333;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+/*=====================================================================================
+ * Ctools Buttons
+ * ==================================================================================*/
+
+.ctools-button {
+  background-color: #555555;
+  border: none;
+}
+
+.grid-4 .ctools-button {
+  right: 20px;
+  position: absolute;
+}
+
+.ctools-button.ctools-button-processed ul {
+  margin: 0;
+}
+
+
+td .ctools-wrapper {
+  min-width: 60px;
+  min-height: 27px;
+  position: relative;
+}
+
+#quicktabs-tabpage-user_profile-0 .view-dvtrc-action-items td .ctools-wrapper {
+  min-width: 126px;
+}
+
+#quicktabs-tabpage-user_profile-2 .view-dvtrc-action-items td .ctools-wrapper {
+  min-width: 102px;
+}
+
+td .ctools-wrapper .ctools-button {
+  position: absolute;
+  right: 0;
+}
+
+td .ctools-wrapper .ctools-button li {
+  /*width: 106px;*/
+}
+
+.ctools-button-processed .ctools-content {
+  padding: 0px;
+}
+
+.node .ctools-button ul {
+  padding: 0px;
+  margin: 0px;
+}
+
+.ctools-button li {
+  padding: 0px;
+}
+
+.ctools-link a:link {
+  color: #FFFFFF;
+}
+
+.ctools-link:hover {
+  background-color: #333333;
+  height: 27px;
+}
+
+.ctools-button li a:link ,
+.ctools-button li a:visited ,
+tr:hover .ctools-button li a:link ,
+tr:hover .ctools-button li a:visited {
+  color: #FFFFFF;
+  padding: 5px 10px;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.ctools-button li a:hover ,
+.ctools-button td li a:hover {
+  background-color: #333333;
+  text-decoration: none;
+}
+
+.ctools-button.ctools-button-processed ul li a ,
+tr:hover .ctools-button.ctools-button-processed ul li a ,
+tr:hover .ctools-button.ctools-button-processed ul li a:hover {
+  /*display: block;*/
+  /*text-align: center;*/
+}
+
+
+.olControlMaptext .ctools-wrapper {
+  display: inline-block;
+  float: right;
+  position: relative;
+}
+
+.olControlMaptext .ctools-button {
+  /*background: #333333;*/
+  position: absolute;
+  top: 0;
+  right: 0;
+  /*border: thin solid #FFFFFF;*/
+}
+
+.olControlMaptext .ctools-wrapper li {
+  min-width: 56px;
+  list-style: none;
+}
+
+.olControlMaptext .ctools-button li a:hover {
+  background-color: #000000;
+}
+
+.olControlMaptext .ctools-link:hover {
+  background-color: #000000;
+  height: 29px;
+}
+
+/*=====================================================================================
+ * App List Styling
+ * ==================================================================================*/
+
+/*.vertical-tabs fieldset.vertical-tabs-pane*/
+#apps-list .vertical-tabs fieldset.vertical-tabs-pane {
+  padding: 0;
+}
+
+#apps-list .vertical-tabs-panes ul {
+  overflow: hidden;
+  width: 100%;
+}
+
+#apps-list .vertical-tabs-panes ul li {
+  /*width: 33.3%;*/
+  width: 50%;
+  max-width: initial;
+  margin: 0;
+  padding: 0;
+  border: none;
+  height: auto;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper {
+  margin: 10px;
+  padding: 10px;
+  border: thin solid #CCCCCC;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-logo {
+  width: 30%;
+  height: 112px;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-logo a {
+  border: thin solid #CCCCCC;
+  display: block;
+  height: inherit;
+  padding: 5px;
+  text-align: center;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser {
+  width: 70%;
+  padding: 0;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser h2 ,
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser .app-status ,
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser .app-rating ,
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser .app-action {
+  padding: 2px 10px;
+  font-family: inherit;
+  color: inherit;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser h2 {
+  width: auto;
+  margin: 0;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser h2 a {
+  font-family: inherit;
+  font-size: 1.3em;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser .app-action {
+  background: none;
+}
+
+#apps-list .vertical-tabs-panes ul li .app-teaser-wrapper .app-teaser .app-action a {
+  color: #FFFFFF;
+  margin: 0;
+}
+
+
+
+
+
+
+
+/*=====================================================================================
+ * Progress Bar
+ * ==================================================================================*/
+
+ .ui-widget-content {
+  border: thin solid #555555;
+  background-image: none;
+ }
+
+.devtrac7-progress-bar {
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  border-radius: 0;
+}
+
+.devtrac7progressbar {
+  height: 10px;
+  border-radius: 0;
+}
+
+.devtrac7-progress-bar .devtrac7progressbar-total {
+  position: relative;
+  top: 0px;
+  background: #FFFFFF;
+  border-radius: 0;
+}
+
+.devtrac7-progress-bar .devtrac7progressbar-required {
+  position: relative;
+  top: -12px;
+  border-radius: 0;
+}
+
+.devtrac7-progress-bar .devtrac7progressbar-req-of-tot {
+  position: relative;
+  top: -24px;
+  border-radius: 0;
+}
+
+.devtrac7-progress-bar .devtrac7progressbar-optional-descr ,
+.devtrac7-progress-bar .devtrac7progressbar-required-descr {
+  position: absolute;
+  top: 15px;
+  text-transform: capitalize;
+  color: inherit;
+  padding-left: 17px;
+  background-position: left 3px;
+  background-repeat: no-repeat;
+  background-size: 12px;
+}
+
+.devtrac7-progress-bar .devtrac7progressbar-optional-descr {
+  left: 100px;
+  background-image: url(../images/progressbar-icon-optional.png);
+}
+
+.devtrac7-progress-bar .devtrac7progressbar-required-descr {
+  left: 0px;  
+  background-image: url(../images/progressbar-icon-required.png);
+}
+
+
+/*======================== Table Progress Bar Styles ========================*/
+
+table .devtrac7progressbar-total {
+  top: 0px;
+}
+
+table .devtrac7progressbar-required {
+  top: -12px;
+}
+
+table .devtrac7progressbar-req-of-tot {
+  top: -24px;
+}
+
+table .devtrac7-progress-bar {
+  margin-top: 0px;
+  height: 13px;
+}
+
+table .devtrac7progressbar-optional-descr , 
+table .devtrac7progressbar-required-descr {
+  display: none;
+}
+
+table .devtrac7progressbar-req-of-tot .ui-widget-header {
+  border-radius: 0;
+}
+
+/*=====================================================================================
+ * Fieldtrip Progress Quicktab
+ * ==================================================================================*/
+
+/*html body .devtrac7-progress-field-required a {
+  color: #ff0000;
+}
+
+html body .devtrac7-progress-field-optional a {
+  color: #ffb050;    
+}*/
+
+/*html body .devtrac7-progress-field-required a {
+  background-image: url(../images/summary-icon-important.png);
+  background-repeat: no-repeat;
+  background-size: auto 13px;
+  background-position: 100% 50%;
+  padding-right: 20px;
+}*/
+
+/*=====================================================================================
+ * Block Facetapi Styles
+ * ==================================================================================*/
+
+div .collapsiblock a ,
+div .collapsiblockCollapsed a {
+  background-image: none;
+  color: inherit !important;
+}
+
+.block-facetapi.contextual-links-region {}
+
+.block-facetapi.contextual-links-region a {
+  color: #FFFFFF;
+  display: block;
+}
+
+.block-facetapi.contextual-links-region a:hover {
+  text-decoration: none;
+}
+
+.block-current-search .current-search-item .item-list {
+  display: inline-block;
+}
+
+.block-current-search .current-search-item li {
+  display: inline-block;
+  margin: 0px 0px 5px 5px;
+  font-size: 0.9em;
+  border: none;
+}
+
+.block-current-search .current-search-item li a {
+  display: inline-block;
+  padding: 5px 10px;
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.block-current-search .current-search-item li a:hover {
+  padding: 4px 9px;
+  border: thin solid #999999;
+  text-decoration: none;
+}
+
+.block-facetapi {
+  margin: 0px 0px 5px 0px;
+}
+
+/*.block-facetapi form {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.block-facetapi form input[type='textfield'] {
+  margin: 0;
+  padding: 5px 1px;
+  float: left;
+}
+
+.block-facetapi #edit-actions {
+  float: left;
+  margin-left: 5px;
+}
+
+.block-facetapi form input[type='submit'] {
+  margin: 0;
+}
+
+*/
+
+.block-facetapi form {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border: 2px solid #333333;
+  background: #FFFFFF;
+  overflow: hidden;
+  height: 25px;
+}
+
+.block-facetapi form input[type='textfield'] {
+  display: inline-block;
+  padding: 5px;
+  width: 80%;
+  margin: 0;
+  border: none;
+}
+
+.block-facetapi form input[type='submit'] {
+  margin: 0;
+  display: inline-block;
+  float: right;
+  height: 26px;
+  width: 30px;
+  background: #151515 url(../images/search-icon.png) no-repeat 50% 50%;
+  background-size: 16px 16px;
+  color: transparent;
+  border-radius: 0;
+}
+
+.block-facetapi form input[type='submit']:hover {
+  background: #151515 url(../images/search-icon.png) no-repeat 50% 50%;
+}
+/*
+
+
+*/
+.block-facetapi h2.block-title {
+  font-weight: normal;
+  background: rgba(0, 0, 0, 0.5) url(../images/collapse-icon.png) no-repeat 95% 50%;
+  padding: 5px 5px 5px 15px;
+  border-top: thin solid #999999;
+  border-bottom: thin solid #999999;
+  font-size: 1.0em;
+  color: #EEEEEE;
+}
+
+.block-facetapi h2.block-title.collapsiblockCollapsed {
+  background: rgba(0, 0, 0, 0.5) url(../images/collapse-icon-2.png) no-repeat 95% 50%;
+}
+
+.block-facetapi ul ,
+.block-facetapi ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.block-facetapi ul li li {
+  padding-left: 10px;
+}
+
+.block-facetapi ul li {
+  list-style: none;
+  border-bottom: thin solid #999999;
+  font-size: 0.9em;
+}
+
+.block-facetapi ul li a {
+  padding: 5px 5px 5px 15px;
+  color: inherit;
+  display: block;
+}
+
+.block-facetapi ul li a:hover {
+  background: rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.block-facetapi ul li a span.facetapi-search-api-swatches-text {
+  padding-left: 5px;
+}
+
+
+
+/*=====================================================================================
+ * Extruderolblockpanel Styles
+ * ==================================================================================*/
+
+#Extruderolblockpanel.olControlblockpanel.extruder {
+  background: transparent;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.ext_wrapper {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.extruder.left .content {
+  border: none;
+  background: transparent;
+  width: auto !important;
+}
+
+.extruder .text {
+  background: transparent;
+  height: 95% !important;
+  font: inherit;
+  color: inherit;
+  padding: 10px;
+  border: none;
+  text-shadow: none;
+}
+
+#Extruderolblockpanel .flapLabel {
+  display: none;
+}
+
+#Extruderolblockpanel.olControlblockpanel.extruder .flap {
+  top: 50px;
+  padding: 0;
+  margin: 0;
+  background: url(../images/flapTabSprite.png) no-repeat;
+  background-position: 0 -60px;
+  width: 30px;
+  height: 60px;
+  position: absolute;
+  right: -30px;
+  border-radius: 0;
+  box-shadow: none;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+#Extruderolblockpanel.olControlblockpanel.extruder .flap:hover {
+  cursor: pointer;
+}
+
+#Extruderolblockpanel.olControlblockpanel.extruder.isOpened .flap {
+  background-position: 0 0;
+}
+
+/*=====================================================================================
+ * General Openlayers Styles
+ * ==================================================================================*/
+
+.olControlNoSelect .olButton:hover {
+  cursor: pointer;
+}
+
+/*=====================================================================================
+ * Openlayers Zoom Panel Styles
+ * ==================================================================================*/
+
+.openlayers-views-map .olControlZoomPanel {
+  left: auto !important;
+  right: 20px;
+  top: 20px;
+  width: 40px;
+  height: 75px;
+}
+
+.olControlZoomToMaxExtentItemInactive {
+  display: none;
+}
+
+.olControlZoomPanel .olControlZoomInItemInactive ,
+.olControlZoomPanel .olControlZoomOutItemInactive {
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+  background: url(../images/map-controls-sprite.png) no-repeat !important;
+}
+
+.olControlZoomPanel .olControlZoomInItemInactive {
+  background-position: 0 0 !important;
+}
+
+.olControlZoomPanel .olControlZoomOutItemInactive {
+  background-position: 0 -30px !important;
+}
+
+/*===========================================================================*\
+  Openlayers Control Panel Styles
+\*===========================================================================*/
+
+.olControlPanel.olControlNoSelect {
+  width: 40px;
+  background: none;
+}
+
+.olControlPanel.olControlNoSelect.top.right {
+  top: 120px;
+  right: 20px;
+}
+
+.olControlPanel.olControlNoSelect .olControlMaptextItemActive.olButton ,
+.olControlPanel.olControlNoSelect .olControlMaptextItemInactive.olButton {
+  width: 30px;
+  height: 30px;
+  background: none;
+  background: url(../images/map-controls-icon-sprite.png) no-repeat;
+  border-radius: 0;
+  border: none;
+}
+
+.olControlPanel.olControlNoSelect .olButton[original-title="Layers"] {
+  background-position: 0 -30px !important;
+}
+
+.olControlPanel.olControlNoSelect .olButton[original-title='Search Map'] {
+  background-position: 0 0px !important;
+}
+
+.olControlPanel.olControlNoSelect .olButton[original-title='Site reports'] ,
+.olControlPanel.olControlNoSelect .olButton[original-title='Admin Units'] ,
+.olControlPanel.olControlNoSelect .olButton[original-title='Locations'] ,
+.olControlPanel.olControlNoSelect .olButton[original-title='About DevTrac'] {
+  background-position: 0 -120px !important;
+}
+
+.olControlPanel.olControlNoSelect .olButton[original-title='Legend'] {
+  background-position: 0 -60px !important;
+}
+
+.olControlPanel.olControlNoSelect .olControlMaptextItemInactive.olButton:hover {
+  border: none;
+}
+
+.olControlScaleLine.olControlNoSelect {
+  top: auto;
+  bottom: 40px;
+  right: 20px;
+}
+.olControlPermalinkPlus.olControlNoSelect {
+  margin: 5px;
+  width: 30px;
+  height: 30px;
+  background: url(../images/link-icon.png) no-repeat 50% 50%;
+  background-size: 30px 30px;
+  right: 20px;
+  top: 280px;
+}
+
+.olControlPermalinkPlus.olControlNoSelect a {
+  width: 30px;
+  height: 30px;
+  color: transparent;
+  display: block;
+}
+
+div.olControlAttribution {
+  right: 0px;
+  bottom: 0px;
+  font-size: 0.7em;
+  padding: 0px 8px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333333;
+}
+
+div.olControlAttribution a:link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/*===========================================================================*\
+  Openlayers Control Control Maptext Styles
+\*===========================================================================*/
+
+.olMapViewport .olControlMaptext {
+  /*background: none;*/
+  /*background: url(../images/alpha-black-bg.png);*/
+  background: rgba(0, 0, 0, 0.8);
+  color: #FFFFFF;
+  font-family: sans-serif;
+  font-size: 0.9em;
+  border-radius: 0;
+  width: 300px;
+  z-index: 1020 !important;
+}
+
+.olMapViewport .olControlMaptext.bottom.right {
+  bottom: auto;
+  top: 25px;
+  right: 70px;
+  height: auto;
+  max-height: 75%;
+}
+
+.olMapViewport .olControlMaptext h2.popup-title {
+  border-bottom: none;
+  background: none;
+  /*background: #000;*/
+  /*opacity: 0.8;*/
+  background: rgba(0, 0, 0, 0.8);
+  font-size: 1.0em;
+  margin: 0px;
+  padding: 5px;
+  padding-right: 20px;
+  display: block;
+  text-transform: uppercase;
+}
+
+.olMapViewport .olControlMaptext a ,
+.olMapViewport .olControlMaptext p {
+  color: #FFFFFF;
+}
+
+.olMapViewport .olControlMaptext .olPopupCloseBox {
+  background: url(../images/closer.png) no-repeat left bottom;
+  margin-top: 5px;
+  margin-right: 5px;
+}
+
+/*=================================== Popup =================================*/
+
+.openlayers-popupbox h2.popup-title a:link ,
+.openlayers-popupbox h2.popup-title a:visited {
+  color: #FFFFFF;
+}
+
+.openlayers-popupbox h2.popup-title a:hover {
+  text-decoration: underline;
+}
+
+.olMapViewport .olControlMaptext .node-ftritem.node-unpublished.contextual-links-region.view-mode-map_popup {
+  background: none;
+}
+
+
+.olMapViewport .olControlMaptext .field {
+  padding: 5px 10px;
+}
+
+.olMapViewport .olControlMaptext .block-pane .block-inner {
+  padding: 10px;
+}
+
+.olMapViewport .olControlMaptext .field-name-field-wikipedia.field-type-link-field.field-label-hidden a {
+  background: url(../images/wiki-icon.png) no-repeat 0px 50%;
+  background-size: 16px auto;
+  padding-left: 21px;
+  font-style: italic;
+}
+
+.olMapViewport .olControlMaptext .field-name-field-ftritem-images.field-type-image.field-label-hidden {
+  float: left;
+}
+
+.olMapViewport .olControlMaptext .field-name-field-ftritem-images.field-type-image.field-label-hidden .field-items {
+  margin-bottom: 0;
+}
+
+.olMapViewport .olControlMaptext .field-name-field-ftritem-images.field-type-image.field-label-hidden img {
+  width: 100px;
+  height: auto;
+}
+
+.olMapViewport .olControlMaptext #olplusmaptextpopup_content .taxonomy-term-description p {
+  margin-bottom: 5px;
+}
+
+.olMapViewport .olControlMaptext .field-name-field-ftritem-date-visited.field-type-date.field-label-above {
+  font-style: italic;
+}
+
+.olMapViewport .olControlMaptext .field-name-node-link.field-type-ds.field-label-hidden .field-items {
+  margin-bottom: 0;
+}
+
+.olMapViewport .olControlMaptext .field-name-more-link.field-type-ds.field-label-hidden ,
+.olMapViewport .olControlMaptext .field-name-node-link.field-type-ds.field-label-hidden {
+  background: url(../images/popup-read-more.png) no-repeat 130px 0px;
+  text-align: right;
+  padding: 5px 10px;
+  clear: both;
+}
+
+.openlayers-geosearch-popup.openlayers-geosearch-popup-name {
+  color: #FFFFFF;
+}
+
+/*=============================== blockswitcher =============================*/
+
+.olMapViewport .olControlMaptext #block-openlayers-plus-blockswitcher {
+  background: none;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher {
+  background: none;
+  padding: 5px 10px;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher h2.layers-title {
+  color: #FFFFFF !important;
+  font-size: 1.2em !important;
+  margin-bottom: 5px;
+  font-weight: normal;
+}
+
+html .olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.base .form-option.radio {
+  padding: 5px 0 5px 40px;
+  height: 30px;
+  margin: 2px 0;
+  background-position: 5px 5px;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.base .form-option.radio label {
+  line-height: 28px;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.base .form-option.radio:hover {
+  cursor: pointer;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.base .form-option.radio.osm_cycle {
+  background: url(../images/map-layer-cycling-map.png) no-repeat 5px 50%;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.base .form-option.radio.osm_mapnik {
+  background: url(../images/map-layer-osm-mapnik.png) no-repeat 5px 50%;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.base .form-option.radio.activated {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.data {
+  padding-left: 5px;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.data .form-option.checkbox {
+  margin: 10px 0;
+  padding: 0;
+}
+
+.olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.data .form-option.checkbox input.form-checkbox {
+  margin-right: 5px;
+}
+
+/*================================= about devtrac ===============================*/
+#pane_front_about_information_content {
+  font-size: 0.95em;
+}
+
+#pane_front_about_information_content ul {
+  margin: 0 0 10px 0;
+}
+
+#pane_front_about_information_content ul li {
+  list-style: none;
+  font-size: 1.2em;
+  padding: 5px 5px 5px 30px;
+}
+
+#pane_front_about_information_content ul li.health {
+  background: url('../images/about-health-icon.png') no-repeat 0% 50%;
+  background-size: 20px 20px;
+}
+
+#pane_front_about_information_content ul li.schools {
+  background: url('../images/about-educ-icon.png') no-repeat 0% 50%;
+  background-size: 20px 20px;
+}
+
+#pane_front_about_information_content ul li.water {
+  background: url('../images/about-water-icon.png') no-repeat 0% 50%;
+  background-size: 20px 20px;
+}
+
+#block-pane-front-about-information h4 {
+  margin-bottom: 5px;
+}
+
+/*================================= legend ==================================*/
+
+#facetapi-facet-search-apidevtrac-solr-site-visits-index-devtrac7-graph-combo-2-taxonomy-vocabulary-1 li {
+  list-style:none;
+  margin: 0;
+  padding: 0;
+}
+
+#facetapi-facet-search-apidevtrac-solr-site-visits-index-devtrac7-graph-combo-2-taxonomy-vocabulary-1 li a {
+  padding: 3px 10px;
+  display: inline-block;
+}
+
+#facetapi-facet-search-apidevtrac-solr-site-visits-index-devtrac7-graph-combo-2-taxonomy-vocabulary-1 li a img {
+  margin-right: 10px;
+}
+
+/*================================= geosearch ===============================*/
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 {
+  border: 2px solid #151515;
+  margin: 5px 10px;
+  background-color: #FFFFFF;
+  border-radius: 3px;
+  width: 270px;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform {
+  border: 2px solid #151515 !important;
+  margin: 5px 10px;
+  background-color: #FFFFFF !important;
+  border-radius: 3px;
+  width: 270px;
+  position: relative;
+  margin-bottom: 40px;
+  padding: 0  !important;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-type-textfield ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 .form-type-textfield {
+  margin: 0;
+  display: inline-block;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-type-textfield {
+  padding: 0 !important;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-type-textfield .description {
+  display: none;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-type-textfield label ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 .form-type-textfield label {
+  display: none;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform input#edit-openlayers-geosearch-query-block ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 input#edit-openlayers-geosearch-query-block--2 {
+  display: inline-block !important;
+  width: 235px !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: 0 0 0 transparent !important;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform input#edit-openlayers-geosearch-button ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 input#edit-openlayers-geosearch-button--2 {
+  padding: 3px 8px !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  float: right !important;
+  height: 26px !important;
+  width: 30px !important;
+  background: #151515 url(../images/search-icon.png) no-repeat 50% 50% !important;
+  background-size: 16px 16px !important;
+  color: transparent !important;
+  border-radius: 0 !important;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform input#edit-openlayers-geosearch-button:hover ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 input#edit-openlayers-geosearch-button--2:hover {
+  padding: 3px 8px !important;
+  margin: 0 !important;
+  height: 26px !important;
+  width: 30px !important;
+  background: #151515 url(../images/search-icon.png) no-repeat 50% 50% !important;
+  color: transparent !important;
+  border-radius: 0 !important;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform div.ajax-progress.ajax-progress-throbber ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 div.ajax-progress.ajax-progress-throbber {
+  width: 30px;
+  position: absolute;
+  top: 3px;
+  right: 30px;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform div.ajax-progress.ajax-progress-throbber .message ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 div.ajax-progress.ajax-progress-throbber .message {
+  display: none;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-item-openlayers-geosearch-search-by-boundingbox ,
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform--2 .form-item-openlayers-geosearch-search-by-boundingbox {
+  position: absolute;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-item-openlayers-geosearch-search-by-boundingbox {
+  padding: 0;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.olMapViewport .olControlMaptext form#openlayers-geosearch-searchform .form-item-openlayers-geosearch-search-by-boundingbox label {
+  color: #FFFFFF;
+  font-size: 11px;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults {
+  background: none;
+  border-radius: 0;
+  border: none;
+  color: #FFFFFF;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults #openlayersgeosearchpanels {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults #openlayersgeosearchpanels > ul.ui-panels-nav {
+  padding: 0px 5px 10px 5px;
+  border-radius: 0;
+  border: none;
+  background: none;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults #openlayersgeosearchpanels > ul.ui-panels-nav > li.ui-state-default {
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: none;
+  width: 100%;
+  color: #FFFFFF;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults div.ui-panels-panel {
+  padding: 5px 5px;
+  color: #FFFFFF;
+  font-size: 0.8em;
+  margin-bottom: 5px;
+  overflow: auto;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults h2.openlayersgeosearchpanels-title {
+  font-size: 1.0em;
+  font-weight: normal;
+  height: 26px;
+  margin-bottom: 0;
+  background: #000000 url(../images/collapse-icon.png) no-repeat 95% 50%;
+  opacity: 0.8;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults li.ui-tabs-active.ui-state-active h2.openlayersgeosearchpanels-title {
+  font-size: 1.0em;
+  font-weight: normal;
+  height: 26px;
+  margin-bottom: 0;
+  background: #000000 url(../images/collapse-icon-2.png) no-repeat 95% 50%;
+  opacity: 0.8;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults h2.openlayersgeosearchpanels-title a {
+  color: #FFFFFF;
+  display: block;
+  padding: 5px;
+  float: none;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults .geosearch-tab-description {
+  float: none;
+  display: block;
+  width: 100%;
+  white-space: normal;
+  margin-bottom: 10px;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed {
+  margin-bottom: 0;
+  float: none;
+  display: block;
+  max-width: 280px;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li {
+  float: none;
+  display: block;
+  margin: 0;
+  padding: 10px 5px;
+  border-bottom: thin solid #CCCCCC;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li:hover {
+  border: none;
+  border-bottom: thin solid #CCCCCC;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li a {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li a:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li div {
+  display: block;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li a ,
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li div {
+  float: none;
+  margin: 0;
+  padding: 2px 0;
+  text-transform: capitalize;
+  max-width: 280px;
+  white-space: normal;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li a:hover {
+  text-decoration: underline;
+}
+
+
+/*====================================================================
+ *  Maintenance Page Styles
+ ====================================================================*/
+
+.maintenance-page {
+  margin: 0;
+}
+
+.maintenance-page #page li {
+  list-style-position: outside;
+}
+
+.maintenance-page #branding {
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 5px solid #EA0001;
+}
+
+.maintenance-page #branding .branding-inner {
+  width: 70%;
+  min-width: 900px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.maintenance-page #branding .logo-wrapper {
+  width: 33.3%;
+  float: left;
+  display: inline-block;
+}
+
+.maintenance-page #branding .logo-wrapper img {
+  margin: 20px;
+  height: 25px;
+}
+
+.maintenance-page #branding .page-title-wrapper {
+  width: 66.6%;
+  float: left;
+  display: inline-block;
+}
+
+.maintenance-page #branding .page-title {
+  font-weight: normal;
+  margin: 0;
+  margin-top: 20px;
+  padding: 0;
+}
+
+.maintenance-page .page-wrapper {
+  width: 70%;
+  min-width: 900px;
+  margin: 0 auto;
+}
+
+.maintenance-page #sidebar-first {
+  width: 33.3%;
+  display: inline-block;
+  float: left;
+}
+
+.maintenance-page #sidebar-first .task-list {
+  margin: 10px;
+  padding: 0;
+}
+
+.maintenance-page #sidebar-first .task-list li {
+  margin: 0;
+  padding: 10px;
+  padding-left: 40px;
+  background: url(../images/task-list-icon.png) no-repeat 5px 50%;
+  list-style: none;
+  list-style-position: inside;
+}
+
+.maintenance-page #sidebar-first .task-list li.done {
+  background: url(../images/task-list-done.png) no-repeat 5px 50%;
+  color: #44AA00;
+}
+
+.maintenance-page #sidebar-first .task-list li.active {
+  background: url(../images/task-list-active.png) no-repeat 5px 50%;
+  color: #2CA089;
+  font-weight: normal;
+}
+
+.maintenance-page #content {
+  width: 66.6%;
+  display: inline-block;
+  float: right;
+  padding-top: 10px;
+  padding-bottom: 20px;
+}
+
+.maintenance-page #content #console {
+  margin: 0 20px;
+}
+
+.maintenance-page #content #progress {
+  margin-top: 20px;
+  width: 95%;
+}
+
+.maintenance-page #content #progress .percentage {
+  float: none;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.maintenance-page #content #progress .message {
+  margin-top: 20px;
+  line-height: 25px;
+}
+
+.maintenance-page #content form input[type=submit] {
+  cursor: pointer;
+}
+
+.maintenance-page #content form .form-required {
+  color: #FF0000;
+}
+
+.maintenance-page #content form .item-list li {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.maintenance-page #content form fieldset {
+  padding: 20px 0;
+  border: none;
+}
+
+.maintenance-page #content form fieldset legend  {
+  padding: 0;
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.maintenance-page #content form fieldset legend .fieldset-legend {
+  margin: 2px;
+  font-size: 1.5em;
+}
+
+.maintenance-page #content form fieldset legend .fieldset-legend a.fieldset-title {
+  font-size: 14px;
+}
+
+.maintenance-page #content table.system-status-report {
+  margin-bottom: 20px;
+}
+
+.maintenance-page #content table.system-status-report tbody {
+  border: none;
+}
+
+.maintenance-page #content table.system-status-report tr:hover {
+  color: #333333;
+  background: transparent;
+}
+
+.maintenance-page #content table.system-status-report tr a {
+  text-decoration: underline
+}
+
+.maintenance-page #content table.system-status-report tr:hover a {
+  color: inherit;
+}
+
+.maintenance-page #content table.system-status-report tr {
+  border: thin solid #CCCCCC;
+}
+
+.maintenance-page #content table.system-status-report tr td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.maintenance-page #content table.system-status-report .error.merge-down:hover ,
+.maintenance-page #content table.system-status-report .error.merge-up:hover {
+  background: #fef5f1;
+  color: #8c2e0b;
+}
+
+.maintenance-page #content table.system-status-report .ok:hover {
+  background: #f8fff0;
+  color: #234600;
+}
+
+.maintenance-page #content form #system-date-types thead {
+  background: #777777;
+}
+
+.maintenance-page #content form #system-date-types tr {
+  border: none;
+  background-color: transparent;
+}
+
+.maintenance-page #content form #system-date-types tr:hover {
+  background: transparent;
+  color: #333333;
+}
+
+.maintenance-page #content form #system-date-types tr:hover a {
+  color: #333333 !important;
+}
+
+.maintenance-page #content form #system-date-types th {
+  font-weight: normal;
+  font-size: 1.2em;
+  border: none;
+}
+
+.maintenance-page #content form #system-date-types td {
+  padding: 10px;
+}
+
+.maintenance-page #content td.status-description {
+  line-height: normal;
+}
+
+/*====================================================================
+ *  Form Page Styles
+ * The .pageborder class is added by the devtrac_theme_page_border_context 
+ ====================================================================*/
+
+.form-required {
+  font-weight: bold;
+  font-size: 1.3em;
+  vertical-align: middle;
+}
+
+form label ,
+form .fieldset-legend ,
+.pageborder label ,
+.pageborder legend ,
+.pageborder div.field-label {
+  display: block;
+  font-weight: normal;
+  font-size: 17px;
+  background: transparent;
+}
+
+.page-import .fieldset-legend {
+  font-size: 1.5em;
+}
+
+.page-import #edit-feeds .fieldset-wrapper {
+  border: thin solid #CCCCCC;
+  border-radius: 3px;
+  padding: 20px;
+}
+
+.pageborder .user-picture {
+  display: inline-block;
+  margin-right: 20px;
+  float: left;
+}
+
+.pageborder .form-item-files-picture-upload {
+  display: inline-block;
+}
+
+.pageborder .user-picture img {
+  border: 3px solid #CCCCCC;
+  padding: 1px 5px;
+}
+
+label.option {
+  display: inline;
+  font-weight: normal;
+  font-size: inherit;
+}
+
+html.js fieldset.collapsible .fieldset-legend {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+html.js fieldset.collapsible .fieldset-legend:hover {
+  padding: 0;
+  margin: 0;
+}
+
+html.js fieldset.collapsible .fieldset-legend .fieldset-title {
+  margin: 10px 5px;
+  padding: 4px 10px;
+  display: inline-block;
+  background-color: #777777;
+  border: none;
+  border-radius: 3px;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-shadow: none;
+  transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+  font-size: 0.8em;
+}
+
+html.js fieldset.collapsible .fieldset-legend .fieldset-title:hover {
+  background-color: #333333;
+  text-decoration: none;  
+}
+
+html.js fieldset.collapsible .fieldset-legend .fieldset-title .drop-arrow {
+  background-image: url(../images/icon-collapsible-open.png);
+}
+
+html.js fieldset.collapsible.collapsed .fieldset-legend .fieldset-title .drop-arrow {
+  background-image: url(../images/icon-collapsible-close.png);
+}
+
+html.js fieldset.collapsed {
+  height: auto;
+}
+
+html.js fieldset.collapsible div.fieldset-wrapper {
+  border: thin solid #CCC;
+  padding: 20px;
+  border-radius: 3px;
+}
+
+form .field-multiple-table td.field-multiple-drag {
+  /*width: auto;*/
+}
+
+td.delta-order select.form-select {
+  padding-right: 20px;
+}
+
+.date-no-float.container-inline-date {
+  display: inline-block;
+  width: auto;
+  margin-right: 40px;
+}
+
+/*=======================================================================================*/
+
+.collapsible .fieldset-wrapper table.field-multiple-table tbody .form-wrapper tr.draggable td .form-item {
+  width: auto;
+}
+
+.draggable table tbody {
+  border: none;
+}
+
+#field-place-contact-info-und-0-field-contact-telephone-add-more-wrapper > .form-item {
+  width: auto;
+}
+
+table.tabledrag-processed thead tr {
+  /*background: #CCCCCC;*/
+}
+
+table.tabledrag-processed thead tr label {
+  color: #333333;
+}
+
+.collapsible .fieldset-wrapper .fieldset-wrapper {
+  background: #EEEEEE;
+}
+
+.collapsible .fieldset-wrapper .fieldset-wrapper table ,
+.collapsible .fieldset-wrapper .fieldset-wrapper table tbody {
+  border: none;
+}
+
+.collapsible .fieldset-wrapper .fieldset-wrapper table {
+  border: thin solid #CCCCCC;
+}
+
+.collapsible .fieldset-wrapper .fieldset-wrapper table th {
+  border: none;
+  padding: 10px;
+}
+
+.collapsible .fieldset-wrapper .fieldset-wrapper td .field-type-text .form-item {
+  width: auto;
+}
+
+.tabledrag-toggle-weight:link ,
+.tabledrag-toggle-weight:visited {
+  margin: 10px 5px;
+  padding: 4px 10px;
+  display: inline-block;
+  background-color: #777777;
+  border: none;
+  border-radius: 3px;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-shadow: none;
+  transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+}
+
+tr:hover .tabledrag-toggle-weight:link ,
+tr:hover .tabledrag-toggle-weight:visited {
+  text-decoration: none;
+}
+
+tr:hover .tabledrag-toggle-weight:hover {
+  background-color: #333333;
+  text-decoration: none;
+}
+
+/*=======================================================*/
+
+.page-import #block-system-main {
+  padding: 20px;
+  background: #FFFFFF;
+  border: thin solid #CCCCCC;
+}
+
+form table tr,
+form table tr.even,
+form table tr:hover {
+  background: transparent;
+  color: inherit;
+}
+
+form table thead {
+   border: none; 
+}
+
+form table thead tr th { 
+  background: transparent;
+  color: inherit;
+}
+
+.container-inline-date .date-padding {
+  padding-left: 0;
+}
+
+.chosen-container .chosen-results li.highlighted {
+  background: #555555;
+}
+
+.page-node-edit .grid-12.region-content form.node-form .olControlZoomPanel.olControlNoSelect ,
+.page-node-add .grid-12.region-content form.node-form .olControlZoomPanel.olControlNoSelect {
+  left: auto;
+  right: 20px;
+  top: 30px;
+  width: 40px;
+  height: 75px;
+}
+
+.page-node-edit .grid-12.region-content form.node-form .Devtrac.sticky-enabled.sticky-table ,
+.page-node-add .grid-12.region-content form.node-form .Devtrac.sticky-enabled.sticky-table {
+  display: none;
+}
+
+
+.page-node-edit .grid-12.region-content form.node-form #cboxOverlay .Devtrac.sticky-enabled.sticky-table ,
+.page-node-add .grid-12.region-content form.node-form #cboxOverlay .Devtrac.sticky-enabled.sticky-table {
+  display: block;
+}
+
+.node-form .form-item .description {
+  font-style: italic;
+}
+
+/*
+.collapsible .fieldset-wrapper table.field-multiple-table tbody .form-wrapper .form-item {
+  width: 600px;
+}
+
+.collapsible .fieldset-wrapper table.field-multiple-table tbody .form-wrapper td .form-item {
+  width: 570px;
+}
+*/
+.collapsible .fieldset-wrapper table.field-multiple-table tbody .form-wrapper .form-item .description {
+  white-space: normal;
+  line-height: 20px;
+}
+
+.olControlNoSelect.olControlEditingToolbar {
+  top: 210px;
+  right: 20px;
+  margin: 0;
+  width: 40px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton {
+  float: none;
+  margin: 5px;
+  width: 30px;
+  height: 30px;
+  background-image: url("../images/map-tools-sprite.png");
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlNavigationItemActive {
+  background-position: -30px -60px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlNavigationItemInactive {
+  background-position: 0px -60px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlDrawFeaturePointItemActive {
+  background-position: -30px 0px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlDrawFeaturePointItemInactive {
+  background-position: 0px 0px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlDrupalWMSItemActive {
+  background-position: -30px -30px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlDrupalWMSItemInactive {
+  background-position: 0px -30px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlModifyFeatureItemActive ,
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlItemActive {
+  background-position: -30px -30px;
+}
+
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlModifyFeatureItemInactive ,
+.olControlNoSelect.olControlEditingToolbar div.olButton.olControlItemInactive {
+  background-position: 0px -30px;
+}
+
+
+
+/*===================================================================================*\
+ * Hidden Form Elements
+\*===================================================================================*/
+
+#field-fieldtrip-start-end-date-add-more-wrapper label ,
+#edit-field-actionitem-due-date label {
+  display: none;
+}
+
+#field-fieldtrip-start-end-date-add-more-wrapper label[for="edit-field-fieldtrip-start-end-date-und-0-value2"] {
+  display: inline-block;
+  float: left;
+  margin-right: 40px;
+}
+
+/*===================================================================================*\
+ * Footable Table Styles
+\*===================================================================================*/
+
+table tr.footable-row-detail {
+  border-bottom: thin solid #CCCCCC;
+}
+
+table tr.footable-row-detail:hover {
+  color: inherit;
+  border-bottom: thin solid #CCCCCC;
+  background: transparent;
+}
+
+table tr.footable-row-detail:hover td {
+  background: transparent;
+}
+
+table tr.footable-row-detail td {
+  padding-left: 30px;
+}
+
+table tr.footable-row-detail:hover a {
+  color: #A52A2A;
+  text-decoration: none;
+}
+
+table tr.footable-row-detail:hover a:hover {
+  text-decoration: underline;
+}
+
+/*===================================================================================*\
+ * Ctools Modal Content Styles
+\*===================================================================================*/
+
+#modalContent div.ctools-modal-content .modal-header {
+  background: #333333;
+  color: #FFFFFF;
+  font-weight: normal;
+  font-family: inherit;
+  text-shadow: none;
+  padding: 5px;
+  border-bottom: 5px solid #EA0001;
+}
+
+#modalContent div.ctools-modal-content span.close ,
+#modalContent div.ctools-modal-content a.close {
+  width: 20px;
+  height: 20px;
+  color: transparent;
+  background: url(../images/closer.png) no-repeat 50% 50%;
+  background-size: 20px;
+}
+
+#modalContent div.ctools-modal-content a.close img {
+  display: none;
+}
+
+#modalContent div.ctools-modal-content .modal-title {
+  font-size: 1.1em;
+  margin-left: 10px;
+  color: #FFFFFF;
+  font-weight: normal;
+  font-family: inherit;
+  text-shadow: none;
+}
+
+#modalContent div.ctools-modal-content .form-actions {
+  float: left;
+}
+
+
+/*===================================================================================*\
+ * Add Image Dialogue Box Styles
+\*===================================================================================*/
+
+
+.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.ui-front.media-wrapper.ui-dialog-buttons {
+  padding: 0;
+  border-radius: 0;
+}
+
+.ui-dialog-titlebar.ui-widget-header.ui-corner-all.ui-helper-clearfix {
+  margin:0;
+  border-radius: 0;
+  border: none;
+  background: none;
+  background-color: #333333;
+  border-bottom: 5px solid #EA0001;
+}
+
+button.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-icon-only.ui-dialog-titlebar-close {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  margin-right: 5px;
+  width: 20px;
+  height: 20px;
+  display: block;
+  box-shadow: none;
+}
+
+button.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-icon-only.ui-dialog-titlebar-close span.ui-button-icon-primary {
+  width: 20px;
+  height: 20px;
+  color: transparent;
+  background: url(../images/closer.png) no-repeat 50% 50%;
+  background-size: 20px;
+}
+
+/* content area */
+#media-browser-tabset {
+  border:none;
+  border-radius: 0;
+  width: 99.9%;
+  font-family: Gen;
+  color: #333333;
+}
+
+#media-tabs-wrapper {
+  float: initial;
+  width: 100%;
+  border-bottom: thin solid #CCCCCC;
+  height: 29px;
+
+}
+
+#media-browser-tabset ul.tabs.primary {
+  display: block;
+  float: right;
+  border-radius: 0;
+  margin-right: 10px;
+}
+
+#media-browser-tabset .ui-tabs .ui-tabs-nav li ,
+#media-browser-tabset .ui-tabs .ui-tabs-nav li:hover {
+  list-style: none;
+  float: left;
+  position: relative;
+  top: 0;
+  margin: 1px solid #CCCCCC;
+  border-bottom-width: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+#media-browser-tabset ul.tabs.primary li a:link {
+  font-weight: normal;
+  margin-right: 0;
+  font-size: 0.9em;
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #777777;
+  border-radius: 3px 3px 0 0;
+  color: #FFFFFF;
+  border:none
+}
+
+#media-browser-tabset ul.tabs.primary li a:hover {
+  background-color: #555555;
+  border: none;
+}
+
+#media-browser-tabset ul.tabs.primary li.ui-tabs-active a:link ,
+#media-browser-tabset ul.tabs.primary li.ui-tabs-active a:hover {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+
+.media-browser-tab {
+  font-size: 0.9em;
+  font-family: Gen;
+}
+
+.media-browser-tab .views-exposed-form label {
+  font-weight: normal;
+}
+
+.media-browser-tab form textarea ,
+.media-browser-tab form select ,
+.media-browser-tab form input[type="date"] ,
+.media-browser-tab form input[type="datetime"] ,
+.media-browser-tab form input[type="datetime-local"] ,
+.media-browser-tab form input[type="email"] ,
+.media-browser-tab form input[type="month"] ,
+.media-browser-tab form input[type="number"] ,
+.media-browser-tab form input[type="password"] ,
+.media-browser-tab form input[type="search"] ,
+.media-browser-tab form input[type="tel"] ,
+.media-browser-tab form input[type="text"] ,
+.media-browser-tab form input[type="time"] ,
+.media-browser-tab form input[type="url"] ,
+.media-browser-tab form input[type="week"] {
+  border: 2px solid #999999;
+  border-radius: 2px;
+  padding: 5px 5px;
+  height: auto;
+  font-size: inherit;
+}
+
+form select ,
+.media-browser-tab form select {
+  padding-right: 20px;
+  margin-right: 10px;
+}
+
+.media-browser-tab .views-exposed-form .views-exposed-widget .form-submit {
+  margin-top: 1.2em;
+}
+
+/*====================================== edit-image ==================================*/
+
+fieldset .fieldset-legend ,
+#modalContent .file-image-form fieldset .fieldset-legend {
+  position: static;
+  font-weight: normal;
+}
+
+#modalContent .button:link, 
+#modalContent .button:visited, 
+#modalContent form input[type="reset"], 
+#modalContent form input[type="submit"], 
+#modalContent form input[type="button"] {
+  color: #FFFFFF;
+  text-shadow: none;
+  box-shadow: none;
+  font-family: Gen;
+  line-height: 20px;
+}
+
+#modalContent .button:hover, 
+#modalContent form input[type="reset"]:hover, 
+#modalContent form input[type="submit"]:hover, 
+#modalContent form input[type="button"]:hover {
+  background: #333333;
+  color: #FFFFFF;
+}
+
+#modalContent .file-image-form #edit-actions--2 {
+  margin-top: 0;
+}
+
+/*===================================================================================*\
+ * Float Table Styles
+\*===================================================================================*/
+
+.flot .legend table tbody tr:hover {
+  background: #777777;
+  color: #333333;
+}
+
+.flot .legend table tbody {
+  border: thin solid #CCCCCC;
+}
+
+/*===================================================================================*\
+ * User Login Styles
+\*===================================================================================*/
+
+html .not-logged-in.page-user.context-user {}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner {
+  width: 450px;
+  margin: 20px auto !important;
+  border: thin solid #CCCCCC;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #DDDDDD;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner h1#page-title {
+  /*color: #989898;*/
+  color: #555555;
+  font-size: 2.0em;
+  font-weight: normal;
+  text-transform: capitalize;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner .tabs.primary {
+  margin: 0;
+  border-bottom: none;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner #block-system-main {
+  padding: 10px;
+  background-color: #FAFAFA;
+  border-radius: 3px;
+  border: thin solid #CCCCCC;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner #block-system-main input.form-text {
+  width: 100%;
+}

@@ -1,0 +1,15 @@
+name = Questionnaire Fuzzy Module
+description = Module that adds the possibility to Answer Questionnaire Questions in plain text that is then translated to structured answers 
+
+package = Questionnaire
+core = 7.x
+dependencies[] = questionnaire_answer
+
+files[] = questionnaire_fuzzy.install
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

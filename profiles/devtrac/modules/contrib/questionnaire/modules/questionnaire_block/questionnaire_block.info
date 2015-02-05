@@ -1,0 +1,14 @@
+name = Questionnaire Block
+description = Display questions for the present context in a block.
+
+package = Questionnaire
+core = 7.x
+dependencies[] = questionnaire_question
+dependencies[] = block
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

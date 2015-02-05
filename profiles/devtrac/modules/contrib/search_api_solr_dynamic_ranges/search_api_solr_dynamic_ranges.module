@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * Implements hook_search_api_solr_query_alter().
+ */
+function search_api_solr_dynamic_ranges_search_api_solr_query_alter(array &$call_args, SearchApiQueryInterface $query) {
+  $call_args['params']['stats'] = 'true';
+  $index = $query->getIndex();
+  if (isset($index->options['fields'])) {
+  	// Let us just request for the statistics of all numeric fields.
+    foreach ($index->options['fields'] as $name => $field) {
+      if ($field['type'] == 'integer') {
+        $call_args['params']['stats.field'][] = 'is_' . $name;
+      }
+      if ($field['type'] == 'decimal') {
+        $call_args['params']['stats.field'][] = 'fs_' . $name;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_facetapi_filters().
+ */
+function search_api_solr_dynamic_ranges_facetapi_filters() {
+  return array(
+    'facetapi_filter_dynamic_ranges' => array(
+      'handler' => array(
+        'label' => t('Dynamically create ranges for numeric items'),
+        'class' => 'FacetapiFilterDynamicRanges',
+      ),
+    ),
+  );
+}
+
+function search_api_solr_dynamic_ranges_linear($build, $stats, $number, $facetname) {
+  if ($number < 1) {
+    return $build;
+  }
+
+  if (!isset($stats)) {
+  	return $build;
+  }
+  $minimum = $stats->min;
+  $maximum = $stats->max;
+  if ($maximum == $minimum) {
+    return $build;
+  }
+  $exponent = floor(log10($maximum - $minimum));
+  $step = pow(10, $exponent);
+  if (($maximum - $minimum) / pow(10, $exponent) > 4) {
+  	$step *= 2;
+  }
+  $minimum = floor($minimum / pow(10, $exponent)) * pow(10, $exponent);
+  
+  $values = array();
+  for ($i = 0; $i < $number; $i++) {
+    $values[] = array(
+      'min' => (float) ($minimum + ($i * $step)),
+      'count' => 0,
+    );
+  }
+  foreach ($build as $facet => $item) {
+    $value = $item['#indexed_value'];
+    $index = 0;
+    $index = floor(($value - $minimum) / $step);
+    if ($index >= count($values)) {
+      $index--;
+    }
+    $values[$index]['count'] += $item['#count'];
+    $values[$index]['active'] = $item['#active'];
+  }
+
+  $filtered_build = array();
+//  $path = $item['#path']; // @TODO: This is a hardcoded value, please remove it.
+  $facetitem = array(
+    '#path' => $item['#path'],
+    '#html' => FALSE,
+    '#item_parents' => array(),
+    '#item_children' => array(),
+  );
+  foreach ($values as $index => $value) {
+    if (substr($facetname, 0, 3) == 'is_') {
+      $range = '[' . (string) $value['min'] . ' TO ' . (string) ($value['min'] + $step - 1) . ']';
+    }
+    else {
+      $range = '[' . (string) $value['min'] . ' TO ' . (string) ($value['min'] + $step - 0.000001) . ']';
+    }
+    $facetitem['#markup'] = $value['min'] . ' - ' . (string) ($value['min'] + $step);
+    $facetitem['#indexed_value'] = $range;
+    $facetitem['#count'] = $value['count'];
+    $facetitem['#active'] = $value['active'];
+    $facetitem['#query'] = array(
+      'f' => array(
+        '0' => substr($facetname, 3) . ':' . $range,
+      ),
+    );
+    $filtered_build[$range] = $facetitem;
+  }
+
+  return $filtered_build;
+}

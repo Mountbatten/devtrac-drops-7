@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the WMS Overrides feature.
+ */
+
+include_once 'wms_overrides.features.inc';

@@ -1,0 +1,237 @@
+<?php
+
+/**
+ * @file
+ * Provides a block with questions(s) from supported contexts.
+ */
+
+/**
+ * Implementation of hook_block_info().
+ */
+function questionnaire_block_block_info() {
+  return array(
+    'question' => array(
+      'info' => t('Questionnaire question'),
+      'cache' =>  DRUPAL_CACHE_PER_ROLE | DRUPAL_CACHE_PER_PAGE,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_block_view().
+ */
+function questionnaire_block_block_view($delta) {
+  $block = array();
+
+  if ($delta == 'question' && $question = questionnaire_block_question()) {
+    $block['subject'] = t('Questionnaire');
+    $block['content'] = array(
+      '#theme' => 'questionnaire_block_question_block',
+      '#form' => $question,
+    );
+  }
+
+  return $block;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function questionnaire_block_theme($existing, $type, $theme, $path) {
+  return array(
+    'questionnaire_block_question_block' => array(
+      'variables' => array(
+        'form' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_questionnaire_campaign_sending_handlers().
+ */
+function questionnaire_block_questionnaire_campaign_sending_handlers() {
+  $path = drupal_get_path('module', 'questionnaire_block') . '/plugins/sending_handlers';
+
+  $plugins['questionnaire_block'] = array(
+    'handler' => array(
+      'class' => 'QuestionnaireBlockCampaignSend',
+      'file' => 'QuestionnaireBlockCampaignSend.inc',
+      'path' => $path,
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
+ * Block callback - retrieve a question in the context for the present user.
+ *
+ * @return
+ *   Render array of form with question.
+ */
+function questionnaire_block_question() {
+  global $user;
+  $recipient = array(
+    'entity_type' => 'user',
+    'entity' => $user,
+    'medium' => 'questionnaire_block',
+  );
+
+  // Get entities shown with the block.
+  $entities = questionnaire_block_page_entities();
+  if (! $entities) {
+    $context = questionnaire_question_getcontext(NULL, NULL, $recipient);
+  }
+  else {
+    // Build a questionnaire question context from these.
+    $context = array();
+    foreach ($entities as $entity_type => $entity_array) {
+      foreach ($entity_array as $entity) {
+        $context = array_merge($context, questionnaire_question_getcontext($entity_type, $entity, $recipient));
+      }
+    }
+  }
+  if (! empty($context)) {
+    // Get first question for this user for this context.
+    $questions = questionnaire_question_getquestions($context, $recipient, 1);
+  }
+
+  // If there is a question. Build, and return, form with this question.
+  if (! empty($questions)) {
+    $question = reset($questions);
+    if (! empty($question['endpoint'])) {
+      // set done on user.
+      $output = questionnaire_question_getquestioncontrol($question['node']->nid, '');
+    }
+    else {
+      $output = drupal_get_form('questionnaire_block_question_form', $question);
+    }
+    if (!empty ($question['callback'])) {
+      call_user_func($question['callback'], $context, $recipient, $question);
+    }
+  }
+  else {
+    // No questions.
+    $output = FALSE;
+  }
+
+  return $output;
+}
+
+/**
+ * Form callback - build question form.
+ */
+function questionnaire_block_question_form($form, $form_state, $question) {
+  $node = $question['node'];
+  $form['question-' . $node->nid] = questionnaire_question_getquestioncontrol($node->nid, '');
+
+  $form['questionnaire_id'] = array(
+    '#type' => 'value',
+    '#value' => $question['questionnaire_id'],
+  );
+  $form['context_type'] = array(
+    '#type' => 'value',
+    '#value' => $question['context_type'],
+  );
+  $form['context_id'] = array(
+    '#type' => 'value',
+    '#value' => $question['context_id'],
+  );
+  // @todo we don't have end-point handling now.
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  return $form;
+}
+
+/**
+ * Form validation handler for questionnaire_block_question_form().
+ */
+function questionnaire_block_question_form_validate($form, &$form_state) {
+  foreach ($form_state['values'] as $id => $value) {
+    if (substr($id, 0, 9) == 'question-') {
+      if (! empty($value)) {
+        if ($error = questionnaire_question_validate_answer(substr($id, 9), $value)) {
+          form_set_error('question-' . $id, $error);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Form submission handler for questionnaire_block_question_form().
+ */
+function questionnaire_block_question_form_submit($form, &$form_state) {
+  global $user;
+
+  if ($form_state['values']['op'] == t('Submit')) {
+    $answers = array(
+      'recipient_type' => 'user',
+      'recipient_id' => $user->uid,
+    );
+    if (isset($form_state['values']['questionnaire_id'])) {
+      $answers['questionnaire_id'] = $form_state['values']['questionnaire_id'];
+    }
+    if (isset($form_state['values']['context_id'])) {
+      $answers['context_type'] = $form_state['values']['context_type'];
+      $answers['context_id'] = $form_state['values']['context_id'];
+    }
+
+    $answers['answers'] = array();
+    foreach ($form_state['values'] as $question => $answer) {
+      if (substr($question, 0, 9) == 'question-') {
+        $qid = substr($question, 9);
+        if (is_array($answer)) {
+          foreach ($answer as $selected) {
+            if ($selected) {
+              $answers['answers'][$selected] = array(
+                'question' => $qid,
+                'answer' => $answer,
+              );
+            }
+          }
+        }
+        elseif (! empty($answer)) {
+          $answers['answers'][$question] = array(
+            'question' => $qid,
+            'answer' => $answer,
+          );
+        }
+      }
+    }
+
+    if (! empty($answers['answers']) && $sid = questionnaire_question_saveanswers($answers)) {
+      $form_state['sid'] = $sid;
+    }
+    else {
+      drupal_set_message(t('Sorry there was a problem saving your submission'), 'error');
+    }
+  }
+}
+
+/**
+ * Returns entites relevant to the page the block is shown with.
+ *
+ * Very oldskool menu path detection at the moment; returning a single entity.
+ * Integration between menu_get_object(), views etc. would be desirable.
+ */
+function questionnaire_block_page_entities() {
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    return array('node' => array(arg(1) => node_load(arg(1))));
+  }
+  if (arg(0) == 'taxonomy' && arg(1) == 'term' && is_numeric(arg(2))) {
+    return array('taxonomy_term' => array(arg(2) => taxonomy_term_load(arg(2))));
+  }
+}
+
+/**
+ * Theme question block.
+ *
+ * @ingroup themeable
+ */
+function theme_questionnaire_block_question_block($form) {
+  return render($form);
+}

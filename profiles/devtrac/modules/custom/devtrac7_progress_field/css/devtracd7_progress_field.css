@@ -1,0 +1,48 @@
+.devtrac7progressbar {
+	background: transparent;
+	height: 20px;
+}
+
+.devtrac7progressbar-req-of-tot {
+  position: relative;
+  top: -34px
+}
+
+.devtrac7progressbar-total .ui-widget-header {
+  background: #FFB050;
+  border-color: #FFB050;
+}
+
+.devtrac7progressbar-required .ui-widget-header {
+  background: #FF0000;
+  border-color: #FF0000;
+}
+
+.devtrac7progressbar-req-of-tot .ui-widget-header {
+  background: transparent;
+  border-right-color: #FF0000;
+}
+
+.devtrac7progressbar-required {
+  position: relative;
+  top: -12px;
+}
+
+.devtrac7progressbar-total {
+  position: relative;
+  top: 10px;
+}
+
+.devtrac7progressbar-optional-descr {
+	float: right;
+  position: relative;
+  top: -34px;
+  color: #FFB050;
+}
+
+.devtrac7progressbar-required-descr {
+	float: left;
+  position: relative;
+  top: -34px;
+  color: #FF0000;
+}

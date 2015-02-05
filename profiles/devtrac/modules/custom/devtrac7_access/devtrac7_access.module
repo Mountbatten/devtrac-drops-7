@@ -1,0 +1,876 @@
+<?php
+
+/**
+ * @file
+ * Takes care of all content/entity access in Devtrac.
+ */
+
+function devtrac7_access_init() {
+  global $user;
+  // Make sure the content_access per_node option is set for node type fieldtrip.
+  // It is required for the fieldtrip approval workflow.
+  if (module_exists('content_access')) {
+    $setting = content_access_get_settings('per_node', 'fieldtrip');
+    if (!isset($setting) || ($setting == 0)) {
+      $content_access_settings = content_access_get_settings('all', 'fieldtrip');
+      $content_access_settings['per_node']['fieldtrip'] = 1;
+      // $content_access_settings['priority']['fieldtrip'] = 1;
+      content_access_set_settings($content_access_settings, 'fieldtrip');
+    }
+  }
+}
+
+/*
+ * Implements hook_menu_alter().
+ *
+ * @param array $items
+ *   Menu items keyed by path.
+ *
+ * Need to do this to override the access callback, so we can only
+ * unpublish/publish content when they are not approved yet.
+ */
+function devtrac7_access_menu_alter(&$items) {
+  $items['node/%node/publish/%publishcontent_security_token']['title'] = t('Restore');
+  $items['node/%node/publish/%publishcontent_security_token']['access callback'] = 'devtrac7_access_publishcontent_publish_access';
+  $items['node/%node/unpublish/%publishcontent_security_token']['title'] = t('Remove');
+  $items['node/%node/unpublish/%publishcontent_security_token']['access callback'] = 'devtrac7_access_publishcontent_unpublish_access';
+}
+
+function devtrac7_access_publishcontent_publish_access($node, $token = FALSE) {
+  global $user;
+  if (($user->uid != 1) && (!in_array('administrator', $user->roles))) {
+    switch ($node->type) {
+      case 'fieldtrip':
+        // Disallow access for all field trips that have status 'Approved'.
+        if (isset($node->field_fieldtrip_status['und'][0]['value']) && $node->field_fieldtrip_status['und'][0]['value'] == 'Approved') {
+          return FALSE;
+        }
+        break;
+      case 'ftritem':
+        // Disallow access for all site reports that have status 'Submitted'.
+        if (isset($node->field_ftritem_status['und'][0]['value']) && $node->field_ftritem_status['und'][0]['value'] == 'Submitted') {
+          return FALSE;
+        }
+    }
+  }
+  // Apply access settings from the publishcontent module.
+  return _publishcontent_publish_access($node, $token);
+}
+
+function devtrac7_access_publishcontent_unpublish_access($node, $token = FALSE) {
+  global $user;
+  if (($user->uid != 1) || (!in_array('administrator', $user->roles))) {
+    switch ($node->type) {
+      case 'fieldtrip':
+        // Disallow access for all field trips that have status 'Approved'.
+        if (isset($node->field_fieldtrip_status['und'][0]['value']) && $node->field_fieldtrip_status['und'][0]['value'] == 'Approved') {
+          return FALSE;
+        }
+        break;
+      case 'ftritem':
+        // Disallow access for all site reports that have status 'Submitted'.
+        if (isset($node->field_ftritem_status['und'][0]['value']) && $node->field_ftritem_status['und'][0]['value'] == 'Submitted') {
+          return FALSE;
+        }
+    }
+  }
+  // Apply access settings from the publishcontent module.
+  return _publishcontent_unpublish_access($node, $token);
+}
+
+function devtrac7_access_gotocommentform_access($actionitem = NULL) {
+  $result = ($actionitem->type == "actionitem");
+  if (!$result) {
+    return FALSE;
+  }
+  $result = $result && ($actionitem->comment == 2) &&  (user_access("post comments") || user_access("post comments without approval"));
+  return TRUE;
+}
+
+function devtrac7_access_actionitemcommentform_access($actionitem = NULL) {
+  $result = ($actionitem->type == "actionitem");
+  if (!$result) {
+    return FALSE;
+  }
+  $result = $result && ($actionitem->comment == 2) &&  (user_access("post comments") || user_access("post comments without approval"));
+  return TRUE;
+}
+
+function devtrac7_access_reportitemaddpicture_access($reportitem = NULL) {
+  $result = ($reportitem->type == "ftritem");
+  if (!$result) {
+    return FALSE;
+  }
+  $result = $result && (user_access("edit own ftritem content"));
+  return TRUE;
+}
+
+function devtrac7_access_reportitemaddactionitem_access($reportitem = NULL) {
+  $result = ($reportitem->type == "ftritem");
+  if (!$result) {
+    return FALSE;
+  }
+  $result = $result && (user_access("create actionitem content"));
+  return TRUE;
+}
+/*
+function devtrac7_access_currentfieldtrip_access() {
+  $result = devtrac7_getcurrentfieldtrip() > 0;
+  return ($result);
+}
+ */
+function devtrac7_access_pageaddplaceform_access($fieldtrip = NULL) {
+  $result = ($fieldtrip->type == "fieldtrip");
+  $result = $result && node_access("update", $fieldtrip);
+  $result = $result && (isset($fieldtrip->field_fieldtrip_status['und'][0]['value']) && $fieldtrip->field_fieldtrip_status['und'][0]['value'] != 'Approved') && (isset($fieldtrip->field_fieldtrip_status['und'][0]['value']) && $fieldtrip->field_fieldtrip_status['und'][0]['value'] != 'Published');
+  return $result;
+}
+
+function devtrac7_access_node_load($nodes, $types) {
+  foreach ($nodes as $node) {
+    if ($node->type == 'fieldtrip') {
+      if (isset($node->field_fieldtrip_status['und'][0]['value'])) {
+        $node->oldstatus = $node->field_fieldtrip_status['und'][0]['value'];
+        $node->oldpublishingstatus = $node->status;
+      }
+    }
+  }
+}
+
+function devtrac7_access_node_insert($node) {
+  if ($node->type == 'fieldtrip') {
+    if (isset($node->field_fieldtrip_user['und'][0]['target_id'])) {
+      $localuser = user_load($node->field_fieldtrip_user['und'][0]['target_id']);
+      if (isset($localuser)) {
+        devtrac7_access_fieldtrip_grant_update($node, $localuser, 'insert');
+      }
+    }
+  }
+  if ($node->type == 'actionitem') {
+    if (isset($node->field_actionitem_responsible['und']) && (count($node->field_actionitem_responsible['und']) > 0)) {
+      foreach ($node->field_actionitem_responsible['und'] as $responsible) {
+        $localuser = user_load($responsible['target_id']);
+        if (isset($localuser)) {
+          devtrac7_access_actionitem_grant_update($node, $localuser, 'insert');
+        }
+      }
+    }
+  }
+}
+
+function devtrac7_access_node_presave($node) {
+  if ($node->type == 'fieldtrip') {
+    if ((isset($node->oldpublishingstatus)) && ($node->oldpublishingstatus == 1)) {
+      if ($node->status == 0) { // Field trip is being unpublished, so unpublish all site reports and action items as well.
+        $sitereportnids = db_select('field_data_field_ftritem_field_trip', 'ft')
+          ->fields('ft', array('entity_id'))
+          ->condition('field_ftritem_field_trip_target_id', $node->nid)
+//          ->condition('field_ftritem_field_trip_target_type', 'node')
+          ->execute();
+        while ($sitereportnid = $sitereportnids->fetchAssoc()) {
+          $sitereport = node_load($sitereportnid['entity_id']);
+          $actionitemnids = db_select('field_data_field_actionitem_ftreportitem', 'ftr')
+            ->fields('ftr', array('entity_id'))
+            ->condition('field_actionitem_ftreportitem_target_id', $sitereport->nid)
+//            ->condition('field_actionitem_ftreportitem_target_type', 'node')
+            ->execute();
+          while ($actionitemnid = $actionitemnids->fetchAssoc()) {
+            $actionitem = node_load($actionitemnid['entity_id']);
+            $actionitem->status = 0;
+            node_save($actionitem);
+          }
+          $sitereport->status = 0;
+          node_save($sitereport);
+        }
+      }
+    }
+/*
+    if (!isset($node->oldstatus)) {
+      return;
+    }
+
+//    drupal_set_message('Status was '. $node->oldstatus);
+    $status = $node->field_fieldtrip_status['und'][0]['value'];
+    if ($node->oldstatus != $status) {
+//      drupal_set_message('Status changed to '. $status);
+      $owner = user_load($node->uid);
+      if (isset($node->field_fieldtrip_user['und'][0]['target_id'])) {
+        $localuser = user_load($node->field_fieldtrip_user['und'][0]['target_id']);
+      }
+      if (isset($localuser->field_user_superior['und'][0]['target_id'])) {
+        $manager = user_load($localuser->field_user_superior['und'][0]['target_id']);
+      }
+      module_load_include('inc', 'content_access', 'content_access.rules');
+      switch ($status) {
+        case 'In Progress':
+          if (isset($manager)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $manager);
+          }
+          if (isset($localuser)) {
+            devtrac7_access_fieldtrip_grant_update($node, $localuser);
+          }
+          devtrac7_access_fieldtrip_grant_update($node, $owner);
+          drupal_set_message(t("Field Trip is editable."));
+          break;
+        case 'Submitted':
+          if (isset($localuser)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $localuser);
+          }
+          devtrac7_access_fieldtrip_revoke_update($node, $owner);
+          if (isset($manager)) {
+            devtrac7_access_fieldtrip_grant_update($node, $manager);
+          }
+          drupal_set_message(t("Field Trip submitted for approval."));
+          break;
+        case 'Approved':
+          if (isset($manager)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $manager);
+          }
+          if (isset($localuser)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $localuser);
+          }
+          devtrac7_access_fieldtrip_revoke_update($node, $owner);
+          drupal_set_message(t("Field Trip approved for publishing."));
+          break;
+      }
+    }
+ */
+  }
+}
+
+function devtrac7_access_node_update($node) {
+  if ($node->type == 'fieldtrip') {
+    if (!isset($node->oldstatus)) {
+      return;
+    }
+//    drupal_set_message('Status was '. $node->oldstatus);
+    $status = $node->field_fieldtrip_status['und'][0]['value'];
+    if ($node->oldstatus != $status) {
+//      drupal_set_message('Status changed to '. $status);
+      $owner = user_load($node->uid);
+      if (isset($node->field_fieldtrip_user['und'][0]['target_id'])) {
+        $localuser = user_load($node->field_fieldtrip_user['und'][0]['target_id']);
+      }
+      if (isset($localuser->field_user_superior['und'][0]['target_id'])) {
+        $manager = user_load($localuser->field_user_superior['und'][0]['target_id']);
+      }
+      module_load_include('inc', 'content_access', 'content_access.rules');
+      switch ($status) {
+        case 'In Progress':
+          if (isset($manager)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $manager);
+          }
+          if (isset($localuser)) {
+            devtrac7_access_fieldtrip_grant_update($node, $localuser);
+          }
+          devtrac7_access_fieldtrip_grant_update($node, $owner);
+          drupal_set_message(t("Field Trip is editable."));
+          break;
+        case 'Submitted':
+          // if (isset($localuser)) {
+            // devtrac7_access_fieldtrip_revoke_update($node, $localuser);
+          // }
+          if (isset($manager)) {
+            // devtrac7_access_fieldtrip_revoke_update($node, $owner);
+          	devtrac7_access_fieldtrip_grant_update($node, $manager);
+          }
+          drupal_set_message(t("Field Trip submitted for approval."));
+          break;
+        case 'Approved':
+          if (isset($manager)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $manager);
+          }
+          if (isset($localuser)) {
+            devtrac7_access_fieldtrip_revoke_update($node, $localuser);
+          }
+          devtrac7_access_fieldtrip_revoke_update($node, $owner);
+          // drupal_set_message(t("Field Trip approved for publishing."));
+          break;
+      }
+    }
+    $status = $node->field_fieldtrip_status['und'][0]['value'];
+//    drupal_set_message('Status changed to '. $status);
+    if ($node->oldstatus != $status) {
+      switch ($status) {
+        case 'In Progress':
+          break;
+        case 'Submitted':
+          break;
+        case 'Approved':
+          devtrac7_access_fieldtrip_publish($node);
+          drupal_set_message(t("Field Trip Published."));
+          break;
+      }
+    }
+    unset($node->oldstatus);
+  }
+
+  if ($node->type == 'actionitem') {
+    // Revoke old access rights
+    if (isset($node->original->field_actionitem_responsible['und']) && (count($node->original->field_actionitem_responsible['und']) > 0)) {
+      foreach ($node->field_actionitem_responsible['und'] as $responsible) {
+        $localuser = user_load($responsible['target_id']);
+        if (isset($localuser)) {
+          devtrac7_access_actionitem_revoke_update($node, $localuser, 'insert');
+        }
+      }
+    }
+    // Grant new access rights
+    if (isset($node->field_actionitem_responsible['und']) && (count($node->field_actionitem_responsible['und']) > 0)) {
+      foreach ($node->field_actionitem_responsible['und'] as $responsible) {
+        $localuser = user_load($responsible['target_id']);
+        if (isset($localuser)) {
+          devtrac7_access_actionitem_grant_update($node, $localuser, 'insert');
+        }
+      }
+    }
+  }
+}
+
+function devtrac7_access_fieldtrip_setstatus_access($node, $status) {
+  return TRUE;
+}
+
+function devtrac7_access_fieldtrip_grant_update($node, $user, $op = NULL) {
+  if ($node->type == 'fieldtrip') {
+    $sitereportnids = db_select('field_data_field_ftritem_field_trip', 'ft')
+      ->fields('ft', array('entity_id'))
+      ->condition('field_ftritem_field_trip_target_id', $node->nid)
+//      ->condition('field_ftritem_field_trip_target_type', 'node')
+      ->execute();
+    $perm = 'update';
+    module_load_include('inc', 'content_access', 'content_access.admin');
+    while ($sitereportnid = $sitereportnids->fetchAssoc()) {
+      $sitereport = node_load($sitereportnid['entity_id']);
+      $acl_id = content_access_get_acl_id($sitereport, $perm);
+      if (isset($acl_id)) {
+        acl_add_user($acl_id, $user->uid);
+        acl_node_add_acl($sitereport->nid, $acl_id, $perm == 'view', $perm == 'update', $perm == 'delete', content_access_get_settings('priority', $node->type));
+      }
+      node_access_acquire_grants($sitereport);
+    }
+    $acl_id = content_access_get_acl_id($node, $perm);
+    if (isset($acl_id)) {
+      acl_add_user($acl_id, $user->uid);
+      acl_node_add_acl($node->nid, $acl_id, $perm == 'view', $perm == 'update', $perm == 'delete', content_access_get_settings('priority', $node->type));
+    }
+    if ($op != 'insert') {
+      node_access_acquire_grants($node);
+    }
+  }
+}
+
+function devtrac7_access_fieldtrip_revoke_update($node, $user, $op = NULL) {
+  if ($node->type == 'fieldtrip') {
+    $sitereportnids = db_select('field_data_field_ftritem_field_trip', 'ft')
+      ->fields('ft', array('entity_id'))
+      ->condition('field_ftritem_field_trip_target_id', $node->nid)
+//      ->condition('field_ftritem_field_trip_target_type', 'node')
+      ->execute();
+    module_load_include('inc', 'content_access', 'content_access.admin');
+    $perm = 'update';
+    while ($sitereportnid = $sitereportnids->fetchAssoc()) {
+      $sitereport = node_load($sitereportnid['entity_id']);
+      $acl_id = content_access_get_acl_id($sitereport, $perm);
+      if (isset($acl_id)) {
+        acl_remove_user($acl_id, $user->uid);
+        acl_node_remove_acl($sitereport->nid, $acl_id);
+      }
+      node_access_acquire_grants($sitereport);
+    }
+    $acl_id = content_access_get_acl_id($node, $perm);
+    if (isset($acl_id)) {
+      acl_remove_user($acl_id, $user->uid);
+      acl_node_remove_acl($node->nid, $acl_id);
+    }
+    node_access_acquire_grants($node);
+  }
+}
+
+function devtrac7_access_actionitem_grant_update($node, $user, $op = NULL) {
+  if ($node->type == 'actionitem') {
+    $perm = 'update';
+    module_load_include('inc', 'content_access', 'content_access.admin');
+    $acl_id = content_access_get_acl_id($node, $perm);
+    if (isset($acl_id)) {
+      acl_add_user($acl_id, $user->uid);
+      acl_node_add_acl($node->nid, $acl_id, $perm == 'view', $perm == 'update', $perm == 'delete', content_access_get_settings('priority', $node->type));
+    }
+    if ($op != 'insert') {
+      node_access_acquire_grants($node);
+    }
+  }
+}
+
+function devtrac7_access_actionitem_revoke_update($node, $user, $op = NULL) {
+  if ($node->type == 'actionitem') {
+    $perm = 'update';
+    module_load_include('inc', 'content_access', 'content_access.admin');
+    $acl_id = content_access_get_acl_id($node, $perm);
+    if (isset($acl_id)) {
+      acl_remove_user($acl_id, $user->uid);
+      acl_node_remove_acl($node->nid, $acl_id);
+    }
+    node_access_acquire_grants($node);
+  }
+}
+
+// Should have a closer look at this and decide if it realy belongs here.
+function devtrac7_access_fieldtrip_publish(&$node) {
+  if ($node->type == 'fieldtrip') {
+    $sitereportnids = db_select('field_data_field_ftritem_field_trip', 'ft')
+      ->fields('ft', array('entity_id'))
+      ->condition('field_ftritem_field_trip_target_id', $node->nid)
+//      ->condition('field_ftritem_field_trip_target_type', 'node')
+      ->execute();
+    while ($sitereportnid = $sitereportnids->fetchAssoc()) {
+      $sitereport = node_load($sitereportnid['entity_id']);
+//      watchdog('Submit Site Report', 'Submitting Site Report: '. $sitereport->nid .' (on Field Trip: '. $node->nid .')');
+      if (!isset($sitereport->field_ftritem_date_visited['und'][0]['value'])) {
+        if (isset($node->field_fieldtrip_start_end_date['und'][0]['value'])) {
+          $sitereport->field_ftritem_date_visited['und'][0]['value'] = $node->field_fieldtrip_start_end_date['und'][0]['value'];
+        }
+      }
+      $sitereport->field_ftritem_status['und'][0]['value'] = 'Submitted';
+      $sitereport->status = 1;
+      node_save($sitereport);
+      node_access_acquire_grants($sitereport);
+    }
+    $node->field_fieldtrip_status['und'][0]['value'] = 'Approved';
+    $node->status = 1;
+    node_access_acquire_grants($node);
+  }
+}
+
+function devtrac7_access_node_grants($account, $op) {
+  $grants['devtrac_rid'] = array_keys($account->roles);
+  $grants['devtrac_author'] = array($account->uid);
+  $grants['devtrac_owner'] = array($account->uid);
+  return $grants;
+}
+
+function devtrac7_access_node_access_records($node) {
+  if (!$node->nid) {
+    return;
+  }
+
+  $grants = array();
+
+  // Retrieve the rid for role "field worker".
+  $role = user_role_load_by_name('field worker');
+  $rid = $role->rid;
+  if ($node->type == 'fieldtrip') {
+    $fieldtrip = $node;
+    if (isset($fieldtrip->field_fieldtrip_status['und'][0]['value'])) {
+     if ((!isset($fieldtrip->field_fieldtrip_user)) || (!isset($fieldtrip->field_fieldtrip_user['und']))) {
+       // This may happen when field trips are anonymously imported using feeds
+       return;
+     }
+      $localuser = user_load($fieldtrip->field_fieldtrip_user['und'][0]['target_id']);
+      switch ($fieldtrip->field_fieldtrip_status['und'][0]['value']) {
+        case 'In Progress':
+          // Deny all access to role anonymous user
+          $grants[] = array(
+            'realm' => 'devtrac_rid',
+            'gid' => 1,
+            'grant_view' => 0,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Grant view access to role field worker
+          $grants[] = array(
+            'realm' => 'devtrac_rid',
+            'gid' => $rid,
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Grant update access to the user going on the fieldtrip
+          $grants[] = array(
+            'realm' => 'devtrac_author',
+            'gid' => $fieldtrip->field_fieldtrip_user['und'][0]['target_id'],
+            'grant_view' => 0,
+            'grant_update' => 1,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Grant update access to the owner/creator
+          $grants[] = array(
+            'realm' => 'devtrac_owner',
+            'gid' => $fieldtrip->uid,
+            'grant_view' => 0,
+            'grant_update' => 1,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          if (isset($localuser->field_user_superior['und']) && (count($localuser->field_user_superior['und']) > 0)) {
+            // Deny all access to the manager of the user going on the fieldtrip (still has view access through it's role)
+          	$grants[] = array(
+              'realm' => 'devtrac_author',
+              'gid' => $localuser->field_user_superior['und'][0]['target_id'],
+              'grant_view' => 0,
+              'grant_update' => 0,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+          }
+          break;
+        case 'Submitted':
+          // Deny all access to role anonymous user
+          $grants[] = array(
+            'realm' => 'devtrac_rid',
+            'gid' => 1,
+            'grant_view' => 0,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Grant view access to role field worker
+          $grants[] = array(
+            'realm' => 'devtrac_rid',
+            'gid' => $rid,
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          if (isset($localuser->field_user_superior['und']) && (count($localuser->field_user_superior['und']) > 0)) {
+            // Deny all access to the user going on the fieldtrip (still has view access through it's role)
+            $grants[] = array(
+              'realm' => 'devtrac_author',
+              'gid' => $fieldtrip->field_fieldtrip_user['und'][0]['target_id'],
+              'grant_view' => 0,
+              'grant_update' => 0,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+            // Deny all access to the owner/creator (still has view access through it's role)
+            $grants[] = array(
+              'realm' => 'devtrac_owner',
+              'gid' => $fieldtrip->uid,
+              'grant_view' => 0,
+              'grant_update' => 0,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+            // Grant update access to the manager of the user going on the fieldtrip
+            $grants[] = array(
+              'realm' => 'devtrac_author',
+              'gid' => $localuser->field_user_superior['und'][0]['target_id'],
+              'grant_view' => 0,
+              'grant_update' => 1,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+          }
+          else { // There is no manager, so user/owner does own management
+            // Grant update access to the user going on the fieldtrip (still has view access through it's role)
+            $grants[] = array(
+              'realm' => 'devtrac_author',
+              'gid' => $fieldtrip->field_fieldtrip_user['und'][0]['target_id'],
+              'grant_view' => 0,
+              'grant_update' => 1,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+            // Grant update access to the owner/creator (still has view access through it's role)
+            $grants[] = array(
+              'realm' => 'devtrac_owner',
+              'gid' => $fieldtrip->uid,
+              'grant_view' => 0,
+              'grant_update' => 1,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+          }
+          break;
+        case 'Approved':
+          // Grant default access (view) to all users
+          break;
+      }
+    }
+  }
+
+  if ($node->type == 'ftritem') {
+    if (isset($node->field_ftritem_field_trip['und'][0]['target_id'])) {
+      $fieldtrip = node_load($node->field_ftritem_field_trip['und'][0]['target_id'], NULL, TRUE);
+    }
+    if (isset($fieldtrip->field_fieldtrip_status['und'][0]['value'])) {
+      if ((!isset($fieldtrip->field_fieldtrip_user)) || (!isset($fieldtrip->field_fieldtrip_user['und']))) {
+        // This may happen when field trips are anonymously imported using feeds
+        return;
+      }
+
+      $localuser = user_load($fieldtrip->field_fieldtrip_user['und'][0]['target_id']);
+      $role = user_role_load_by_name('field worker');
+      $rid = $role->rid;
+      switch ($fieldtrip->field_fieldtrip_status['und'][0]['value']) {
+        case 'In Progress':
+        case 'Submitted':
+          // Deny all access to role anonymous user
+          $grants[] = array(
+            'realm' => 'devtrac_rid',
+            'gid' => 1,
+            'grant_view' => 0,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Grant view access to role field worker
+          $grants[] = array(
+            'realm' => 'devtrac_rid',
+            'gid' => $rid,
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Grant update access to the owner/creator
+          $grants[] = array(
+            'realm' => 'devtrac_owner',
+            'gid' => $node->uid,
+            'grant_view' => 0,
+            'grant_update' => 1,
+            'grant_delete' => 0,
+            'priority' => 26,
+          );
+          // Deny all access to the manager of the user going on the fieldtrip (still has view access through it's role)
+          if (isset($localuser->field_user_superior['und']) && (count($localuser->field_user_superior['und']) > 0)) {
+            $grants[] = array(
+              'realm' => 'devtrac_author',
+              'gid' => $localuser->field_user_superior['und'][0]['target_id'],
+              'grant_view' => 0,
+              'grant_update' => 0,
+              'grant_delete' => 0,
+              'priority' => 26,
+            );
+          }
+          break;
+        case 'Approved':
+          // Grant default access (view) to all users
+          break;
+      }
+    }
+  }
+
+  if (($node->type == 'actionitem')) {
+    if (isset($node->field_actionitem_responsible['und']) && (count($node->field_actionitem_responsible['und']) > 0)) {
+      // Deny all access to role anonymous user
+      $grants[] = array(
+        'realm' => 'devtrac_rid',
+        'gid' => 1,
+        'grant_view' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'priority' => 26,
+      );
+      // Grant view access to role field worker
+      $grants[] = array(
+        'realm' => 'devtrac_rid',
+        'gid' => $rid,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'priority' => 26,
+      );
+      // Grant update access to the owner/creator
+      $grants[] = array(
+        'realm' => 'devtrac_owner',
+        'gid' => $node->uid,
+        'grant_view' => 0,
+        'grant_update' => 1,
+        'grant_delete' => 0,
+        'priority' => 26,
+      );
+      // Grant update access to the users responsible for the action item
+      foreach ($node->field_actionitem_responsible['und'] as $responsible) {
+        $grants[] = array(
+          'realm' => 'devtrac_author',
+          'gid' => $responsible,
+          'grant_view' => 0,
+          'grant_update' => 1,
+          'grant_delete' => 0,
+          'priority' => 26,
+        );
+      }
+    }
+  }
+
+  return $grants;
+}
+
+/**
+ * Implements hook_taxonomy_term_insert().
+ *
+ * Initializes taxonomy access on the term to be inserted.
+ * Also updates taxonomy access on the parent term if needed.
+ *
+ * @param unknown_type $term
+ */
+function devtrac7_access_taxonomy_term_insert($term) {
+  // Skip setting access for Admin Units.
+  $vocabulary = taxonomy_vocabulary_load($term->vid);
+  if ($vocabulary->machine_name == 'vocabulary_6') {
+    return;
+  }
+
+  // Initialize some default settings.
+  $list = array(
+    'view' => 0,
+    'update' => 0,
+    'delete' => 0,
+    'create' => 0,
+    'list' => 1,
+  );
+  // Get the array of all role names, indexed by rid.
+  $roles = _taxonomy_access_user_roles();
+  // Get all parents of the term to be inserted.
+  $parent_tids = $term->parent;
+
+  // Initialize term settings for different roles.
+  foreach ($roles as $rid => $role_name) {
+    foreach ($parent_tids as $pid => $parent_tid) {
+      if ($pid != 0) {
+        // Initialize parent term settings for different roles.
+        switch ($role_name) {
+          case 'editor':
+            // Revoke create access to the parent term.
+            $editor_term_defaults[$pid] = _taxonomy_access_format_grant_record($pid, $rid, $list);
+            break;
+          case 'field worker':
+            // revoke create access to the parent term.
+            $worker_term_defaults[$pid] = _taxonomy_access_format_grant_record($pid, $rid, $list);
+            break;
+          default:
+        }
+      }
+    }
+  }
+
+  // Process each set.
+  if (!empty($editor_term_defaults)) {
+    taxonomy_access_set_term_grants($editor_term_defaults);
+  }
+  if (!empty($worker_term_defaults)) {
+    taxonomy_access_set_term_grants($worker_term_defaults);
+  }
+}
+
+/**
+ * Implements hook_taxonomy_term_update().
+ *
+ * Updates taxonomy access on the old and new parent terms
+ * if needed. It only fires when terms are updated.
+ *
+ * @param unknown_type $term
+ */
+function devtrac7_access_taxonomy_term_update($term) {
+  _devtrac7_access_tree_update_term_grants($term->vid);
+}
+
+/**
+ * Implements hook_taxonomy_term_delete().
+ *
+ * Updates taxonomy access on the parent term if needed.
+ * 
+ * @param unknown_type $term
+ */
+function devtrac7_access_taxonomy_term_delete($term) {
+  _devtrac7_access_tree_update_term_grants($term->vid);
+}
+
+/**
+ * Helper function that updates all term access settings in a vocabulary.
+ * 
+ * @param unknown_type $term
+ *   A term object that belongs to the vocabulary to be updated.
+ */
+function _devtrac7_access_tree_update_term_grants($vid) {
+  // Skip setting access for Admin Units.
+  $vocabulary = taxonomy_vocabulary_load($vid);
+  if ($vocabulary->machine_name == 'vocabulary_6') {
+    return;
+  }
+
+  // Initialize some default settings.
+  $list = array(
+    'view' => 0,
+    'update' => 0,
+    'delete' => 0,
+    'create' => 0,
+    'list' => 1,
+  );
+  // Get the array of all role names, indexed by rid.
+  $roles = _taxonomy_access_user_roles();
+  // Getting all parents of the term to be inserted using
+  // taxonomy_get_parent() fails because the term has already
+  // been deleted from the database. So instead we get the
+  // whole tree using taxonomy_get_tree().
+  $tree = taxonomy_get_tree($vid, 0, NULL, TRUE);
+
+  // Delete term settings for different roles.
+  foreach ($roles as $rid => $role_name) {
+    // Redo term access settings for different roles.
+    switch ($role_name) {
+      case 'editor':
+        foreach ($tree as $branch) {
+          // If the term has no children then (re-)allow create access.
+          $children = taxonomy_get_children($branch->tid, $vid);
+          if (empty($children)) {
+            // Re-allow create access to leaf terms
+            // by deleting the access setting.
+            taxonomy_access_delete_term_grants($branch->tid, $rid);
+          }
+          else {
+            // Revoke create access to non-leaf terms.
+            $editor_term_defaults[$branch->tid] = _taxonomy_access_format_grant_record($branch->tid, $rid, $list);
+          }
+        }
+        break;
+      case 'field worker':
+        foreach ($tree as $branch) {
+          // If the term has no children then (re-)allow create access.
+          $children = taxonomy_get_children($branch->tid, $vid);
+          if (empty($children)) {
+            // Re-allow create access to leaf terms
+            // by deleting the access setting.
+            taxonomy_access_delete_term_grants($branch->tid, $rid);
+          }
+          else {
+            // Revoke create access to non-leaf terms.
+            $worker_term_defaults[$branch->tid] = _taxonomy_access_format_grant_record($branch->tid, $rid, $list);
+          }
+        }
+        break;
+      default:
+    }
+  }
+
+  // Process each set.
+  if (!empty($editor_term_defaults)) {
+    taxonomy_access_set_term_grants($editor_term_defaults);
+  }
+  if (!empty($worker_term_defaults)) {
+    taxonomy_access_set_term_grants($worker_term_defaults);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * 
+ * Implements hook_form_FORM_ID_alter() for the taxonomy_overview_terms form.
+ * It defines a new submit function so we can update the taxonomy access
+ * settings on the vocabulary when the hierarchy has been changed on the form.
+ */
+function devtrac7_access_form_taxonomy_overview_terms_alter(&$form, &$form_state, $form_id) {
+  $form['#submit'][] = 'devtrac7_access_taxonomy_overview_terms_submit';
+}
+
+/**
+ * Implements the new submit function defined in hook_form_alter() above.
+ */
+function devtrac7_access_taxonomy_overview_terms_submit($form, &$form_state) {
+  _devtrac7_access_tree_update_term_grants($form['#vocabulary']->vid);
+}

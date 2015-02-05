@@ -1,0 +1,212 @@
+<?php
+module_load_include('test', 'simpletest_clone');
+class presenceContactItemTestCase  extends SimpleTestCloneTestCase {
+  protected $admin_user;
+  protected $profile = 'devtrac';
+  public static function getInfo() {
+    return array(
+      'name' => 'Accessing contact item',
+      'description' => 'An authenticated User accessing contact item',
+      'group' => 'Devtrac',
+    );
+  }
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// The login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+  
+  public function setup() {
+  	parent::setUp();
+  	$this->public_files_directory = variable_get('file_public_path');
+  	// Create and log in a permitted user.
+    $this->unicef_user = $this->drupalCreateUser(array(
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->drupalLogin($this->unicef_user);
+    $this->assertNoText('Overview', 'User is successifully logged in', 'Devtrac');
+    $this->drupalPost('user/' . $this->unicef_user->uid . '/edit', array(
+      "roles[3]" => 3,
+    	'field_user_firstname[und][0][value]' => 'Admino',
+    	'field_user_surname[und][0][value]' => 'Adminol',
+    	'field_user_aboutme[und][0][value]' => 'aboutAdmin',
+    	'field_user_superior[und][0][target_id]' => 'admin (1)',
+    	'taxonomy_vocabulary_5[und]' => 4,
+    	'taxonomy_vocabulary_4[und]' => 8,),
+    	t('Save'));
+  	$this->assertLink('Users', 0, 'User link is found');
+  	$this->assertText('The changes have been saved.', 'The changes have been saved.');
+  }
+  /**
+   * Access the user page,
+   * 
+   * And check the user edit link.
+   */
+  public function testuserAccesHome() {
+  	$this->drupalGet('user');
+  	$this->assertNoLink('Contact', 0, 'Contact link is not found');
+        $this->drupalGet('Contact');
+  	$this->assertNoResponse(200, 0, 'Contact is not found');
+        $this->assertNoResponse(203, 0, 'Contact is not found');
+  	$this->assertNoText('Contact', 'Contact form is showing');
+  	$contact['subject'] = $this->randomString();
+  	$contact['message'] = $this->randomString(300);
+  	$this->assertNoField('copy', 'Send yourself a copy filed is not found');
+  	
+  }
+  /**
+   * Ensuring the selected fields on the user edit form
+   * 
+   * Are available and accessible.
+   */
+  public function testusereditContact() {
+    $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+    'query' =>array(
+      'destination' => 'user')));
+  	$this->assertNoText('Admino Adminol', 'Edit user form is showing');
+  	$this->assertField('name', 'name field is showing');
+  	$this->assertField('field_user_firstname[und][0][value]', 'first name field is found');
+  	$this->assertField('field_user_surname[und][0][value]', 'last name field is found');
+  }
+  /**
+   * Submiting the user edit form.
+   */
+  public function testuserEditContactSubmit() {
+    $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+  	'query' =>array(
+  	  'destination' => 'user')));
+    $this->assertText('Welcome, Admino', 'Edit user form is showing');
+    $editname['name'] = 'ozzy';
+  	$editname['current_pass'] = $this->unicef_user->pass;
+    $role['roles[3]'] = '';
+    $role['roles[5]'] = 5;
+    $role['field_user_aboutme[und][0][value]'] = $this->randomString(300);
+    $this->drupalPost(NULL, $role, t('Save'));
+  }
+  /**
+   * User edits desired fields.
+   * 
+   * Then clicks the saved searches.
+   */
+  public function testuserAccessSaveSearch() {
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	  'query' =>array(
+ 	    'destination' => 'user')));
+ 	  $this->assertNoText('Admino Adminol', 'Edit user form is showing');
+   	$editname['name'] = 'ozzy';
+  	$editname['current_pass'] = $this->unicef_user->pass;
+ 	  $role['roles[3]'] = '';
+  	$role['roles[5]'] = 5;
+  	$role['field_user_aboutme[und][0][value]'] = $this->randomString(300);
+  	$role['files[picture_upload]'] = 'sites/default/themes/devtrac7_theme/images/ws_pandas_in_love_1920x1200.jpg';
+ 	  $this->drupalPost(NULL, $role, t('Save'));
+ 	  $this->assertNoText('The changes have been saved.', 'The changes have been saved.');
+ 	  $this->assertNoLink('Saved searches', 0, 'Saved searches link found');
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	  'query' =>array(
+ 	    'destination' => 'user')));
+    $this->assertNoText('Admino Adminol', 'Edit user form is showing');
+ 	  $this->assertNoLink('Saved searches', 0, 'Saved searches link not found');
+  }
+  /**
+   * User edits desired fields.
+   * 
+   * Then clicks.
+   */
+  public function testuserAccessView() {
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	  'query' =>array(
+ 	    'destination' => 'user')));
+ 	  $this->assertText('Welcome, Admino', 'Edit user form is showing');
+ 	  $this->assertNoText('Admino Adminol', 'Edit user form is showing');
+ 	  $editname['name'] = 'ozzy';
+ 	  $editname['current_pass'] = $this->unicef_user->pass;
+ 	  $role['roles[3]'] = '';
+ 	  $role['roles[5]'] = 5;
+ 	  $role['field_user_aboutme[und][0][value]'] = $this->randomString(300);
+ 	  $role['files[picture_upload]'] = 'sites/default/themes/devtrac7_theme/images/ws_pandas_in_love_1920x1200.jpg';
+ 	  $this->drupalPost(NULL, $role, t('Save'));
+ 	  $this->assertNoText('The changes have been saved.', 'The changes have been saved.');
+ 	  $this->assertNoLink('Saved searches', 0, 'Saved searches link found');
+ 	  $this->assertNoLink('View', 0, 'View link is found');
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	    'query' =>array(
+ 	      'destination' => 'user')));
+ 	  $this->assertNoLink('Saved searches', 0, 'Saved searches link not found');
+ 	  $this->assertLink('View', 0, 'View link is found');
+  }
+ /**
+  * User edits desired fields.
+  * 
+  * Then submits the form.
+  */
+  public function testuserAccontactsUnicefUser() {
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	    'query' =>array(
+ 	      'destination' => 'user')));
+ 	  $this->assertText('Welcome, Admino', 'Edit user form is showing');
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	    'query' =>array(
+ 	      'destination' => 'user')));
+ 	  $this->assertNoText('Admino Adminol', 'Edit user form is showing');
+ 	  $editname['name'] = 'ozzy';
+ 	  $editname['current_pass'] = $this->unicef_user->pass;
+ 	  $role['roles[3]'] = '';
+ 	  $role['roles[5]'] = 5;
+ 	  $role['field_user_aboutme[und][0][value]'] = $this->randomString(300);
+ 	  $role['files[picture_upload]'] = 'sites/default/themes/devtrac7_theme/images/ws_pandas_in_love_1920x1200.jpg';
+ 	  $this->drupalPost(NULL, $role, t('Save'));
+ 	  $this->assertNoText('The changes have been saved.', 'The changes have been saved.');
+ 	  $this->assertNoLink('Saved searches', 0, 'Saved searches link found');
+ 	  $this->assertNoLink('View', 0, 'View link is found');
+ 	  $this->drupalGet('user/'.$this->unicef_user->uid.'/edit', array(
+ 	    'query' =>array(
+ 	      'destination' => 'user')));
+ 	  $this->assertNoLink('Saved searches', 0, 'Saved searches link not found');
+ 	  $this->assertLink('View', 0, 'View link is found');
+  }
+}

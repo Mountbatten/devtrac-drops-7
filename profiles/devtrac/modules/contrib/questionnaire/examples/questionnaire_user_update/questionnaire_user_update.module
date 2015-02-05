@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Questionnaire user update feature.
+ */
+
+include_once 'questionnaire_user_update.features.inc';

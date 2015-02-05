@@ -1,0 +1,17 @@
+name = "Devtrac7 Profile Menu"
+description = "Implements a nicemenu that contains links for the logged in user."
+core = "7.x"
+package = "Devtrac"
+
+dependencies[] = menu
+dependencies[] = menu_token
+
+files[] = devtrac7_profile_menu.module
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

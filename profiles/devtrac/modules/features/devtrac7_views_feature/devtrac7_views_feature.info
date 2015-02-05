@@ -1,0 +1,53 @@
+name = DevTrac7 Views Feature
+description = DevTrac7 Views Feature
+core = 7.x
+package = Devtrac
+version = 7.x-1.0
+project = devtrac7_views_feature
+dependencies[] = adaptive_image
+dependencies[] = comment
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = footable
+dependencies[] = image
+dependencies[] = media
+dependencies[] = openlayers_views
+dependencies[] = strongarm
+dependencies[] = taxonomy
+dependencies[] = views
+dependencies[] = views_infinite_scroll
+dependencies[] = views_slideshow
+dependencies[] = virtual_field
+datestamp = 1418915630
+features[ctools][] = strongarm:strongarm:1
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[image][] = gallery
+features[image][] = gallery_popup_images
+features[image][] = map_icon
+features[image][] = map_icon_bw
+features[image][] = print_thumbnail
+features[image][] = user_comment_img
+features[variable][] = ais_adaptive_styles
+features[variable][] = file_default_scheme
+features[variable][] = file_private_path
+features[variable][] = file_public_path
+features[variable][] = file_temporary_path
+features[variable][] = filefield_paths_schema_version
+features[views_view][] = devtrac_media_browser_extensions
+features[views_view][] = dvtrc_action_items
+features[views_view][] = dvtrc_field_trip
+features[views_view][] = dvtrc_locations
+features[views_view][] = dvtrc_maps
+features[views_view][] = dvtrc_site_visits
+features[views_view][] = dvtrc_user
+features[views_view][] = inbox
+features[views_view][] = oecd_sector_code
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

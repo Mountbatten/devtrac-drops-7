@@ -1,0 +1,14 @@
+name = Search API File Source Bundle Filter
+description = "Defines a new Search API Data Alteration callback that filters files on the source bundles they are attached to."
+dependencies[] = search_api
+core = 7.x
+package = Search
+
+files[] = includes/callback_file_source_bundle_filter.inc
+
+; Information added by Drupal.org packaging script on 2014-12-11
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "search_api_file_source_bundle_filter"
+datestamp = "1418317369"
+

@@ -1,0 +1,339 @@
+<?php
+
+/*
+function devtrac7_fieldtrip_progress_progress_field_getmenuitems($entitytype, $entityid) {
+  if ($entitytype == 'node') {
+//    $progress = array();
+//    $progress['fields'] = array();
+    $items = array();
+    $items['links'] = array();
+    $node = node_load($entityid);
+    switch ($node->type) {
+      case 'fieldtrip':
+        module_load_include('inc', 'devtrac7', 'devtrac7_fieldtrip');
+        // Except for the title we have 9 fields.
+        //        $total = 9;
+        //        $finished = 9;
+        $destination = devtrac7_progress_field_getdestination();
+        $menu = array();
+/*
+        // summary and narrative should not be empty or have the default values, but they have been discarded in devtrac7.
+        if (!devtrac7_fieldtrip_narrativeset($node)) {
+          $progress['fields']['field_fieldtrip_narrative'] = 'field_fieldtrip_narrative';
+          $menu['weight'] = 1;
+          $menu['title'] = t('Provide Narrative');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'] = array('ctools_js_load');
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addnarrative', $menu, $destination);
+          $finished--;
+        }
+        // User equals Author in devtrac7.
+        // places and percentages (on purpose) are optional.
+        if (!devtrac7_fieldtrip_placesset($node)) {
+          $progress['fields']['field_fieldtrip_places'] = 'field_fieldtrip_places';
+          $menu['weight'] = 1;
+          $menu['title'] = t('Provide Locations');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'] = array('ctools_js_load');
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addplaces', $menu, $destination);
+          $finished--;
+        }
+//        else {
+//          // We want the user to be able to change the location attached to the site report.
+//          $menu['weight'] = 3;
+//          $menu['title'] = t('Change Location');
+//          $menu['href'] = 'node' . $entityid . '/edit';
+////          $menu['load_functions'][] = 'ctools_js_load';
+//          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changelocation', $menu, $destination);
+//        }
+        if (!devtrac7_fieldtrip_percentagesset($node)) {
+          $progress['fields']['field_fieldtrip_fc_purpose'] = 'field_fieldtrip_fc_purpose';
+          $menu['weight'] = 2;
+          $menu['title'] = t('Change Purposes');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changepurposes', $menu, $destination);
+          $finished--;
+        }
+        $progress['total'] = $total;
+        $progress['finished'] = $finished;
+
+        // We want the user to be able to submit the fieldtrip to the manager.
+        if (devtrac7_fieldtrip_setstatus_access($node, 'submit')) { // && ($node->field_fieldtrip_status[$node->language][0]['value'] == 'In Progress')) {
+          $menu['weight'] = 3;
+          $menu['title'] = t('Submit');
+          $menu['href'] = 'node/' . $entityid . '/setstatus/submit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+//          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-setstatussubmit', $menu, $destination);
+          devtrac7_progress_field_addlink($entity_id, 0, $check, $items);
+        }
+        // We want the manager to be able to reject or approve the fieldtrip for publishing.
+        if (devtrac7_fieldtrip_setstatus_access($node, 'approve')) { // && ($node->field_fieldtrip_status[$node->language][0]['value'] == 'Submitted')) {
+          $menu['weight'] = 3;
+          $menu['title'] = t('Reject');
+          $menu['href'] = 'node/' . $entityid . '/setstatus/reject';
+//          $menu['load_functions'][] = 'ctools_js_load';
+//          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-setstatusreject', $menu, $destination);
+          devtrac7_progress_field_addlink($entity_id, 0, $check, $items);
+          $menu['weight'] = 4;
+          $menu['title'] = t('Approve');
+          $menu['href'] = 'node/' . $entityid . '/setstatus/approve';
+//          $menu['load_functions'][] = 'ctools_js_load';
+//          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-setstatusapprove', $menu, $destination);
+          devtrac7_progress_field_addlink($entity_id, 0, $check, $items);
+        }
+        break;
+/*
+      case 'ftritem':
+        module_load_include('inc', 'devtrac7', 'devtrac7_ftritem');
+        // Except for the title we have 12 fields.
+        $total = 12;
+        $finished = 12;
+        $destination = devtrac7_progress_field_getdestination();
+        $menu = array();
+        $menu['load_functions'] = array();
+        // summary and narrative should not be empty or have the default values.
+        // place, latlon, district, placetype, oecdcodes and datevisited are optional.
+        if (!devtrac7_ftritem_summaryset($node)) {
+          $progress['fields']['field_ftritem_public_summary'] = 'field_ftritem_public_summary';
+          $menu['weight'] = 1;
+          $menu['title'] = t('Provide Summary');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addsummary', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_ftritem_narrativeset($node)) {
+          $progress['fields']['field_ftritem_narrative'] = 'field_ftritem_narrative';
+          $menu['weight'] = 2;
+          $menu['title'] = t('Provide Full Report');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addnarrative', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_ftritem_placeset($node)) {
+          $progress['fields']['field_ftritem_place'] = 'field_ftritem_place';
+          $menu['weight'] = 3;
+          $menu['title'] = t('Provide Place');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addplace', $menu, $destination);
+          $finished--;
+        }
+        else {
+        // We want the user to be able to change the location attached to the site report.
+          $menu['weight'] = 3;
+          $menu['title'] = t('Change Location');
+          $menu['href'] = 'node' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changelocation', $menu, $destination);
+        }
+        if (!devtrac7_ftritem_latlonset($node)) {
+          $progress['fields']['field_ftritem_lat_long'] = 'field_ftritem_lat_long';
+          $menu['weight'] = 4;
+          $menu['title'] = t('Provide Lat-Long');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addlatlon', $menu, $destination);
+          $finished--;
+        }
+        else {
+          // We want the user to change the latlon of the site report.
+          $menu['weight'] = 4;
+          $menu['title'] = t('Change Lat-Long');
+          $menu['href'] = 'node' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changelatlon', $menu, $destination);
+        }
+        if (!devtrac7_ftritem_districtset($node)) {
+          $progress['fields']['taxonomy_vocabulary_6'] = 'taxonomy_vocabulary_6';
+          $menu['weight'] = 5;
+          $menu['title'] = t('Provide District');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-adddistrict', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_ftritem_placetypeset($node)) {
+          $progress['fields']['taxonomy_vocabulary_1'] = 'taxonomy_vocabulary_1';
+          $menu['weight'] = 6;
+          $menu['title'] = t('Provide Location Type');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addplacetype', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_ftritem_oecdcodesset($node)) {
+          $progress['fields']['taxonomy_vocabulary_8'] = 'taxonomy_vocabulary_8';
+          $menu['weight'] = 7;
+          $menu['title'] = t('Provide Subjects');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addoecdcodes', $menu, $destination);
+          $finished--;
+        }
+        else {
+          // We want the user to be able to change subjects on the site report.
+          $menu['weight'] = 7;
+          $menu['title'] = t('Change Subjects');
+          $menu['href'] = 'node' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changeoecdcodes', $menu, $destination);
+        }
+        if (!devtrac7_ftritem_datevisitedset($node)) {
+          $progress['fields']['field_ftritem_date_visited'] = 'field_ftritem_date_visited';
+          $menu['weight'] = 8;
+          $menu['title'] = t('Provide Date Visited');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-adddatevisited', $menu, $destination);
+          $finished--;
+        }
+        $progress['total'] = $total;
+        $progress['finished'] = $finished;
+        // We want the user to make changes (add/remove/edit) to images on the site report.
+        $menu['weight'] = 9;
+        $menu['title'] = t('Change Images');
+        $menu['href'] = 'node' . $entityid . '/edit';
+//        $menu['load_functions'][] = 'ctools_js_load';
+        devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changeimages', $menu, $destination);
+        break;
+      case 'actionitem':
+        module_load_include('inc', 'devtrac7', 'devtrac7_actionitem');
+        // Except for the title we have 9 fields.
+        $total = 9;
+        $finished = 9;
+        $destination = devtrac7_progress_field_getdestination();
+        $menu = array();
+        $menu['load_functions'] = array();
+        // respplace, district, duedate and oecdcodes are optional.
+        if (!devtrac7_actionitem_respplaceset($node)) {
+          $progress['fields']['field_actionitem_resp_place'] = 'field_actionitem_resp_place';
+          $menu['weight'] = 1;
+          $menu['title'] = t('Provide Location');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addrespplace', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_actionitem_districtset($node)) {
+          $progress['fields']['taxonomy_vocabulary_6'] = 'taxonomy_vocabulary_6';
+          $menu['weight'] = 2;
+          $menu['title'] = t('Provide District');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-adddistrict', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_actionitem_duedateset($node)) {
+          $progress['fields']['field_actionitem_due_date'] = 'field_actionitem_due_date';
+          $menu['weight'] = 3;
+          $menu['title'] = t('Provide Due Date');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addduedate', $menu, $destination);
+          $finished--;
+        }
+        if (!devtrac7_actionitem_oecdcodesset($node)) {
+          $progress['fields']['taxonomy_vocabulary_8'] = 'taxonomy_vocabulary_8';
+          $menu['weight'] = 4;
+          $menu['title'] = t('Provide Subjects');
+          $menu['href'] = 'node/' . $entityid . '/edit';
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addoecdcodes', $menu, $destination);
+          $finished;
+        }
+        else {
+          // We want the user to be able to change the oecdcodes on the action item.
+          $menu['weight'] = 4;
+          $menu['title'] = t('Change Subject');
+          $menu['href'] = 'comment/reply/' . $entityid;
+//          $menu['load_functions'][] = 'ctools_js_load';
+          devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changesubject', $menu, $destination);
+        }
+        $progress['total'] = $total;
+        $progress['finished'] = $finished;
+        // We want the user to to be able to change the status of the action item.
+        $menu['weight'] = 5;
+        $menu['title'] = t('Change Status');
+        $menu['href'] = 'comment/reply/' . $entityid;
+//        $menu['load_functions'][] = 'ctools_js_load';
+        devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-changestatus', $menu, $destination);
+        // We want the user to add a comment to the action item.
+        $menu['weight'] = 6;
+        $menu['title'] = t('Add Comment');
+        $menu['href'] = 'comment/reply/' . $entityid;
+//        $menu['load_functions'][] = 'ctools_js_load';
+        devtrac7_progress_field_addmenuitem($items, 'devtrac7_progress_field-addcomment', $menu, $destination);
+        break;
+    }
+  }
+//  $items['progress'] = $progress;
+  return $items;
+}
+ */
+
+/*
+function devtrac7_fieldtrip_progress_progress_field_addmenuitem(&$items, $key, $menu, $destination) {
+  devtrac7_progress_field_getmenuitem(&$items, $key, $menu, $destination);
+}
+ */
+
+/*
+function devtrac7_fieldtrip_progress_progress_field_getpercentages($entitytype, $entityid) {
+  $items = array();
+  $items['progress'] = array();
+  if ($entitytype != 'node') {
+    return $items;
+  }
+  $node = node_load($entityid);
+
+  switch ($node->type) {
+    case 'actionitem':
+      $items = devtrac7_actionitem_progress($node);
+      break;
+  }
+  return $items;
+}
+ */
+
+/**
+ * Define all progress checks provided by the module.
+*
+* @return array
+*   An associative array keyed by unique name of the field. Each check is an
+*   associative array containing:
+*   - name: The internal name of the progress check.
+*   - label: The human readable name of the progress check.
+*   - description: The description of the progress check.
+*   - url: An associative array that describes when and how a link should
+*     be rendered to allow the user to correct the check.
+*   - success_text: The text to display when the check succeeds.
+*   - fail_text: The text to display when the check fails.
+*   - function: The function that actually performs the progress check.
+*   - file_name: The file where that function is implemented.
+*   - required: Boolean determining whether the progress check is required
+*     or not. Is overridden by required_function.
+*   - required_function: Function determining whether the progress check is
+*     required or not. Overrides required.
+*/
+function devtrac7_fieldtrip_progress_devtrac7_progress_field_checks_info() {
+  module_load_include('inc', 'devtrac7', 'devtrac7_actionitem');
+  module_load_include('inc', 'devtrac7', 'devtrac7_ftritem');
+  module_load_include('inc', 'devtrac7', 'devtrac7_fieldtrip');
+  module_load_include('inc', 'devtrac7', 'devtrac7_activity');
+  module_load_include('inc', 'devtrac7', 'devtrac7_organisation');
+  module_load_include('inc', 'devtrac7', 'devtrac7_place');
+  module_load_include('inc', 'devtrac7', 'devtrac7_user');
+  $links = array(
+    'actionitem' => devtrac7_actionitem_devtrac7_progress_field_checks_info(),
+    'ftritem' => devtrac7_ftritem_devtrac7_progress_field_checks_info(),
+    'fieldtrip' => devtrac7_fieldtrip_devtrac7_progress_field_checks_info(),
+    'activity' => devtrac7_activity_devtrac7_progress_field_checks_info(),
+    'organisation' => devtrac7_organisation_devtrac7_progress_field_checks_info(),
+    'place' => devtrac7_place_devtrac7_progress_field_checks_info(),
+    'user' => devtrac7_user_devtrac7_progress_field_checks_info(),
+  );
+  return $links;
+}

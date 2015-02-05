@@ -1,0 +1,12 @@
+name = "Hurricane Integration"
+description = Replace Drupal Ajax indicators with Hurricane.
+core = "7.x"
+package = "User interface"
+dependencies[] = hurricane
+
+; Information added by Drupal.org packaging script on 2014-08-27
+version = "7.x-1.0-beta1+4-dev"
+core = "7.x"
+project = "hurricane"
+datestamp = "1409138029"
+

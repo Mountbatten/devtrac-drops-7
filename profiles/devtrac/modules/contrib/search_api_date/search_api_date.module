@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Search API Date.
+ */
+
+/**
+ * Implements hook_search_api_processor_info().
+ */
+function search_api_date_search_api_processor_info() {
+  $callbacks['date_processor'] = array(
+    'name'        => t('Date processor'),
+    'description' => t('This processor gives you the ability to alter date field and use the date part only.'),
+    'class'       => 'SearchApiDateProcessor',
+  );
+
+  return $callbacks;
+}
+
+/**
+ * Implements hook_facetapi_widgets().
+ */
+function search_api_date_facetapi_widgets() {
+  return array(
+    'facetapi_date_only_links' => array(
+      'handler' => array(
+        'label' => t('Date Only Links'),
+        'class' => 'FacetapiWidgetDateOnlyLinks',
+        'query types' => array('term', 'date'),
+      ),
+    ),
+  );
+}

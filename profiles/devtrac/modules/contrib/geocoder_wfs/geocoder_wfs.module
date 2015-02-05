@@ -1,0 +1,102 @@
+<?php
+/**
+ * @file
+ * This module allows for simple querying of WFS layers
+ *
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function geocoder_wfs_menu() {
+  $items = array();
+  //'admin/structure/openlayers/geosearch
+  $items['admin/config/content/geocoder/wfs'] = array(
+    'title' => 'WFS',
+    'description' => 'Manage Geosearch WFS Settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('geocoder_wfs_admin_settings'),
+    'access arguments' => array('administer openlayers'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+  );
+  return $items;
+}
+
+/**
+ * Return the settings form
+ */
+function geocoder_wfs_admin_settings() {
+  $form['geocoder_wfs_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenLayers WFS url'),
+    '#description' => t('eg. http://demo.opengeo.org/geoserver/wfs'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('geocoder_wfs_url', 'http://demo.opengeo.org/geoserver/wfs'),
+  );
+
+  $form['geocoder_wfs_namespace'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenLayers WFS Namespace'),
+    '#description' => t('eg. osm ,when the full namespace is xmlns:osm="http://demo.opengeo.org/geoserver/osm"'),
+    '#required' => TRUE,
+  '#default_value' => variable_get('geocoder_wfs_namespace', 'ne'),
+  );
+
+  $form['geocoder_wfs_layer'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenLayers WFS Layer'),
+    '#description' => t('eg. ne_10m_populated_places'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('geocoder_wfs_layer', 'ne_10m_populated_places'),
+  );
+
+  $form['geocoder_wfs_queryfield'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenLayers WFS Field'),
+    '#description' => t('eg. name. This field will be queried with a wildcard before and after, case insensitive. like: *field*'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('geocoder_wfs_queryfield', 'NAME'),
+  );
+
+  $form['geocoder_wfs_resultfields'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Result Fields.'),
+    '#description' => t('Fields to show in the result set, as comma seperated valued, eg "Devtrac:id,gml:name,Devtrac:District". The geo field will be detected automatically.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('geocoder_wfs_resultfields', 'ne:NAME,ne:ADM0NAME,ne:ADM1NAME'),
+  );
+
+  $form['geocoder_wfs_geofield'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Geo Fields.'),
+    '#description' => t('The field in the search result that holds the Geometry. eg. "Devtrac:the_geom".'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('geocoder_wfs_geofield', 'ne:the_geom'),
+  );
+  // Make a system setting form and return
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function geocoder_wfs_ctools_plugin_api() {
+	return array('version' => 1);
+}
+
+/**
+ * Implements hook_ctools_plugin_dierctory().
+ */
+function geocoder_wfs_ctools_plugin_directory($module, $plugin) {
+	return 'plugins/' . $plugin;
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function geocoder_wfs_ctools_plugin_type() {
+	return array(
+			'geocoder_handler' => array(),
+	);
+}

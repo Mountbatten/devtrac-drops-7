@@ -1,0 +1,22 @@
+name = Questionnaire Answer Module
+description = Module for storing the Answers with a Questionnaire
+
+package = Questionnaire
+core = 7.x
+dependencies[] = entity
+dependencies[] = entityreference
+dependencies[] = number
+dependencies[] = text
+dependencies[] = list
+dependencies[] = options
+
+files[] = questionnaire_answer.install
+files[] = questionnaire_answer.admin.inc
+files[] = questionnaire_answer.entity.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

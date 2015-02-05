@@ -1,0 +1,12 @@
+name = Comment block
+description = "Provides one comment form block for each content type that has comments enabled."
+core = 7.x
+dependencies[] = comment
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "commentblock"
+datestamp = "1423125155"
+

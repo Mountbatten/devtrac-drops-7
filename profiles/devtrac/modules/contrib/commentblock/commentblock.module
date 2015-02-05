@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * This module hides node comments and makes them available as a block
+ *
+ * Ported to Drupal 7 (and trimmed of views) by theworkdept.com
+ *
+ * Authors:
+ *   Dick Olsson (http://drupal.org/user/239911)
+ *   Joakim Stai (http://drupal.org/user/88701)
+ *
+ * Sponsors:
+ *   Senzilla (http://senzilla.com/)
+ *   NodeOne (http://nodeone.se/)
+ */
+
+/**
+ * Implements hook_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function commentblock_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#commentblock":
+      return '<p>'.  t("Hides node comments and makes them available as a block") .'</p>';
+      break;
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ *
+ * Remove comments from render array
+ */
+function commentblock_node_view($node, $view_mode, $langcode) {
+  unset($node->content['comments']);
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * Provide block that displays comments
+ */
+function commentblock_block_info() {
+  $blocks = array();
+  $blocks['commentblock'] = array(
+    'info' => t('Comments')
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ *
+ * Display comments in block
+ */
+function commentblock_block_view($delta) {
+  $block = array();
+  $node = menu_get_object('node');
+  if ($node->nid) {
+    $block['content'] = array(); // empty render array for now
+    $block['content'] = comment_node_page_additions($node);
+  }
+  return $block;
+}
+

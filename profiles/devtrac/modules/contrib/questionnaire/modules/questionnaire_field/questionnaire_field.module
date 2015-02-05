@@ -1,0 +1,334 @@
+<?php
+
+/**
+ * @file
+ * Implements a field to reference questionnaires and record when they are done.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function questionnaire_field_field_info() {
+  return array(
+    // We name our field as the associative name of the array.
+    'questionnaire_field' => array(
+      'label' => t('Questionnaires'),
+      'description' => t('References questionnaires and stores when they were done.'),
+      'settings' => array(),
+      'instance_settings' => array(),
+      'default_widget' => 'field_extrawidgets_hidden',
+      'default_formatter' => 'questionnaire_field_link',
+      // Support hook_entity_property_info() from contrib "Entity API".
+      'property_type' => 'struct',
+      'property_callbacks' => array('questionnaire_field_property_info_callback'),
+      'getter callback' => 'questionnaire_metadata_property_get',
+    ),
+  );
+}
+
+/**
+ * Property callback for entity_metadata_field_entity_property_info().
+ *
+ * @see questionnaire_field_field_info().
+ */
+function questionnaire_field_property_info_callback(&$info, $entity_type, $field,
+$instance, $field_type) {
+  // $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$field['field_name']];
+  // $field_type['property_type'] = $field['settings']['target_type'];
+
+  entity_metadata_field_default_property_callback($info, $entity_type, $field, $instance, $field_type);
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$field['field_name']];
+  $property['getter callback'] = 'questionnaire_field_metadata_property_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+
+  $property['property info'] = array(
+    'id' => array(
+      'type' => 'node',
+      'label' => t('Questionnaire'),
+      'description' => t('The questionnaire the user is, or has, completed.'),
+    ),
+    // @todo the various useful representations of context (type, id), entity,
+    // computed per type.
+    'context_type' => array(
+      'type' => 'text',
+      'label' => t('Context type'),
+      'description' => t('The context entity type of the questionnaire.'),
+    ),
+    'context_id' => array(
+      'type' => 'integer',
+      'label' => t('Context ID'),
+      'description' => t('The context ID of the questionnaire.'),
+    ),
+    'context_combined' => array(
+      'type' => 'text',
+      'label' => t('Context type:Context ID'),
+      'description' => t('A string representing the campaign.'),
+      'getter callback' => 'questionnaire_field_property_context_combined_get',
+      'computed' => TRUE,
+    ),
+    'started' => array(
+      'type' => 'date',
+      'label' => t('Started'),
+      'description' => t('Date questionnaire was begon.'),
+    ),
+    'updated' => array(
+      'type' => 'date',
+      'label' => t('Updated'),
+      'description' => t('Date questionnaire was last updated.'),
+    ),
+    'completed' => array(
+      'type' => 'date',
+      'label' => t('Completed'),
+      'description' => t('Date questionnaire was completed.'),
+    ),
+    'qid' => array(
+      'type' => 'node',
+      'label' => t('Question'),
+      'description' => t('The last question seen in the questionnaire.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function questionnaire_field_field_is_empty($item, $field) {
+  return empty($item['id']);
+}
+
+function questionnaire_field_property_context_combined_get($data, array $options, $name, $type, $info) {
+  if (isset($data['context_type']) && isset($data['context_id'])) {
+    return $data['context_type'] . ':' . $data['context_id'];
+  }
+  return NULL;
+}
+
+/**
+ * Getter callback for questionnaire_field.
+ *
+ * An Entity API default but returns array of properties.
+ *
+ * @see entity_metadata_property_get().
+ */
+function questionnaire_field_metadata_property_get($entity, array $options, $name, $entity_type, $info) {
+  $field = field_info_field($name);
+  $langcode = isset($options['language']) ? $options['language']->language : LANGUAGE_NONE;
+  $langcode = entity_metadata_field_get_language($entity_type, $entity, $field, $langcode, TRUE);
+  $values = array();
+  if (isset($entity->{$name}[$langcode])) {
+    foreach ($entity->{$name}[$langcode] as $delta => $data) {
+      $values[$delta] = $data;
+      if ($info['type'] == 'boolean' || $info['type'] == 'list<boolean>') {
+        // Ensure that we have a clean boolean data type.
+        $values[$delta] = (boolean) $values[$delta];
+      }
+    }
+  }
+  // For an empty single-valued field, we have to return NULL.
+  return $field['cardinality'] == 1 ? ($values ? reset($values) : NULL) : $values;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function questionnaire_field_field_formatter_info() {
+  return array(
+    'questionnaire_field_link' => array(
+      'label' => t('Simple link to the questionnaire.'),
+      'field types' => array('questionnaire_field'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function questionnaire_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch($display['type']) {
+    case 'questionnaire_field_link':
+      foreach ($items as $delta => $item) {
+        $questionnaire = node_load($item['id']);
+        $element[$delta] = array(
+          '#markup' => t(
+            '<a href="@url">@questionnaire</a>. Started: @started. Updated: @updated. Completed: @completed.',
+            array(
+              '@url' => url('node/' . $questionnaire->nid),
+              '@questionnaire' => check_plain($questionnaire->title),
+              '@started' => format_date($item['started']),
+              '@updated' => empty($item['updated']) ? '-------------' : format_date($item['updated']),
+              '@completed' => ($item['completed'])? 'Yes' : 'No',
+            )
+          ),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Helper function - return all fields of our field type.
+ *
+ * @param string $entity_type
+ *   Optional. The entity type, if NULL will return for all entities.
+ * @param string $bundle_name
+ *   Optional. The bundel name if appropriate.
+ */
+function questionnaire_field_get_instances($entity_type = NULL, $bundle_name = NULL) {
+  $questionnaire_fields = array();
+
+  // We don't need all the information? So is field_info_field_field_map()
+  // quicker?
+  if ($entity_type) {
+    $fields_info = field_info_instances($entity_type, $bundle_name);
+    foreach ($fields_info as $field_name => $value) {
+      $field_info = field_info_field($field_name);
+      if ($field_info['type'] == 'questionnaire_field') {
+        $questionnaire_fields[$field_name] = $field_info;
+      }
+    }
+  }
+  else {
+    // All entities using field_info_field_map().
+    $fields = field_info_field_map();
+    foreach ($fields as $field_name => $field) {
+      if ($field['type'] == 'questionnaire_field') {
+        $questionnaire_fields[$field_name] = $field;
+      }
+    }
+  }
+
+  return $questionnaire_fields;
+}
+
+/**
+ * Questionnaire hooks.
+ */
+
+/**
+ * Implementation of hook_questionnaire_submission_save().
+ *
+ * ****************************** @TODO **********************************
+ * This contains some crazy code for working out which field to fill in. The
+ * field itself also repeats data saved in questionnaire_answers and
+ * questionnaire_submission.
+ *
+ * Answer.
+ *  (a) something else has to say which field answers are going to be saved in.
+ *  The campaign module has a perfectly good way; and it's in the context. The
+ *  same could go for any other context that accepts saving onto the user.
+ *
+ *  (b) the field could only contain the submission id (+ last question answer
+ *  id). Linking it (for search_api, views etc.) like taxonomy field does to
+ *  taxonomy entity.
+ */
+function questionnaire_field_questionnaire_submission_save($submission, $answers) {
+  $found = FALSE;
+
+  // Retrieve the recipient.
+  $recipient = entity_load($submission->recipient_type, array($submission->recipient_id));
+  $recipient = reset($recipient);
+  list($id, $vid, $bundle_name) = entity_extract_ids($submission->recipient_type, $recipient);
+  foreach (questionnaire_field_get_instances($submission->recipient_type, $bundle_name) as $field_name => $field_info) {
+    // Full entity with fields has not necessarily been loaded.
+    field_attach_load($submission->recipient_type, array($id => $recipient), FIELD_LOAD_CURRENT, array('field_id' => $field_name));
+    $items = field_get_items($submission->recipient_type, $recipient, $field_name);
+    foreach ($items as $delta => $item) {
+      if ($item['id'] == $submission->questionnaire_id
+          && $item['context_type'] == $submission->context_type
+          && $item['context_id'] == $submission->context_id
+        ) {
+        $found = TRUE;
+        break 2;
+      }
+    }
+  }
+  if ($found) {
+    foreach ($answers as $answer) {
+      $recipient->{$field_name}['und'][$delta]['qid'] = $answer->question;
+      $recipient->{$field_name}['und'][$delta]['updated'] = date('U');
+      entity_save($submission->recipient_type, $recipient);
+    }
+  }
+}
+
+/**
+ * Find field delta. (@todo this is code from above. replace it.)
+ */
+function questionnaire_field_questionnaire_get_delta($recipient_type, $recipient_entity, $questionnaire_id, $context_type, $context_id) {
+  list($id, $vid, $bundle_name) = entity_extract_ids($recipient_type, $recipient_entity);
+  foreach (questionnaire_field_get_instances($recipient_type, $bundle_name) as $field_name => $field_info) {
+    // Full entity with fields has not necessarily been loaded.
+    field_attach_load($recipient_type, array($id => $recipient_entity), FIELD_LOAD_CURRENT, array('field_id' => $field_name));
+    $items = field_get_items($recipient_type, $recipient_entity, $field_name);
+    foreach ($items as $delta => $item) {
+      if ($item['id'] == $questionnaire_id
+          && $item['context_type'] == $context_type
+          && $item['context_id'] == $context_id
+        ) {
+        return $delta;
+      }
+    }
+  }
+}
+
+/****
+ * API functions.
+ *
+ * Helper functions to check and update questionnaire fields.
+ */
+
+/**
+ * Check to see if an entity questionnaire field has active questionnaire.
+ */
+function questionnaire_field_entity_active($entity_type, $entity, $field_name) {
+  // @todo want to use entity_metadata_wrapper isn't giving access to hidden
+  // field. This sucks. Want some neater way of getting to the field.
+
+  if (! isset($entity->$field_name)) {
+    watchdog('questionnaire_field', 'Attempting to access field @field on entity where it is not attached.');
+    return;
+  }
+
+  $questionnaires = (array) $entity->$field_name;
+  if (isset($questionnaires['und'])) { // Yes I know, see note above.
+    foreach ($questionnaires['und'] as $questionnaire) {
+      if (! empty($questionnaire['started']) && empty($questionnaire['completed'])) {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+
+  $wrapped = entity_metadata_wrapper($entity_type, $entity);
+  // As we have the entity, just itterate over fields to check for active one.
+  if (! isset($wrapped->$field_name)) {
+    return;
+  }
+  $questionnaires = $wrapped->$field_name->value();
+
+  foreach ($questionnaires as $questionnaire) {
+  }
+}
+
+/**
+ * Add questionnaire activity to an entity.
+ */
+function questionnaire_field_entity_add_questionnaire($entity_type, $entity, $field_name, $questionnaire) {
+  // @todo want to use entity_metadata_wrapper isn't giving access - yet, adding
+  // getters and setters should help.
+
+  if (! isset($entity->$field_name)) {
+    watchdog('questionnaire_field', 'Attempting to access field @field on entity where it is not attached.');
+    return;
+  }
+
+  watchdog('debug', 'Adding questionnaire field to user: ' . print_r($questionnaire, true) . ' ' . $field_name);
+
+  $entity->{$field_name}['und'][] = $questionnaire;
+  return entity_save($entity_type, $entity);
+}

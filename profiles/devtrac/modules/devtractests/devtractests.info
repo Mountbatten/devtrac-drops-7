@@ -1,0 +1,43 @@
+name = devtractests
+description = This module is intended to support test devetrac distribution.
+files[] = includes/devtractestcase.inc
+files[] = devtrac_Action_item.test
+files[] = devtrac_anony_actions.test
+files[] = devtrac_contact.test
+files[] = devtrac_createUser_formElements.test
+files[] = devtrac_facests.test 
+files[] = devtrac_fieldtrip_create.test
+files[] = devtrac_fieldtrip_formElements.test
+files[] = devtrac_fulltext_search.test 
+files[] = devtrac_aggregatedtests.test
+files[] = devtrac_index.test
+files[] = devtrac_goeblock_search.test
+files[] = devtrac_howDevtracWorks_page.test  
+files[] = devtrac_sitereport_options.test
+files[] = devtrac_sitereports.test
+files[] = devtractests.module
+files[] = devtrac_user_create.test
+files[] = devtrac_user_login.test
+files[] = devtrac_user_menu.test
+files[] = devtrac_user_roles.test
+files[] = devtrac_superioruser_response.test
+files[] = devtrac_questionnaire_tests.test
+files[] = devtarc_questionnaire_submissions.test
+files[] = devtrac_sitereportspage_asanonymoususer.test
+files[] = devtrac_sitereportspage_asfieldworker.test
+files[] = devtrac_actionitemspage_asanonymoususer.test
+files[] = devtrac_actionitemspage_asfieldworker.test
+files[] = devtrac_fieldtripspage_asanonymoususer.test
+files[] = devtrac_fieldtripspage_asfieldworker.test
+files[] = devtrac_imagespage_asanonymoususer.test
+files[] = devtrac_imagespage_asfieldworker.test
+files[] = devtrac_statisticspage_asanonymoususer.test
+core = 7.x
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

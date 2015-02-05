@@ -1,0 +1,13 @@
+name = "Devtrac Demo Phase Module"
+description = "Alters pager settings for view displays when using the db indexing service."
+core = "7.x"
+
+files[] = devtrac_demo_phase.module
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

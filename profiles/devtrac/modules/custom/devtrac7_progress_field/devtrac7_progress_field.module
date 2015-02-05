@@ -1,0 +1,819 @@
+<?php
+/*
+ *   Generates progress on fieldtrip and ftritem and loads it as an array
+ *   that we can render with ctools_dropbutton, links and
+ *   devtrac7_progress_bar that uses the jquery progress_bar plugin.
+ */
+
+
+
+/**
+ * Implements hook_field_info().
+ */
+function devtrac7_progress_field_field_info() {
+  return array(
+    'devtrac7_progress_field' => array(
+      'label' => t('Progress Field'),
+      'description' => t('Shows the progress.'),
+      'default_widget' => 'hidden',
+      'default_formatter' => 'devtrac7_progress_field_field_formatter',
+      'virtual_field' => array(
+        'entity_types' => array('node', 'user'),
+        'add_widget' => TRUE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_hook_info().
+ * Do we really need this???
+ */
+function devtrac7_progress_field_hook_info() {
+  return array(
+    'devtrac7_progress_field_checks_info' => array(
+      'group' => 'devtrac7_progress_field',
+    ),
+  );
+}
+
+/**
+ * Returns all defined field checks.
+ *
+ * @return array
+ *   Which holds an array of field_checks:
+ *     Each definition is an array keyed by the
+ *       machine readable name of the check.
+ *       name: string, the name of the check,
+ *       label: string, the label of the check
+ *       description: string, the description of the chack
+ *       url: array, suitable to be processed by theme_link()
+ *       finished: boolean, to be calculated (depends on finished_condition and function)
+ *       finished_condition: string, one of 'none', 'required', 'optional', 'all'
+ *       success_text: string, the text associated with success (finished = TRUE)
+ *       fail_text: string, the text associated with failure (finished = FALSE)
+ *       function: string, optional name of function that calculates the value of finished
+ *       filename: string, the name of the file where that function is implemented
+ *       required: boolean, whether the check is required or optional
+ *         (overriden by the optional requirered_function)
+ *       required_function: string, optional name of the function that calculates the
+ *         required status of the check (overrides required)
+ *       override: boolean, whether or not to show finished links
+ *         (overriden by the optional override_function)
+ *       override_function: string, optional name of function that calculates the
+ *         override status of the check (overrides override)
+ *       sortable: boolean, whether the array is sortable or not
+ *       weight: integer, the weight of the item (used for sorting)
+ *   and an unkeyed array of referencing_fields:
+ *     Each entry holds the name of a field that references the current entity.
+ *     Used for recursive progress calculations.
+ */
+function devtrac7_progress_field_get_checks_info() {
+  $progress_checks = &drupal_static(__FUNCTION__);
+  if (NULL === $progress_checks) {
+    $progress_checks = module_invoke_all('devtrac7_progress_field_checks_info');
+  }
+  return $progress_checks;
+}
+
+/**
+ * Implements hook_field_load().
+ * 
+ * This is a dummy implementation.
+ */
+function devtrac7_progress_field_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  foreach ($entities as $entity) {
+  	if ($entity_type == 'node') {
+      if (isset($entity->nid)) {
+       // Just put some arbitrary value in the field.
+        $items[$entity->nid] = array('dummy');
+      }
+  	}
+    if ($entity_type == 'user') {
+      if (isset($entity->uid)) {
+       // Just put some arbitrary value in the field.
+        $items[$entity->uid] = array('dummy');
+      }
+  	}
+  }
+  return;
+}
+
+
+/**
+ *  Implements hook_formatter_info().
+ */
+function devtrac7_progress_field_field_formatter_info() {
+  return array(
+    'devtrac7_progress_field_field_formatter' => array( //Machine name of the default formatter (ctools_dropbutton)
+      'label' => t('Progress Button'),
+      'field types' => array('devtrac7_progress_field'), //This will only be available to our own fields
+      'settings'  => array( // Array of the settings we'll create
+      ),
+    ),
+    'devtrac7_progress_field_field_formatter_bar' => array( //Machine name of the formatter
+      'label' => t('Progress Bar'),
+      'field types' => array('devtrac7_progress_field'), //This will only be available to our own fields
+      'settings'  => array( // Array of the settings we'll create
+      ),
+    ),
+    'devtrac7_progress_field_field_formatter_links' => array( //Machine name of the formatter
+      'label' => t('Progress Links'),
+      'field types' => array('devtrac7_progress_field'), //This will only be available to our own fields
+      'settings'  => array( // Array of the settings we'll create
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function devtrac7_progress_field_theme($existing, $type, $theme, $path) {
+  // Our own graphical progress bar theming function
+  // Uses jquery.ui.progressbar.min.js which is in drupal7 core
+  return array(
+    'devtrac7_progress_field_progress_bar' => array(
+      'arguments' => array(
+        'total' => array(
+          'value' => 0,
+        ),
+        'required' => array(
+          'value' => 0,
+          'percentage' => 0,
+          'description' => 'required of total',
+        ),
+        'finished_total' => array(
+          'value' => 0,
+          'percentage' => 0,
+          'description' => 'total',
+        ),
+        'finished_optional' => array(
+          'value' => 0,
+          'percentage' => 100,
+          'description' => 'optional',
+        ),
+        'finished_required' => array(
+          'value' => 0,
+          'percentage' => 0,
+          'description' => 'required',
+        ),
+      ),
+      'file' => 'devtrac7_progress_field.module',
+    ),
+    // Our own graphical progress links theming function
+    'devtrac7_progress_field_progress_links' => array(
+      'file' => 'devtrac7_progress_field.module',
+    ),
+  );
+}
+
+/**
+ * Dress up theme_devtrac7_progress_field_progress_bar.
+ *
+ * @param array $variables
+ *   An array suitable for theming using theme_links().
+ * @return string
+ *   The html for the progress bar.
+ */
+function theme_devtrac7_progress_field_progress_bar($variables) {
+  // Initialize all progress variabes.
+  $total = 0;
+  $required = 0;
+  $finished_total = 0;
+  $finished_required = 0;
+  foreach ($variables['links'] as $key => $link) {
+    if (isset($link['check'])) {
+      $total++;
+      if ($link['check']['finished']) {
+        $finished_total++;
+      }
+      if ($link['check']['required']) {
+        $required++;
+      }
+      if ($link['check']['finished'] && $link['check']['required']) {
+        $finished_required++;
+      }
+    }
+  }
+  $output = '';
+  // Output 3 progress bars and project one on top of the other.
+  // See css/devtrac7_progress_field.css for implementation.
+  if ($total > 0) {
+    drupal_add_library('system', 'ui.progressbar');
+    drupal_add_js(drupal_get_path('module', 'devtrac7_progress_field') . '/js/devtrac7_progress_field.js');
+    $output .= '<div class="devtrac7-progress-bar">';
+    // The progress on all items (required and optional)
+    $output .= '<div class="devtrac7progressbar devtrac7progressbar-total" rel="' . floor((100 * $finished_total) / $total) . '"></div>';
+    $output .= '<div class="devtrac7progressbar-required-descr">required</div>';
+    $output .= '<div class="devtrac7progressbar-optional-descr">optional</div>';
+    // The progress on required items
+    $output .= '<div class="devtrac7progressbar devtrac7progressbar-required" rel="' . floor((100 * $finished_required) / $total) . '"></div>';
+    // The line marking the percentage of required items on all items.
+    $output .= '<div class="devtrac7progressbar devtrac7progressbar-req-of-tot" rel="' . floor((100 * $required) / $total) . '"></div>';
+    $output .= '</div>';
+  }
+  return $output;
+}
+
+/**
+ * Dress up theme_devtrac7_progress_field_progress_links.
+ *
+ * @param array $variables
+ *   An array suitable for theming using theme_links().
+ * @return string
+ *   The html for the progress links.
+ */
+function theme_devtrac7_progress_field_progress_links($variables) {
+  $links = $variables['links'];
+  $linksets = array();
+  foreach ($links as $key => $link) {
+    $keyparts = explode('-', $key);
+    if ($keyparts[1] == 0) { // The fieldtrip
+      $level0id = $keyparts[2];
+      $linksets[$level0id][$key] = $link;
+    }
+    if ($keyparts[1] == 1) { // A sitereport
+      $level1id = $keyparts[2];
+      $level1entity = entity_load_single('node', $level1id);
+      if ($level1entity->type == 'ftritem') {
+        $level0id = $level1entity->field_ftritem_field_trip[$level1entity->language][0]['target_id'];
+      }
+      else { // actionitem
+        $level0id = $level1entity->field_actionitem_ftreportitem[$level1entity->language][0]['target_id'];
+      }
+      $linksets[$level0id][$level1id][$key] = $link;
+    }
+    if ($keyparts[1] == 2) { // An actionitem
+      $level2id = $keyparts[2];
+      $level2entity = entity_load_single('node', $level2id);
+      $level1id = $level2entity->field_actionitem_ftreportitem[$level2entity->language][0]['target_id'];
+      $level1entity = entity_load_single('node', $level1id);
+      $level0id = $level1entity->field_ftritem_field_trip[$level1entity->language][0]['target_id'];
+      $linksets[$level0id][$level1id][$level2id][$key] = $link;
+    }
+  }
+  $output = '';
+
+  foreach ($linksets as $ftid => $fieldtrip) {
+    if (is_numeric($ftid)) {
+      $output .= '<ul class="links">';
+      foreach($fieldtrip as $srid => $sitereport) {
+        if (is_numeric($srid)) {
+          $output .= '<li class="level-1">';
+          $output .= '<ul class="links">';
+          foreach ($sitereport as $aiid => $actionitem) {
+            if (is_numeric($aiid)) {
+              $output .= '<li class="level-2">';
+              $output .= '<ul class="links">';
+              foreach ($actionitem as $linkid => $ailink) {
+                $output .= devtrac7_progress_field_link_render($ailink, $linkid);
+              }
+              $output .= '</ul>';
+              $output .= '</li>';
+            }
+            else {
+              $output .= devtrac7_progress_field_link_render($actionitem, $aiid);
+            }
+          }
+          $output .= '</ul>';
+          $output .= '</li>';
+        }
+        else {
+          $output .= devtrac7_progress_field_link_render($sitereport, $srid);
+        }
+      }
+      $output .= '</ul>';
+    }
+    else {
+      $output .= devtrac7_progress_field_link_render($fieldtrip, $ftid);
+    }
+  }
+
+  return $output;
+}
+
+function devtrac7_progress_field_link_render($link, $identifier) {
+  $output = '';
+  $class = array($identifier);
+  $output .= '<li' . drupal_attributes(array('class' => $class)) . '>';
+  if (isset($link['href'])) {
+    // Pass in $link as $options, they share the same keys.
+    $output .= l($link['title'], $link['href'], $link);
+  }
+  elseif (!empty($link['title'])) {
+    // Some links are actually not links, but we wrap these in <span> for adding title and class attributes.
+    if (empty($link['html'])) {
+      $link['title'] = check_plain($link['title']);
+    }
+    $span_attributes = '';
+    if (isset($link['attributes'])) {
+      $span_attributes = drupal_attributes($link['attributes']);
+    }
+    $output .= '<span' . $span_attributes . '>' . $link['title'] . '</span>';
+  }
+  $output .= '</li>';
+
+  return $output;
+}
+
+/**
+ * Implements hook_field_formatter_prepare_view().
+ *
+ * Here we gather the information to be displayed by the formatter.
+ */
+function devtrac7_progress_field_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  foreach ($instances as $delta => $instance) {
+    $items[$delta] = devtrac7_progress_field_progress_field_getprogress($entity_type, $delta); // Here delta is the entity_id
+  }
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ * Here we render our array of information to be displayed.
+ */
+function devtrac7_progress_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  switch ($instance['display']['default']['type']) {
+    case 'devtrac7_progress_field_field_formatter': // ctools_dropbutton
+      module_load_include('inc', 'ctools', 'dropbutton.theme');
+      // Remove undesired links from display
+      foreach ($items['links'] as $key => $link) {
+        if (isset($link['check'])) {
+          if (isset($link['check']['url']['override_function']) && ($link['check']['url']['override_function'] != '')) {
+            if ($entity_type == 'node') {
+              $entity = entity_load_single($entity_type, $entity->nid);
+            }
+            if ($entity_type == 'user') {
+              $entity = entity_load_single($entity_type, $entity->uid);
+            }
+            $function = $link['check']['url']['override_function'];
+            $override = $function($entity);
+          }
+          else {
+            // without this check there were a LOT of errors in the syslog
+            if (isset($link['check']['url']['override'])) {
+              $override = $link['check']['url']['override'];
+            }
+          }
+        }
+        // Remove the link if it is undesired
+        if (isset($link['level']) && (($link['level'] != 0) || !isset($link['check']) || !$link['check']['required'] || !$link['check']['url']['contextual'] || (!$override))) {
+          unset($items['links'][$key]);
+        }
+      }
+      $element['links'] = array('#markup' => '<div class="ctools-wrapper">' . theme('links__ctools_dropbutton', $items) . '</div>'); // here delta is the key of the array (links in this case)
+      break;
+    case 'devtrac7_progress_field_field_formatter_bar': // Progress bar
+      // Remove undesired links from display
+      foreach ($items['links'] as $key => $link) {
+        // Remove the link if it is undesired
+        if (isset($link['check']) && isset($link['check']['finished_condition']) && ($link['check']['finished_condition'] != 'none')) {
+          unset($items['links'][$key]);
+        }
+      }
+      $element['links'] = array('#markup' => theme('devtrac7_progress_field_progress_bar', $items)); // here delta is the key of the array (links in this case)
+      break;
+    case 'devtrac7_progress_field_field_formatter_links': // List of links
+      // Remove undesired links from display and change the text to something more descriptive
+      foreach ($items['links'] as $key => $link) {
+        if (isset($link['check'])) {
+          if (isset($link['check']['url']['override_function']) && ($link['check']['url']['override_function'] != '')) {
+            if ($entity_type == 'node') {
+              $entity = entity_load_single($entity_type, $entity->nid);
+            }
+            if ($entity_type == 'user') {
+              $entity = entity_load_single($entity_type, $entity->uid);
+            }
+            $function = $link['check']['url']['override_function'];
+            $override = $function($entity);
+          }
+          else {
+            if (isset($link['check']['url']['override'])) {
+              $override = $link['check']['url']['override'];
+            }
+          }
+        }
+        // Remove the link if it is undesired
+        if (!isset($link['check']) || (!$link['check']['url']['contextual'] || ($link['check']['finished'] && !$override))) {
+          unset($items['links'][$key]);
+        }
+        else { // Change the text to something more descriptive
+          $args = explode("/", $link['href']);
+          $item = entity_load_single($args[0], $args[1]);
+          $items['links'][$key]['title'] = $link['check']['description'];
+          if ($item->type == 'ftritem') {
+            $items['links'][$key]['title'] = str_replace('the Site Report', trim($item->title), $link['check']['description']);
+          }
+          if ($item->type == 'actionitem') {
+            $items['links'][$key]['title'] = str_replace('the Action Item', 'Action Item ' . trim($item->title), $link['check']['description']);
+          }
+          // Add the required asterisk to required links
+          if (in_array('devtrac7-progress-field-required', $items['links'][$key]['attributes']['class'])) {
+            $items['links'][$key]['title'] .= '<span class="form-required" original-title="This field is required.">*</span>';
+            $items['links'][$key]['html'] = TRUE;
+          }
+        }
+      }
+      $element['links'] = array('#markup' => theme('devtrac7_progress_field_progress_links', $items)); // here delta is the key of the array (links in this case)
+      break;
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_prepare_view().
+ *
+ * Here we gather the information to be displayed by the formatter.
+ */
+function devtrac7_progress_field_field_formatter_bar_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  foreach ($instances as $delta => $instance) {
+    // We need all the items, if the current user has node update access or not.
+    // So we added an $access argument (TRUE) at the end.
+    // This is only needed for the progress bar.
+    $items[$delta] = devtrac7_progress_field_progress_field_getprogress($entity_type, $delta, 0, TRUE); // Here delta is the entity_id
+  }
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ *  Here we render our array of information to be displayed.
+ */
+function devtrac7_progress_field_field_formatter_bar_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  return devtrac7_progress_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+}
+
+/**
+ * Implements hook_field_formatter_prepare_view().
+ *
+ * Here we gather the information to be displayed by the formatter.
+ */
+function devtrac7_progress_field_field_formatter_links_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  devtrac7_progress_field_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, $items, $displays);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ *
+ *  Here we render our array of information to be displayed.
+ */
+function devtrac7_progress_field_field_formatter_links_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  return devtrac7_progress_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+}
+
+/**
+ * Gets the destination of a link and returns it as a string with query parameters in it
+ * 
+ * @return string
+ *   The destination with query parameters
+ */
+function devtrac7_progress_field_getdestination() {
+  $destination = current_path();
+  $query = drupal_http_build_query(drupal_get_query_parameters());
+  if ($query != '') {
+    $destination .= '?' . $query;
+  }
+  return $destination;
+}
+
+/**
+ * Adds a menu item from the contextual menu to our progress array.
+ * 
+ * @param array $items
+ *   An array to be returned
+ * @param string $key
+ *   The key into the array of links
+ * @param array $menu
+ *   The menu that holds the link keyed by $key
+ * @param string $destination
+ *   The destination with query parameters
+ */
+function devtrac7_progress_field_getmenuitem(&$items, $key, $menu, $destination) {
+  $query = array();
+  if (isset($menu['options']['query'])) {
+    $query = $menu['options']['query'];
+  }
+  $query['destination'] = $destination;
+  $items['links'][$key] = array (
+    'title' => $menu['title'],
+    'href' => $menu['href'],
+//      'query' => array (
+//      'destination' => $destination,
+//    ),
+    'query' => $query,
+  );
+  if (in_array('ctools_js_load', $menu['load_functions'])) {
+    $items['links'][$key]['attributes'] = array (
+      'class' => array('ctools-use-modal'),
+    );
+  }
+}
+
+/**
+ * Generates an array of links that represent the progress on an entity of type 'node'.
+ * 
+ * @param string $entity_type
+ *   The type of the entity.
+ * @param integer $entity_id
+ *   The id of the entity (nid for entities of type 'node').
+ * @param integer $level
+ *   The level in the structure when using referencing_fields.
+ * @param boolean $access
+ *   Whether or not we should override access\
+ *   
+ * @return array $items
+ *   An array that holds an array keyed 'links'
+ *     'links' should be suitable for use with the theme_links() theming function.
+ */
+function devtrac7_progress_field_progress_field_getprogress($entity_type, $entity_id, $level = 0, $access = FALSE) {
+	global $user;
+  $items = array();
+  $items['links'] = array();
+  $entity = entity_load_single($entity_type, $entity_id);
+  if (!in_array($entity_type, array('node', 'user'))) {
+  	// Bail out if the entity is neither a node nor a user
+    return $items;
+  }
+  if ($entity_type == 'node') {
+    // TODO: This is a quick fix for the devtrac system
+    // Remove this before contributing to drupal.org
+    if (($entity->type == 'ftritem') && isset($entity->field_ftritem_status[$entity->language][0]['value']) && ($entity->field_ftritem_status[$entity->language][0]['value'] == 'Submitted')) {
+      // Bail out if site report is submitted (progress is 100%, so holds no info)
+      return $items;
+    }
+    if (($entity->type == 'fieldtrip') && isset($entity->field_fieldtrip_status[$entity->language][0]['value']) && ($entity->field_fieldtrip_status[$entity->language][0]['value'] == 'Approved')) {
+      // Bail out if fieldtrip is approved (progress is 100%, so holds no info)
+      // Should allow access to Full Report if node is published.
+      if ($entity->status == 1) {
+        $menus = menu_contextual_links('devtrac7_progress_field', $entity_type, array($entity_id));
+        $destination = devtrac7_progress_field_getdestination();
+        foreach ($menus as $key => $menu) {
+         	if ($key == 'devtrac7_progress_field-fullreport') {
+            devtrac7_progress_field_getmenuitem($items, $key, $menu, $destination);
+            break;
+        	}
+        }
+      }
+  	  return $items;
+    }
+  }
+
+  if ($level == 0) {
+    // Add al standard contextual links of the entity to the progress field
+    $menus = menu_contextual_links('devtrac7_progress_field', $entity_type, array($entity_id));
+    $destination = devtrac7_progress_field_getdestination();
+    foreach ($menus as $key => $menu) {
+      if ($entity->status == 1) {
+        // TODO: This is another quick fix for the devtrac system
+        // Remove this before contributing to drupal.org
+        if ($key == 'devtrac7_progress_field-addsubmission') {
+          if ($entity->type != 'ftritem') {
+            continue;
+          }
+          if ($user->uid != $entity->uid) {
+            continue;
+          }
+        }
+        devtrac7_progress_field_getmenuitem($items, $key, $menu, $destination);
+      }
+      else {
+        // TODO: This is a quick fix for the devtrac system
+        // Remove this before contributing to drupal.org
+        // Only add the Restore (Publish) link to the progress bar
+        if ($key == 'devtrac7_progress_field-publish/%') {
+      	  devtrac7_progress_field_getmenuitem($items, $key, $menu, $destination);
+      	  return $items;
+        }
+      }
+    }
+  }
+
+  // Add the specific progress links implemented for the bundle the entity belongs to.
+  $allchecks = devtrac7_progress_field_get_checks_info();
+  if ($entity_type == 'node') {
+  	if (in_array($entity->type, array_keys($allchecks))) {
+      $checks = $allchecks[$entity->type];
+    }
+    else {
+      // The entity is from a bundle that does not implement progress.
+      // So bail out now.
+      return $items;
+    }
+  }
+  elseif ($entity_type == 'user') {
+  	if (in_array('user', array_keys($allchecks))) {
+      $checks = $allchecks['user'];
+    }
+    else {
+      // The user entity does not implement progress.
+      // So bail out now.
+      return $items;
+    }
+  }
+  else {
+  	// Entity type is not supported by progress_field module.
+  	return $items;
+  }
+
+  // Add links.
+  foreach ($checks as $key => $check) {
+    if ($key == 'referencing_fields') {
+      // Recursively add links from entities referencing the entity.
+      // We only do this for entities of type 'node'.
+      if (($entity_type == 'node') && !empty($check)) {
+        foreach ($check as $referencing_field) {
+          $query = db_select('node', 'n');
+          $query->join('field_data_' . $referencing_field, 'fdr', 'n.nid = fdr.' . $referencing_field . '_target_id');
+          $query->fields('fdr', array('entity_id'))
+            ->condition('n.status', 1, '=')
+            ->condition('fdr.' . $referencing_field . '_target_id', $entity->nid, '=');
+          $referencing_entity_ids = $query->execute();
+          foreach ($referencing_entity_ids as $referencing_entity_id) {
+            $referencing_entity = entity_load_single('node', $referencing_entity_id->entity_id);
+            if ($referencing_entity->status != 0) {
+              $newitems = devtrac7_progress_field_progress_field_getprogress($entity_type, $referencing_entity_id->entity_id, $level + 1, $access);
+              foreach ($newitems['links'] as $k => $newitem) {
+                $items['links'][$k] = $newitem;
+              }
+            }
+          }
+        }
+      }
+    }
+    else {
+      // Add links from the entity itself.
+      if ($check['finished_condition'] == 'none') {
+        $function = $check['function'];
+        $checks[$key]['finished'] = $function($entity);
+        if ($entity_type == 'node') {
+          if ($access || node_access('update', $entity)) {
+            // Add the link to the start of the array so it shows first/on top.
+            devtrac7_progress_field_addlink($entity_type, $entity_id, $level, $checks[$key], $items);
+          }
+        }
+        if ($entity_type == 'user') {
+          // Add the link to the start of the array so it shows first/on top.
+          devtrac7_progress_field_addlink($entity_type, $entity_id, $level, $checks[$key], $items);
+        }
+      }
+    }
+  }
+
+  // Calculate the finished status of all the progress checks.
+  // First determine the finished status of all required checks that
+  // don't have a special finished_condition (required/optional/all).
+  // We use these to allow manual workflow using node access
+  // functions on submitting nodes.
+  $finished_all_required = TRUE;
+  foreach ($items['links'] as $key => $link) {
+    if (isset($link['check']['required']) && $link['check']['required'] && isset($link['check']['finished_condition']) && ($link['check']['finished_condition'] != '') && ($link['check']['finished_condition'] == 'none')) {
+      if (!$link['check']['finished']) {
+        $finished_all_required = FALSE;
+        break;
+      }
+    }
+  }
+
+  // Now do the same for the optional checks
+  $finished_all_optional = TRUE;
+  foreach ($items['links'] as $key => $link) {
+    if (isset($link['check']['required']) && !$link['check']['required'] && isset($link['check']['finished_condition']) && ($link['check']['finished_condition'] != '') && ($link['check']['finished_condition'] == 'none')) {
+      if (!$link['check']['finished']) {
+        $finished_all_optional = FALSE;
+        break;
+      }
+    }
+  }
+
+  // For all checks that require a special finished_condition determine the finished status.
+  foreach ($checks as $key => $check) {
+    if (isset($check['finished_condition']) && ($check['finished_condition'] != 'none')) {
+      $function = $check['function'];
+      $check['finished'] = $function($entity);
+      switch ($check['finished_condition']) {
+        // These items need some reverse psychology.
+        // By default items that are finished are not showing.
+        // These items however have to show only when finished.
+        // So $checks[$key]['finished'] needs to be False.
+        case 'all':
+          $checks[$key]['finished'] = !($check['finished'] && ($finished_all_optional && $finished_all_required));
+          break;
+        case 'required':
+          $checks[$key]['finished'] = !($check['finished'] && $finished_all_required);
+          break;
+        case 'optional':
+          $checks[$key]['finished'] = !($check['finished'] && $finished_all_optional);
+          break;
+        case 'none':
+          break;
+      }
+      $checks[$key]['weight'] = -100;
+      if ($entity_type == 'node') {
+      	if ($access || node_access('update', $entity)) {
+          // Add the link to the start of the array so it shows first/on top.
+          devtrac7_progress_field_addlink($entity_type, $entity_id, $level, $checks[$key], $items, 'start');
+      	}
+      }
+      if (($entity_type == 'user') && ($user->uid == $entity->uid)) {
+        // Add the link to the start of the array so it shows first/on top.
+        devtrac7_progress_field_addlink($entity_type, $entity_id, $level, $checks[$key], $items, 'start');
+      }
+    }
+  }
+  return $items;
+}
+
+/**
+ * Add a single link to the 'links' array of the structure to be passed to
+ * the theme_links() theming function.
+ * 
+ * @param integer $entity_type
+ *   The type of the entity ('node' or 'user').
+ * @param integer $entity_id
+ *   The id of the entity (nid for entities of type 'node').
+ * @param unknown_type $level
+ *   The level in the structure when using referencing_fields.
+ * @param unknown_type $check
+ *   A single check to be performed by the progress_field module
+ * @param unknown_type $items
+ *   The array of items to be passed to the theme_links() theming function.
+ * @param unknown_type $mode
+ *   Whether to add the item to the start or the end of the links array.
+ */
+function devtrac7_progress_field_addlink($entity_type, $entity_id, $level, &$check, &$items, $mode = 'end') {
+  $key = 'devtrac7_progress_field_' . substr($check['function'], 9);
+  $href = $check['url']['path'];
+  // Put some ctools modal support in.
+  if (strpos($check['url']['path'], '%ctools_js') !== FALSE) {
+    $href = str_replace('%ctools_js', '', $check['url']['path']);
+    $check['url']['attributes']['class'][] = 'ctools-use-modal';
+  }
+  $href = str_replace('%', $entity_id, $href);
+  // Add some classes to the links so they can be styled properly.
+  $check['url']['attributes']['class'][] = 'devtrac7-progress-field-level-' . $level;
+  if ($check['finished']) {
+    $check['url']['attributes']['class'][] = 'devtrac7-progress-field-finished';
+  }
+  else {
+    $check['url']['attributes']['class'][] = 'devtrac7-progress-field-not-finished';
+  }
+  if (isset($check['finished_condition']) && ($check['finished_condition'] != 'none')) {
+    $check['url']['attributes']['class'][] = 'devtrac7-progress-field-style-button';
+  }
+  if ($check['required_function'] != '') {
+    $entity = entity_load_single($entity_type, $entity_id);
+    $function = $check['required_function'];
+    if ($function($entity)) {
+      $check['url']['attributes']['class'][] = 'devtrac7-progress-field-required';
+    }
+    else {
+      $check['url']['attributes']['class'][] = 'devtrac7-progress-field-optional';
+    }
+  }
+  else {
+    if ($check['required']) {
+      $check['url']['attributes']['class'][] = 'devtrac7-progress-field-required';
+    }
+    else {
+      $check['url']['attributes']['class'][] = 'devtrac7-progress-field-optional';
+    }
+  }
+  $query = array();
+  // Set the destination on the link.
+  $query['destination'] = $check['url']['query']['destination'];
+  $link = array(
+    $key . '-' . $level . '-' . $entity_id => array(
+      'title' => $check['url']['text'],
+      'href' => $href,
+      'attributes' => $check['url']['attributes'],
+      'query' => $query,
+      'fragment' => $check['url']['fragment'],
+      'check' => $check,
+      'level' => $level,
+    ),
+  );
+  if ($mode = 'start') {
+    // Add the link at the start of the array.
+    $links = array_merge($link, $items['links']);
+  }
+  else {
+    // Add the link at the end of the array.
+    $links = array_merge($items['links'], $link);
+  }
+  $items['links'] = $links;
+}
+
+/**
+ * Implements hook_field_is_empty().
+ * 
+ * This has to be implemented.
+ * An error is thrown if you don't.
+ */
+function devtrac7_progress_field_field_is_empty() {
+  // Always return FALSE.
+  // An error is thrown if you return TRUE.
+  // Don't understand the rationale behind this yet.
+  return FALSE;
+}

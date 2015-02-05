@@ -1,0 +1,15 @@
+name = "Devtrac Views Module"
+description = "Implements all hooks for Views."
+core = "7.x"
+dependencies[] = "views"
+package = "Devtrac"
+
+files[] = devtrac7_views.module
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devtrac7 Solr User Feature feature.
+ */
+
+include_once 'devtrac7_solr_user_feature.features.inc';

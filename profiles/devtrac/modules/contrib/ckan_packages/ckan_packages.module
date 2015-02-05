@@ -1,0 +1,182 @@
+<?php
+
+/**
+ * @file
+ * Handles routing to list and retrieve package metadata.
+ */
+
+/** @mainpage CKAN API
+ * 
+ * If your website has any data available that should be shared on a CKAN/DKAN based 
+ * open data platform and you do not want to write a full API on your Drupal website
+ * then this API module can help you.
+ * 
+ * This module will implement the part of the CKAN API that is needed to harvest 
+ * the metadata of your (csv) datasets by any remote CKAN/DKAN installation.
+ * 
+ * Once CKAN knows the URL of your CSV datasources, it can even harvest your data
+ * using the @link http://docs.ckan.org/projects/datapusher/en/latest/ datapusher @endlink. At that point your users can use the CKAN datastore API
+ * to retrieve your data, and you dont have to build an API anymore.
+ * 
+ * So, by implementing the @link http://docs.ckan.org/en/latest/api/legacy-api.html CKAN API 2.0@endlink
+ * CKAN is able to harvest Drupal data as datasets. The @link https://github.com/ckan/ckanext-harvest CKAN Harvester @endlink
+ * extention is depending on the legacy V2 of the API. This module has no aspiration
+ * to implement the V3 version of the CKAN API.
+ * 
+ * Consecutive data queries into your data can then
+ * be done through the @link http://docs.ckan.org/en/latest/maintaining/datastore.html#the-datastore-api CKAN Datastore API@endlink
+ */
+
+/**
+ * Implements hook_services_resources()
+ * 
+ * Returns the only 2 calls/endpoints on the full CKAN API that is implemented
+ * dataset for retrieving an individual dataset and index to retrieve a list
+ * of datasets.
+ */
+function ckan_packages_services_resources() {
+  return array(
+    'dataset' => array(
+      'retrieve' => array(
+        'help' => 'Retrieves a package',
+        'file' => array('file' => 'inc', 'module' => 'ckan_packages'),
+        'callback' => 'ckan_packages_retrieve',
+        'access callback' => '_ckan_packages_access',
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
+        'args' => array(
+          array(
+            'name' => 'id',
+            'type' => 'string',
+            'description' => 'The id of the resource to get',
+            'source' => array('path' => '0'),
+            'optional' => FALSE,
+          ),
+        ),
+      ),
+      'index' => array(
+        'help' => 'Packages list',
+        'file' => array('file' => 'inc', 'module' => 'ckan_packages'),
+        'callback' => 'ckan_packages_list',
+        'access callback' => '_ckan_packages_access',
+        'access arguments' => array('list'),
+        'access arguments append' => FALSE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function ckan_packages_ctools_plugin_api($owner, $api) {
+  if ($owner == 'services' && $api == 'services') {
+    return array(
+      'version' => 3,
+      'file' => 'ckan_packages.inc',
+      'path' => drupal_get_path('module', 'ckan_packages'),
+    );
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function ckan_packages_ctools_plugin_type() {
+  return array(
+    'packages' => array(
+      'classes' => array('handler'),
+      'use hooks' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Access callback.
+ */
+function _ckan_packages_access($op, $args = array()) {
+  // @todo
+  return TRUE;
+}
+
+/**
+ * Internal function to retrieve lists, or individual plugins.
+ */
+function _ckan_packages_get_plugin($name, $id) {
+  static $cache = array();
+
+  if (!$id || !isset($cache[$name][$id])) {
+    ctools_include('plugins');
+    $plugins = ctools_get_plugins('ckan_packages', $name);
+    foreach ($plugins as $key => $plugin) {
+      if (empty($plugin['hidden'])) {
+        $handler = ctools_plugin_get_class($plugin, 'handler');
+        $cache[$name][$key] = new $handler();
+      }
+    }
+  }
+
+  if ($id) {
+    return isset($cache[$name][$id]) ? $cache[$name][$id] : NULL;
+  }
+  else {
+    return isset($cache[$name]) ? $cache[$name] : NULL;
+  }
+}
+/*
+ * Implements hook_menu()
+ */
+function ckan_packages_menu() {
+  $items = array();
+  $items['admin/config/search/ckan_packages'] = array(
+    'title' => 'CKAN packages',
+    'description' => 'Configure CKAN packages',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ckan_packages_settings_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  
+  return $items;
+}
+
+/*
+ * Implements hook_form()
+ */
+function ckan_packages_settings_form($form, &$form_state) {
+  $selection_options = array(
+    'cco' => t('Creative Commons CCZero'),
+    'pddl' => t('Open Data Commons Public Domain Dedication and Licence'),
+    'cc-by-4.0' => t('Creative Commons Attribution 4.0'),
+    'cc-by' => t('Creative Commons Attribution'),
+    'odc-by' => t('Open Data Commons Attribution License'),
+    'cc-by-sa-4.0' => t('Creative Commons Attribution Share-Alike 4.0'),
+    'cc-by-sa' => t('Creative Commons Attribution Share-Alike'),
+    'odbl' => t('Open Data Commons Open Database License'),
+    'fal' => t('Free Art License'),
+  );
+  $form['ckan_packages_maintainer'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maintainer'),
+    '#default_value' => variable_get('ckan_packages_maintainer', variable_get('site_name')),
+    '#description' => t('Name of the site maintainer.'),
+    '#required' => TRUE,
+  );
+  $form['ckan_packages_maintainer_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maintainer Email'),
+    '#default_value' => variable_get(variable_get('ckan_packages_maintainer_email'), variable_get('site_mail')),
+    '#description' => t('Site Email.'),
+    '#required' => TRUE,
+  );
+  $form['ckan_packages_license'] = array(
+    '#type' => 'select',
+    '#title' => t('License Type'),
+    '#options' => $selection_options ,
+    '#default_value' => variable_get('ckan_packages_license', 'cc-by-sa'),
+    '#description' => t('License Type.'),
+    '#required' => TRUE,
+  );
+  
+  return system_settings_form($form);
+}

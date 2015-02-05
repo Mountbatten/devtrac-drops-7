@@ -1,0 +1,262 @@
+<?php
+/**
+* @file
+* Test Devtrac project. public  access information 
+**/
+class CustomTestCase extends DrupalWebTestCase {
+	protected $profile = 'devtrac';
+  public static function getInfo() {
+    return array(
+      'name' => 'About Devtrac test',
+      'description' => t('Anonymous users read about devtrac.'),
+      'group' => 'Devtrac',
+    );
+  }
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   *
+   * 1. Create a new User with all permissions of role "Unicef" (rid = 5).
+   * 2. Log the user into the system.
+   */
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+  }
+  
+  $edit = array(
+    'name' => $user->name,
+    'pass' => $user->pass_raw
+  	   );
+  $this->drupalPost('user/login', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  $pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), 'User login');
+    if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+}
+
+  public function setUp() {
+    parent::setUp('devtractests');
+  }
+  /**
+   * Project partners and licence version of,
+   * 
+   * Devtrac links are available and active.
+   */
+  public function testUserReadsCreativeCommon() {
+    $this->drupalGet('contact');
+    $this->assertResponse(403, 'user should not access the contact page');
+    $this->assertNoResponse(200, 'user should not access the contact page');
+    $this->assertNoText('Creative Commons Attribution-ShareAlike3.0 Unported License', 'Creative commons description text not found', 'DevTrac');
+    $this->assertNoLink('Creative Commons Attribution-ShareAlike 3.0 Unported License', 0, 'Link to Attribution-ShareAlike 3.0');
+    $this->assertNoText('You are not authorized to access this page. is showing', 'DevTrac');
+    $this->assertLink('Unicef Uganda', 0, 'Unicef Uganda link label is showing');
+    $this->assertLink('Mountbatten Ltd', 0, 'Mountbatten Ltd link label is showing');  
+  }
+  /**
+   * Checking the availability of name field on the contact page.
+   */
+  public function testcontactfieldaccesstests() {
+    $this->drupalGet('contact');
+    $this->assertResponse(403, 'user should not access the contact page');
+    $this->assertNoResponse(200, 'user should not access the contact page');
+    $this->assertNoField('name', 'Field name does not exist', 'DevTrac');
+    $this->assertNoText('Your name', 'Field lable is showing', 'DevTrac');
+    $this->assertNoText('Contact', 'Contact label is showing ', 'DevTrac'); 
+  }
+  /**
+   * Testing the availability of subject field on the contact page.
+   * 
+   */
+  public function testcontactfieldSubjectAccesstest() {
+    $this->drupalGet('contact');
+    $this->assertResponse(403, 'user should not access the contact page');
+    $this->assertNoResponse(200, 'user should not access the contact page');
+    $this->assertNoField('subject', 'Field subject does not exist', 'DevTrac');
+    $this->assertNoText('Subject ', 'Field lable is not showing', 'DevTrac');
+    $this->assertNoText('Contact', 'Contact label is not showing ', 'DevTrac');
+  }
+  /**
+   * Checking the e-mail field on the contact devtrac page.
+   */
+  public function testcontactfieldMailAccesstest() {
+    $this->drupalGet('contact');
+    $this->assertResponse(403, 'user should not access the contact page');
+    $this->assertNoResponse(200, 'user should not access the contact page');
+    $this->assertNoField('mail', 'Field mail does not exist', 'DevTrac');
+    $this->assertNoText('Your e-mail address', 'Field lable is not showing', 'DevTrac');
+    $this->assertNoText('Contact', 'Contact label is not showing ', 'DevTrac');     
+  }
+  /**
+   * Checking the availability of message field on the contact devtrac page.
+   */
+  public function testcontactfieldMessageAccesstest() {
+    $this->drupalGet('contact');
+    $this->assertNoResponse(200, 'user should not access the contact page');
+    $this->assertResponse(403, 'user should not access the contact page');
+    $this->assertNoField('message', 'Field mail does not exist', 'DevTrac');
+    $this->assertNoText('Message ', 'Field lable is not showing', 'DevTrac');
+    $this->assertNoText('Contact', 'Contact label is not showing ', 'DevTrac'); 
+  }
+  /**
+   * Testing the availability of About devtrac page.
+   */
+  public function testUserAccessAboutUsePage() {
+    $this->drupalGet('node/47');
+    $this->assertNoResponse(200, 'user should not access the contact page');
+    $this->assertNoText('About Devtrac', 'About us page is found', 'DevTrac');
+    //$this->assertTitle(t(''), t(''), 'DevTrac7');
+    $this->assertNoLink('DevTrac Help Pages', 0, 'Link to FAQS');
+  }  
+  /**
+   * Confirming the availability of 'devtrac Help Page'.
+   */
+  public function testUserAccessFAQS() {
+    $this->drupalGet('node/137');
+    $this->assertNoLink('CONTACT US', 0, 'Link to ABOUT devtrac page was removed');
+    $this->assertNoText('DevTrac Help Pages', 'About us page is not found', 'DevTrac');
+    
+  }
+}
+
+
+class AnonymousUserContactdevtrac extends DrupalWebTestCase {
+	protected $profile = 'devtrac';
+  public static function getInfo() {
+    return array(
+      'name' => 'Devtrac7 how it works',
+      'description' => t('Anonymous user contacts devtrac.'),
+      'group' => 'Devtrac',
+    );
+  }  
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   *
+   * 1. Create a new User with all permissions of role "Unicef" (rid = 5).
+   * 2. Log the user into the system.
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user/login', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+  
+  public function setUp() {
+  	parent::setUp('devtractests');
+  	
+  }
+ /**
+  * This test scenario is intended to comfirm the removal of help pages.
+  * 
+  */
+  public function testAnonymousUserContactsDevtractest() {
+    $this->drupalGet('content/devtrac-help-pages');
+    $this->assertResponse('404', 'Page not found was removed to devtrac.org');
+    $this->assertNoText('Your e-mail address field is required', 'message was not found', 'DevTrac');    
+    $this->assertNoLink('Contact Us', 0, 'Link to site reports not found');
+    $this->assertNoText('Your name field is required.', 'message is removed'); 
+    $this->assertNoText('Your message has been sent.', 'Message is not found here', 'DevTrac');  
+    $this->assertNoText('Message field is required', 'Message removed', 'Devtrac');
+    }
+  /**
+   * Ensures that all links are not available and accessible.
+   */
+  public function testAboutDevtracAccesstest() {
+    $this->drupalGet('node/47');
+    $this->assertResponse('404', 'Page not found was removed');
+    $this->assertNoText('DevTrac is a Ugandan initiative led by a consortium of government and donor agencies: including the GEO-IS Working group,', 'Message removed ', 'DevTrac'); 
+    $this->assertNoLink('Contact Us', 0, 'Link to site reports not found');
+    $this->assertNoLink('FAQs', 0, 'Link to FAQs found'); 
+    $this->assertNoLink('sblaschke@unicef.org', 0, 'Link to email sblaschke@unicef.org is not found');
+    $this->assertNoTitle('About Devtrac | DevTrac', 'About devtrac page title is not found', 'Devtrac');
+  }
+  /**
+   * Anonymous user should not sends a message to.
+   * 
+   * Devtrac team from here. 
+   */
+  public function testAnonymousUserContactsDevtrac() {
+ 	  $this->drupalGet('content/devtrac-help-pages');
+ 	  $this->assertResponse('404', 'Page not found was removed');
+ 	  $this->assertNoLink('Contact Us', 0, 'Link to site reports not found');
+ 	  $this->assertNoField('subject', 'No field found all were removed');
+ 	  $this->assertNoField('mail', 'No field found all were removed');
+ 	  $this->assertNoField('message', 'No field found all were removed');
+ 	  $this->assertNoField('name', 'No field found all were removed');
+ 	  $this->assertNoField('name', 'No field found all were removed');
+ 	  $this->assertNoText('DevTrac is a Ugandan initiative', 'About us page is found', 'DevTrac7');
+ 	  $this->assertNoLink('Send message', 0 ,'Link to Home devtrac page not found');
+   	$this->assertNoText('Your message has been sent.', 'Message is successifuly sent', 'DevTrac');
+  }
+}
+ 

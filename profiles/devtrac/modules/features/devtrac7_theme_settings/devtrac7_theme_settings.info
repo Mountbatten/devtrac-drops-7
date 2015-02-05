@@ -1,0 +1,27 @@
+name = Devtrac7 theme settings
+description = Theme settings to go with the Devtrac7 theme.
+core = 7.x
+package = Devtrac
+project = devtrac7_theme_settings
+dependencies[] = ctools
+dependencies[] = delta
+dependencies[] = strongarm
+features[ctools][] = delta:delta:3
+features[ctools][] = strongarm:strongarm:1
+features[delta][] = actionitems_page_layout
+features[delta][] = dashboardpage_layout
+features[delta][] = delta_node_page_layout
+features[delta][] = informationalpage_layout
+features[delta][] = mappage_layout
+features[delta][] = user_page_layout
+features[features_api][] = api:2
+features[variable][] = theme_devtrac_classic_settings
+features[variable][] = theme_settings
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

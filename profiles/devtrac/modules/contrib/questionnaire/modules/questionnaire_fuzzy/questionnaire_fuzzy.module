@@ -1,0 +1,523 @@
+<?php
+
+/*
+ *   For the time being empty.
+ */
+
+/**
+ * @file
+ * Module for the Model Entity - a starting point to create your own Entity
+ * and associated administration interface
+ */
+
+function questionnaire_fuzzy_menu() {
+  $items['questionnaire/fuzzy/questions'] = array(
+    'title' => t('Review Questions'),
+    'description' => t('Review answers that we do not know the answer to yet per question.'),
+    'page callback' => 'questionnaire_fuzzy_questions',
+    'access arguments' => array('view fuzzy answers'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['questionnaire/fuzzy/answers/%questionnaire_fuzzy_answer_id'] = array(
+    'title' => t('Review Answers'),
+    'description' => t('Review answers that we do not know the answer to yet.'),
+    'page callback' => 'questionnaire_fuzzy_answers',
+    'page arguments' => array(3),
+    'access arguments' => array('view fuzzy answers'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['questionnaire/fuzzy'] = array(
+    'title' => t('Next'),
+    'description' => t('Get the next Fuzzy Answer.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('questionnaire_fuzzy_editanswer_form'),
+    'access arguments' => array('update answers from fuzzy'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['questionnaire/fuzzy/answer/%questionnaire_fuzzy_answer_id'] = array(
+    'title' => t('Review'),
+    'description' => t('View the Answers for this Node.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('questionnaire_fuzzy_editanswer_form', 3),
+    'access arguments' => array('update answers from fuzzy'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['questionnaire/fuzzy/next'] = array(
+    'title' => t('Next'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  return $items;
+}
+
+function questionnaire_fuzzy_answer_id_to_arg($id) {
+  return empty($id) || $id == '%' ? 'none' : $id;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function questionnaire_fuzzy_entity_property_info_alter(&$info) {
+  $properties = &$info['questionnaire_answer']['properties'];
+  $properties['fuzzy'] = array(
+      'label' => t("Fuzzy Text"),
+      'type' => 'text',
+      'schema field' => 'fuzzy',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['eid'] = array(
+      'label' => t("Editor"),
+      'entity views field' => TRUE,
+      'type' => 'user',
+      'description' => t("The editor that corrected the question."),
+      'required' => FALSE,
+      'schema field' => 'uid',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',  );
+  $properties['score'] = array(
+      'label' => t("Score"),
+      'entity views field' => TRUE,
+      'type' => 'int',
+      'description' => t("The percentage of likelyhood of a match between the fuzzy text and an option."),
+      'required' => FALSE,
+      'schema field' => 'score',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function questionnaire_fuzzy_permission() {
+  // We set up permisssions to manage entity types, manage all entities and the
+  // permissions for each individual entity
+  $permissions = array(
+      'update answers from fuzzy' => array(
+          'title' => t('Update Answers from fuzzy'),
+          'description' => t('Update Questionnaire Answers based on the fuzzy text submitted'),
+      ),
+      'view fuzzy answers' => array(
+          'title' => t('View Fuzzy Answers'),
+          'description' => t('View fuzzy natural language Answers'),
+      ),
+  );
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_entity_presave
+ * @param unknown_type $entity
+ * @param unknown_type $type
+ * @return mixed
+ */
+function questionnaire_fuzzy_entity_presave($entity, $type) {
+  if ($type == 'questionnaire_answer') {
+    if (isset($entity->fuzzy) && (empty($entity->answer))) {
+      foreach (module_implements('fuzzymatch') as $module) {
+        $function = $module . '_fuzzymatch';
+        $result = call_user_func($function, $entity);
+        if (isset($result)) {
+          return $result;
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * @todo implementation of hook_trigger_info
+ *
+ */
+function questionnaire_fuzzy_trigger_info() {
+  return array(
+      'questionnaire_answer' => array(
+          'questionnaire_answer_fuzzymatch' => array(
+              'label' => t('Match the fuzzy data on any of the optional answers'),
+          ),
+      ),
+  );
+}
+
+
+function questionnaire_fuzzy_fuzzymatch($answer) {
+  watchdog(WATCHDOG_INFO, "Doing some fuzzy matching");
+
+  // Get the options from the question.
+  $question_node = node_load($answer->question);
+  $question = entity_metadata_wrapper('node', $question_node);
+  $options = NULL;
+
+  $question_type = $question->questionnaire_question_type->value();
+  switch ($question_type) {
+    case 'select':
+    case 'radios':
+    case 'checkboxes':
+      $options = questionnaire_question_allowed_values($question_node->questionnaire_question_options[$question->language->value()]);
+      break;
+    case 'number':
+    case 'message':
+    case 'time':
+    case 'open':
+    case 'taxonomy':
+      break;
+  }
+
+  if (isset($answer->fuzzy)) {
+    if (isset($options)) {
+      // Match the $answer->fuzzy field with one of the options.
+      foreach ($options as $option){
+        if (strcasecmp ($answer->fuzzy, $option) == 0){
+          watchdog(WATCHDOG_INFO, "Editing answer : " . $answer->fuzzy);
+          $answer->answer = $option;
+          $answer->answertext = $option;
+          $answer->eid = 1;
+          $answer->score = 100;
+          $answer->fuzzy = NULL;
+          watchdog(WATCHDOG_INFO, "Done editing : " . $answer->answer);
+        }
+      }
+    }
+    // Match the $answer->fuzzy field with the corresponding taxonomy term.
+    if ($question_type == 'taxonomy' && isset($node->qq_options_vocabulary)) {
+      $vocabulary = $question->qq_options_vocabulary->value();
+      $term = taxonomy_get_term_by_name($answer->fuzzy, $vocabulary);
+      $term = reset($term);
+      if (!empty($term)){
+        watchdog(WATCHDOG_INFO, "Editing taxonomy answer : " . $answer->fuzzy);
+        $answer->answer = $term->name;
+        $answer->answertext = $term->name;
+        $answer->eid = 1;
+        $answer->score = 100;
+        $answer->fuzzy = NULL;
+
+        // Save the taxonomy term id in the corresponding field of
+        // answer object.
+        $field = 'field_' . $vocabulary;
+        $answer->{$field}['und'][]['tid'] = $term->tid;
+
+        watchdog(WATCHDOG_INFO, "Done editing : " . $answer->answer);
+      }
+    }
+  }
+  /*if ($result['score'] > get_variable('questionnaire_fuzzy_minimumscore', 100)) {
+    $answer->answer = $result['answer'];
+    $answer->eid = 1; // this is the admin user who will be the editor of all automatic assigned answers
+    $answer->score = $result['score'];
+  }
+   */
+  
+}
+
+
+function questionnaire_fuzzy_questions() {
+
+  $query = new EntityFieldQuery;
+
+  $result = $query
+  ->entityCondition('entity_type', 'node')
+  ->entityCondition('bundle', 'questionnaire_question')
+  ->execute();
+
+  if (!empty($result['node'])) {
+    $questions = entity_load('node', array_keys($result['node']));
+  }
+  $table = array();
+  $table['header'] = array();
+  $table['rows'] = array();
+  $table['caption'] = t('Questions');
+  $table['attributes'] = array();
+  $table['colgroups'] = array();
+  $table['sticky'] = FALSE;
+  $table['empty'] = t('There are no questions.');
+
+  $table['header'][] = array (
+      'data' => t('Question'),
+  );
+
+  foreach($questions as $question) {
+    $table['rows'][] = array(
+        'data' => array(l($question->title, 'questionnaire/fuzzy/answers/' . $question->nid)),
+    );
+  }
+  return theme_table($table);
+
+}
+
+
+function questionnaire_fuzzy_answers($nid) {
+
+  $query = new EntityFieldQuery;
+
+  $result = $query
+  ->entityCondition('entity_type', 'questionnaire_answer')
+  ->propertyCondition('answer', '', '=')
+  ->propertyCondition('question', $nid, '=')
+//  ->propertyCondition('answer', NULL, 'IS')
+  /*
+   * We add this tag to trigger @see questionnaire_fuzzy_query_questionnaire_fuzzy_answers_alter
+   * which is where we add the fuzzy IS NOT NULL statement that Drupal does not support
+   */
+  ->addTag('questionnaire_fuzzy_answers')
+  // something with limits and pagers
+  ->execute();
+
+  $entities = array();
+  if (!empty($result['questionnaire_answer'])) {
+    $entities = entity_load('questionnaire_answer', array_keys($result['questionnaire_answer']));
+  }
+  $table = array();
+  $table['header'] = array();
+  $table['rows'] = array();
+  $table['caption'] = t('Questions');
+  $table['attributes'] = array();
+  $table['colgroups'] = array();
+  $table['sticky'] = FALSE;
+  $table['empty'] = t('There are no answers to verify.');
+
+  $table['header'][] = array (
+   'data' => t('Question'),
+  );
+
+  foreach($entities as $entity) {
+    $table['rows'][] = array(
+      'data' => array(l($entity->questionnaire_id, 'questionnaire/fuzzy/answer/' . $entity->id)),
+    );
+  }
+  return theme_table($table);
+
+}
+
+/**
+ * Workaround for the fact that EntityFieldQuery does not support isNULL
+ * @see http://drupal.org/node/1157006#comment-5465034
+ *
+ * Implements hook_query_TAG_alter()
+ */
+function questionnaire_fuzzy_query_questionnaire_fuzzy_answers_alter(QueryAlterableInterface $query) {
+  $query->isNotNull('questionnaire_answer.fuzzy');
+}
+
+function questionnaire_fuzzy_getnextanswer() {
+  global $user;
+  if (! ($result = _questionnaire_fuzzy_getnextanswers($user->uid))) {
+    $result = _questionnaire_fuzzy_getnextanswers();
+  }
+  return $result;
+}
+
+function _questionnaire_fuzzy_getnextanswers($eid = NULL, $limit = 1) {
+
+  $query = new EntityFieldQuery;
+
+  $query = $query
+  ->entityCondition('entity_type', 'questionnaire_answer')
+  ->propertyCondition('answer', '', '=')
+  /*
+   * We add this tag to trigger @see questionnaire_fuzzy_query_questionnaire_fuzzy_answers_alter
+  * which is where we add the fuzzy IS NOT NULL statement that Drupal does not support
+  */
+  ->addTag('questionnaire_fuzzy_answers');
+  if ($eid) {
+    $query->propertyCondition('eid', $eid, '=');
+  }
+  // something with limits and pagers
+  $result = $query->execute();
+
+  $entities = array();
+  if (!empty($result['questionnaire_answer'])) {
+    if ($limit == 1) {
+      $tmp = entity_load('questionnaire_answer', array_keys($result['questionnaire_answer']));
+      $entity = reset($tmp);
+      $entity->eid = $eid;
+      $entity->save();
+      if (isset($entity->fuzzy)){
+        return $entity;
+      }
+      else {
+        drupal_goto('questionnaire/fuzzy');
+      }
+    }
+    else {
+      return $result['questionnaire_answer'];
+    }
+  }
+  return FALSE;
+
+}
+
+function questionnaire_fuzzy_editanswer_form($form, &$form_state, $id = NULL) {
+  if (!isset($id) || $id == 'none') {
+    if ($answer = questionnaire_fuzzy_getnextanswer()) {
+      $id = $answer->id;
+    }
+    else {
+      drupal_set_message("No new fuzzy answer available");
+      return FALSE;
+    }
+
+  }
+
+  $query = db_select('questionnaire_answer', 'a')
+  ->fields('a', array('id', 'sid', 'fuzzy', 'question'))
+  ->condition('id', $id);
+  $result = $query->execute()->FetchAssoc();
+
+  if(!isset($result['fuzzy'])) {
+    drupal_set_message("Answer " . $result['id'] . " does not require editing.");
+    return FALSE;
+  }
+
+  $question = $result['question'];
+//$node = node_load($answer->question);
+
+  $form['id'] = array(
+    '#type' => 'value',
+    '#value' => $result['id'],
+  );
+
+  $form['sid'] = array(
+    '#type' => 'value',
+    '#value' => $result['sid'],
+  );
+
+  $form['question'] = array(
+    '#type' => 'value',
+    '#value' => $result['question'],
+  );
+
+  // TODO $result['fuzzy'] must be escaped. This way i can sms javascript to the server
+  $form['rawanswer'] = array(
+    '#type' => 'markup',
+    '#markup' => "<div><b> Raw Answer :</b> " . $result['fuzzy'] . "</br></br>",
+  );
+
+  $form['answer'] = questionnaire_question_getquestioncontrol($question, NULL);
+
+  $form['delimeter1'] = array(
+      '#type' => 'markup',
+      '#markup' => "</div>",
+  );
+
+  // Adding flags to the fuzzy form, so the answer can be flagged from this
+  // form as well.
+  if (module_exists('flag')) {
+    global $user;
+    $flags = flag_get_flags('questionnaire_answer', NULL, $user);
+    if (!empty($flags)) {
+      $form['flags_delimeter1'] = array(
+          '#type' => 'markup',
+          '#markup' => "<div><b> Flag this Answer :</b></br>",
+      );
+      foreach($flags as $flag) {
+        $link = flag_create_link($flag->name, $result['id']);
+        $form[$flag->name] = array(
+          '#type' => 'markup',
+          '#markup' => $link,
+        );
+      }
+      $form['flags_delimeter2'] = array(
+          '#type' => 'markup',
+          '#markup' => "</div>",
+      );
+    }
+  }
+
+  $form['submit_delimeter1'] = array(
+          '#type' => 'markup',
+          '#markup' => "<div></br>",
+      );
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+  );
+  $form['submit_delimeter2'] = array(
+          '#type' => 'markup',
+          '#markup' => "</div>",
+      );
+
+  return $form;
+}
+
+function questionnaire_fuzzy_editanswer_form_validate($form, &$form_state) {
+  watchdog('questionnaire', 'validate the form');
+
+  foreach ($form_state['values'] as $questionid => $answer) {
+    if (is_numeric($questionid)) {
+      if (isset($answer) && !is_array($answer) && (strlen($answer) > 0)) {
+        $question = node_load($questionid);
+
+        if ($question->questionnaire_question_type[$question->language][0]['value'] == 'number') { // Numeric value
+          if (!preg_match('/^[0-9]+$/', $answer)) {
+            form_set_error($question->title, 'Please enter an integer number (digits only) for question: "' . $question->title . '".');
+          }
+        }
+        if ($question->questionnaire_question_type[$question->language][0]['value'] == 'time') { // Time value
+          if (!preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $answer)) {
+            form_set_error($question->title, 'Please enter a time with a 24-hour format (HH:MM) for question: "' . $question->title . '".');
+          }
+        }
+      }
+    }
+  }
+}
+
+function questionnaire_fuzzy_editanswer_form_submit($form, &$form_state) {
+  global $user;
+  $tmp = entity_load('questionnaire_answer', array($form_state['values']['id']));
+  $answer = reset($tmp);
+  $question_node = node_load($answer->question);
+  $question = entity_metadata_wrapper('node', $question_node);
+  $fuzzy_answer = $answer->fuzzy;
+
+  switch ($question->questionnaire_question_type->value()) {
+    case 'select':
+    case 'radios':
+    case 'open':
+      $answer->answer = $form_state['values']['answer'];
+      $answer->answertext = $form_state['values']['answer'];
+      break;
+    case 'checkboxes':
+      foreach ($form_state['values']['answer'] as $checkedoption) {
+        if (isset($checkedoption) && ($checkedoption != '0')) {
+          $answer->answer = $form_state['values']['answer'][$checkedoption];
+          $answer->answertext = $form_state['values']['answer'][$checkedoption];
+        }
+      }
+      break;
+    case 'number':
+      $answer->answer = $form_state['values']['answer'];
+      $answer->answernumber = $form_state['values']['answer'];
+      break;
+    case 'taxonomy':
+      if (isset($question->qq_options_vocabulary)) {
+        $vocabulary = $question->qq_options_vocabulary->value();
+        $term = taxonomy_get_term_by_name($form_state['values']['answer'], $vocabulary);
+        $term = reset($term);
+
+        if (!empty($term)){
+          // Save the taxonomy term id in the corresponding field of
+          // answer object.
+          $field = 'field_' . $vocabulary;
+          $answer->{$field}['und'][]['tid'] = $term->tid;
+        }
+
+        $answer->answer = $form_state['values']['answer'];
+        $answer->answertext = $form_state['values']['answer'];
+      }
+      break;
+  }
+  $answer->eid = $user->uid;
+  $answer->score = 100;
+  $answer->fuzzy = NULL;
+  $answer->save();
+
+  drupal_set_message("Fuzzy Answer " . $fuzzy_answer . " has been changed to " . $answer->answer . ".");
+}
+

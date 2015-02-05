@@ -1,0 +1,57 @@
+name = Devtrac7 Solr Questions Feature
+description = Holds Questions Solr Index & Views
+core = 7.x
+package = Devtrac
+version = 7.x-1.0
+project = devtrac7_solr_search_questions_feature
+dependencies[] = context
+dependencies[] = current_search
+dependencies[] = devtrac7_realms
+dependencies[] = devtrac7_solr_search_feature
+dependencies[] = pane
+dependencies[] = quicktabs
+dependencies[] = search_api
+dependencies[] = views_data_export
+dependencies[] = views_modes
+datestamp = 1408080140
+features[context][] = questions
+features[ctools][] = context:context:3
+features[ctools][] = current_search:current_search:1
+features[ctools][] = facetapi:facetapi_defaults:1
+features[ctools][] = pane:pane:2
+features[ctools][] = quicktabs:quicktabs:1
+features[ctools][] = views:views_default:3.0
+features[current_search][] = devtrac7_questions_activefacets
+features[current_search][] = devtrac7_questions_standard
+features[facetapi][] = search_api@questions::taxonomy_vocabulary_1
+features[facetapi][] = search_api@questions::taxonomy_vocabulary_8
+features[facetapi][] = search_api@questions:block:field_question_subject
+features[facetapi][] = search_api@questions:block:questionnaire_question_type
+features[facetapi][] = search_api@questions:block:taxonomy_vocabulary_1
+features[facetapi][] = search_api@questions:block:taxonomy_vocabulary_8
+features[facetapi][] = search_api@questions:block:title
+features[facetapi][] = search_api@questions:block:type
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:author
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:nid
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:questionnaire_question_options
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:questionnaire_question_type
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:search_api_access_node
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:search_api_language
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:status
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:taxonomy_vocabulary_1
+features[facetapi][] = search_api@questions:devtrac7_graph_pie:title
+features[features_api][] = api:2
+features[pane_container][] = statistics_info
+features[pane_data][] = statistics_info_und
+features[search_api_index][] = questions
+features[views_view][] = devtrac_solr_view_questions
+features_exclude[dependencies][views] = views
+mtime = 1420467589
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

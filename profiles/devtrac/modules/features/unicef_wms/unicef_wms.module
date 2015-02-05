@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the unicef_wms feature.
+ */
+
+include_once 'unicef_wms.features.inc';

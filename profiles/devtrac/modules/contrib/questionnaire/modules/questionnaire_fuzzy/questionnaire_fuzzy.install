@@ -1,0 +1,69 @@
+<?php
+// $Id: questionnaire_answer.install,v 1.1 2010/12/21 06:46:30 batje Exp $
+
+/**
+ * @file
+ * Install, update and uninstall functions for the questionnaire_fuzzy module.
+ */
+
+/**
+ * Implements hook_schema_alter().
+ */
+function questionnaire_fuzzy_schema_alter(&$schema) {
+
+  $schema['questionnaire_answer']['fields']['fuzzy'] = array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+      'default' => NULL,
+      'description' => 'Holds free text answer to question that needs to be translated into a structured answer',
+  );
+
+  $schema['questionnaire_answer']['fields']['eid'] = array(
+      'type' => 'int',
+      'not null' => FALSE,
+      'unsigned' => TRUE,
+      'description' => 'The uid of the editor.',
+  );
+
+  $schema['questionnaire_answer']['fields']['score'] = array(
+      'type' => 'int',
+      'not null' => FALSE,
+      'unsigned' => TRUE,
+      'description' => 'The percentage of likelyhood of a match between the fuzzy text and an option.',
+  );
+  return $schema;
+}
+
+/**
+ * implements hook_install()
+ */
+function questionnaire_fuzzy_install() {
+  db_add_field('questionnaire_answer', 'fuzzy', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+    'default' => NULL,
+  ));
+  db_add_field('questionnaire_answer', 'eid', array(
+    'type' => 'int',
+    'not null' => FALSE,
+    'unsigned' => TRUE,
+    'description' => 'The uid of submitting user.',
+  ));
+  db_add_field('questionnaire_answer', 'score', array(
+    'type' => 'int',
+    'not null' => FALSE,
+    'unsigned' => TRUE,
+    'description' => 'The percentage of likelyhood of a match between the fuzzy text and an option.',
+  ));
+}
+
+/**
+ * implements hook_uninstall()
+ */
+function questionnaire_fuzzy_uninstall() {
+  db_drop_field('questionnaire_answer', 'fuzzy');
+  db_drop_field('questionnaire_answer', 'eid');
+  db_drop_field('questionnaire_answer', 'score');
+}

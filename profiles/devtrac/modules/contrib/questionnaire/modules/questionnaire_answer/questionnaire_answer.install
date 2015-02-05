@@ -1,0 +1,306 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the questionnaire_answer module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function questionnaire_answer_schema() {
+  $schema = array();
+
+  $schema['questionnaire_answer'] = array(
+    'title' => 'Answers',
+    'description' => 'Contains Answers to questions.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'Id.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'Date the answer was created.',
+        'default' => 0,
+      ),
+      'changed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'Date the answer was changed.',
+        'default' => 0,
+      ),
+      'answer' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The answer.',
+      ),
+      'answernumber' => array(
+        'type' => 'float',
+        'not null' => FALSE,
+        'description' => 'The answer as a number.',
+      ),
+      'answertext' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The answer as a string.',
+      ),
+      'question' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'unsigned' => TRUE,
+        'description' => 'The nid of the question.',
+      ),
+      'recipient_type' => array(
+        'description' => 'The entity type of the recipient making the submission.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'recipient_id' => array(
+        'description' => 'The identifier of the recipient making the submission',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+'sid' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'unsigned' => TRUE,
+        'description' => 'Submission nid.',
+      ),
+      'questionnaire_id' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'unsigned' => TRUE,
+        'description' => 'The questionnaireId of the node initiated the generation of the Questions.',
+      ),
+      'context_type' => array(
+        'description' => 'The entity type of the context the questionnaire was associated with, if any.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'context_id' => array(
+        'description' => 'The identifier of context the questionnaire was associated with, if any.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'created' => array('created'),
+      'changed' => array('changed'),
+      'sid' => array('sid'),
+      'context' => array('context_type', 'context_id'),
+      'recipient' => array('recipient_type', 'recipient_id'),
+    ),
+  );
+
+  $schema['questionnaire_submission'] = array(
+    'title' => 'Submissions',
+    'description' => 'A set of anwsers that is submitted all at the same time.',
+    'fields' => array(
+      'sid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'Id of the submission.',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'default' => 0,
+        'not null' => TRUE,
+        'description' => 'Datetime of the submission.',
+      ),
+      'changed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'Date the submission was changed.',
+        'default' => 0,
+      ),
+      'recipient_type' => array(
+        'description' => 'The entity type of the recipient making the submission.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'recipient_id' => array(
+        'description' => 'The identifier of the recipient making the submission',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'questionnaire_id' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'unsigned' => TRUE,
+        'description' => 'The questionnaireId of the node initiated the generation of the Questions.',
+      ),
+      'context_type' => array(
+        'description' => 'The entity type of the context the questionnaire was associated with, if any.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'context_id' => array(
+        'description' => 'The identifier of context the questionnaire was associated with, if any.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('sid'),
+    'indexes' => array(
+      'recipient' => array('recipient_type', 'recipient_id'),
+      'context' => array('context_type', 'context_id'),
+    ),
+  );
+  return $schema;
+}
+
+function questionnaire_answer_install() {
+
+}
+
+function questionnaire_answer_uninstall() {
+  db_drop_table('questionnaire_answer');
+  db_drop_table('questionnaire_submission');
+//  questionnaire_answer_deletefields();
+}
+
+/**
+ * Moves from fields to entity.
+ */
+function questionnaire_answer_update_7015() {
+  $questionnaire_answer_fields = array(
+    'questionnaire_answer_number' => 'questionnaire_answer_number',
+    'questionnaire_answer_text' => 'questionnaire_answer_text',
+    'questionnaire_answer_qnnaire' => 'questionnaire_answer_qnnaire',
+    'questionnaire_answer_question' => 'questionnaire_answer_question',
+    'questionnaire_answer_context' => 'questionnaire_answer_context',
+  );
+  foreach (array_keys(_questionnaire_answer_installed_fields()) as $field) {
+    watchdog("questionnaire_answer", "delete field " . $field->label);
+    try {
+      field_delete_field($field);
+    }
+    catch (Exception $e) {
+      // nothing
+    }
+  }
+}
+
+/**
+ * Make users, recipient entities and context, context entities.
+ */
+function questionnaire_answer_update_7016() {
+  db_drop_index('questionnaire_submission', 'context');
+  db_drop_index('questionnaire_submission', 'uid');
+  db_change_field('questionnaire_submission', 'context', 'context_id', array(
+    'description' => 'The identifier of context the questionnaire was associated with, if any.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  db_add_field('questionnaire_submission', 'context_type', array(
+    'description' => 'The entity type of the context the questionnaire was associated with, if any.',
+    'type' => 'varchar',
+    'length' => 128,
+    'not null' => TRUE,
+    'default' => '',
+  ));
+  db_change_field('questionnaire_submission', 'uid', 'recipient_id', array(
+    'description' => 'The identifier of the recipient making the submission',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  db_add_field('questionnaire_submission', 'recipient_type', array(
+    'description' => 'The entity type of the recipient making the submission.',
+    'type' => 'varchar',
+    'length' => 128,
+    'not null' => TRUE,
+    'default' => '',
+  ));
+  db_update('questionnaire_submission')
+    ->fields(array('context_type' => 'node', 'recipient_type' => 'user'))
+    ->execute();
+  db_add_index('questionnaire_submission', 'context', array('context_type', 'context_id'));
+  db_add_index('questionnaire_submission', 'recipient', array('recipient_type', 'recipient_id'));
+
+  db_drop_index('questionnaire_answer', 'context');
+  db_drop_index('questionnaire_answer', 'uid');
+  db_change_field('questionnaire_answer', 'context', 'context_id', array(
+    'description' => 'The identifier of context the questionnaire was associated with, if any.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  db_add_field('questionnaire_answer', 'context_type', array(
+    'description' => 'The entity type of the context the questionnaire was associated with, if any.',
+    'type' => 'varchar',
+    'length' => 128,
+    'not null' => TRUE,
+    'default' => '',
+  ));
+  db_change_field('questionnaire_answer', 'uid', 'recipient_id', array(
+    'description' => 'The identifier of the recipient making the submission',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  ));
+  db_add_field('questionnaire_answer', 'recipient_type', array(
+    'description' => 'The entity type of the recipient making the submission.',
+    'type' => 'varchar',
+    'length' => 128,
+    'not null' => TRUE,
+    'default' => '',
+  ));
+  db_update('questionnaire_answer')
+    ->fields(array('context_type' => 'node', 'recipient_type' => 'user'))
+    ->execute();
+  db_add_index('questionnaire_answer', 'context', array('context_type', 'context_id'));
+  db_add_index('questionnaire_answer', 'recipient', array('recipient_type', 'recipient_id'));
+}
+
+/**
+ * Rename qnid field questionnaire_id.
+ */
+function questionnaire_answer_update_7017() {
+  db_change_field('questionnaire_submission', 'qnid', 'questionnaire_id', array(
+    'type' => 'int',
+    'not null' => FALSE,
+    'unsigned' => TRUE,
+    'description' => 'The questionnaireId of the node initiated the generation of the Questions.',
+  ));
+  db_drop_index('questionnaire_answer', 'qnid');
+  db_change_field('questionnaire_answer', 'qnid', 'questionnaire_id', array(
+    'type' => 'int',
+    'not null' => FALSE,
+    'unsigned' => TRUE,
+    'description' => 'The questionnaireId of the node initiated the generation of the Questions.',
+  ));
+}
+

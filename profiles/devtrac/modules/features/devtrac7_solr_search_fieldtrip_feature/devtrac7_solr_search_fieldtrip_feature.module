@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devtrac7 Solr Search Fieldtrip Feature feature.
+ */
+
+include_once 'devtrac7_solr_search_fieldtrip_feature.features.inc';

@@ -1,0 +1,90 @@
+<?php
+/**
+ * @file
+ * Creates functionality for adding a cancel button on each node form.
+ */
+
+/**
+ * Implement hook_help().
+ */
+function cancel_button_help($path, $args) {
+  if ($path == 'admin/help#cancel_button') {
+    $output = '<h3>'. t('About') . '</h3>';
+    $output = '<p>'. t('Allows you to add cancel button on node forms') . '</p>';
+    return $output;
+  }
+}
+
+/**
+ * Implements _hook_menu().
+ */
+function cancel_button_menu() {
+  $items['admin/content/cancel_button'] = array(
+      'title' => 'Form test',
+      'description' => t('Form to test the existance of cancel button on the form'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('cancel_button_form'),
+      'access callback' => TRUE,
+      'access arguments' => array('admin site configuration'),
+      'type' => MENU_NORMAL_ITEM,
+      );
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ */
+function cancel_button_form($form, &$form_state) {
+  $form['value_one'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Enter sample text',
+      '#size' => 10,
+      '#maxlength' => 10,
+      );
+  $form['submit_button'] = array(
+      '#type' => 'submit',
+      '#value' => t('click here'),
+      );
+  return $form;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cancel_button_form_alter(&$form, &$form_state, $form_id) {
+  // Only add the button to a node form.
+  if (isset($form['#node'])) {
+    $form['actions']['cancel'] = array(
+        '#markup' => l(t('Cancel'), 'admin'),
+        '#weight' => 10000,
+        '#type' => 'submit',
+        '#value' => t('Cancel'),
+    	'#submit' => array('cancel_button_form_submit')
+    );
+    return $form;
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function cancel_button_form_submit($form, &$form_state) {
+  drupal_get_messages('error');
+  // $redirect = '<front>';
+  if ($form_state['values']['op'] == "Cancel") {
+    if (arg(0) === 'node' && is_numeric(arg(1)) && arg(2) === 'edit') {
+      $redirect = 'node/' . arg(1);
+      drupal_goto($redirect);
+    }
+    if (isset($form_state['storage']['#referer'])) {
+      $redirect = $form_state['storage']['#referer'];
+      drupal_goto($redirect);
+    }
+    elseif (isset($form['storage']['#referer'])) {
+      $redirect = $form['storage']['#referer'];
+      drupal_goto($redirect);
+    }
+  }
+}
+

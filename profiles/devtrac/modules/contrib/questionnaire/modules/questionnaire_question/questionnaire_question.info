@@ -1,0 +1,17 @@
+name = Questionnaire Question Module
+description = Module for unstructured Questions & Anwsers 
+
+package = Questionnaire
+core = 7.x
+dependencies[] = questionnaire_answer
+dependencies[] = number
+dependencies[] = field_extrawidgets
+
+files[] = questionnaire_question.page.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

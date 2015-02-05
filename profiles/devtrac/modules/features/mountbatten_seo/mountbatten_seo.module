@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Mountbatten SEO feature.
+ */
+
+include_once 'mountbatten_seo.features.inc';

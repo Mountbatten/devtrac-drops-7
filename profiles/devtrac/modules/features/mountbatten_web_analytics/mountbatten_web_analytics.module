@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Mountbatten Web Analytics feature.
+ */
+
+include_once 'mountbatten_web_analytics.features.inc';

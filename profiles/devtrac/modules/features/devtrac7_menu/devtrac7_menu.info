@@ -1,0 +1,43 @@
+name = DevTrac7_menus
+description = Feature with all the devtrac menus and there settings
+core = 7.x
+package = Devtrac
+version = 7.x-1.0-beta1
+project = devtrac7_menu
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = menu
+dependencies[] = menu_token
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[menu_custom][] = main-menu
+features[menu_custom][] = menu-my-dashboard-menu
+features[menu_links][] = main-menu_action-items:actionitems
+features[menu_links][] = main-menu_admin-units:adminunits
+features[menu_links][] = main-menu_field-trips:fieldtrips
+features[menu_links][] = main-menu_locations:locations
+features[menu_links][] = main-menu_site-reports:sitereports
+features[menu_links][] = main-menu_statistics:statistics
+features[menu_links][] = main-menu_users:users
+features[variable][] = menu_secondary_links_source
+features[variable][] = nice_menus_depth_1
+features[variable][] = nice_menus_depth_3
+features[variable][] = nice_menus_js
+features[variable][] = nice_menus_menu_1
+features[variable][] = nice_menus_menu_3
+features[variable][] = nice_menus_name_1
+features[variable][] = nice_menus_name_3
+features[variable][] = nice_menus_number
+features[variable][] = nice_menus_sf_delay
+features[variable][] = nice_menus_sf_speed
+features[variable][] = nice_menus_type_1
+features[variable][] = nice_menus_type_3
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

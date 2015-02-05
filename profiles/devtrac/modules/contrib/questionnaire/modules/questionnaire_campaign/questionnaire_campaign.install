@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for questionnaire campaigns.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function questionnaire_campaign_schema() {
+  $schema['questionnaire_campaign'] = array(
+    'description' => 'Campaigns using questionnaires',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for Campaigns.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'description' => 'The timestamp of the campaign was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'lastrun' => array(
+        'description' => 'The timestamp of when the campaign was last run.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'repeat_interval' => array(
+        'description' => 'Interval in seconds to re-run the campaign.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => 'The questionnaire node id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The name of the campaign. Plain text, no markup.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'userlist_provider' => array(
+        'description' => 'The ctools identifier for recipients list handler.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'userlist_id' => array(
+        'description' => 'The identifier used by the userlist handler.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'sender' => array(
+        'description' => 'The ctools identifier for the handler to send questions.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'enabled' => array(
+        'description' => 'The flag to indicate if this campaign is active.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'options' => array(
+        'description' => 'Additional campaign settings.',
+        'type' => 'blob',
+        'serialize' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'userlist' => array('userlist_provider', 'userlist_id'),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function questionnaire_campaign_uninstall() {
+}

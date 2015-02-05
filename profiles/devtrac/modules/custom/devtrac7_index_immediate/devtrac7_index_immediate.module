@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * Makes sure all indexes are indexed immediately.
+ * 
+ * We only use this on demo sites, so don't enable this on production sites.
+ */
+
+/**
+ * Implements hook_default_search_api_index_alter().
+ */
+function devtrac7_index_immediate_default_search_api_index_alter(array &$defaults) {
+  foreach ($defaults as $name => $index) {
+    if (isset($defaults[$name]->server)) {
+      $defaults[$name]->options['index_directly'] = 1;
+    }
+  }
+}

@@ -1,0 +1,14 @@
+name = Questionnaire Taxonomy
+description = Provides a questionnaire context based on taxonomy terms attached to an entity.
+
+package = Questionnaire
+core = 7.x
+dependencies[] = questionnaire_question
+dependencies[] = taxonomy
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

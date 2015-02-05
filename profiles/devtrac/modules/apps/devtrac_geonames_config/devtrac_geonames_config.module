@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * An app that enables Devtrac to use Geonames with the users username.
+ */
+
+/**
+ * Implements hook_apps_app_info().
+ */
+function devtrac_geonames_config_apps_app_info() {
+  return array(
+    'configure form' => 'devtrac_geonames_config_app_configure_form',
+    'post install callback' => 'devtrac_geonames_config_app_post_install',
+  );
+}
+
+/**
+ * Returns a simplyfied Geonames configuration form.
+ */
+function devtrac_geonames_config_app_configure_form() {
+  $form['geo_usr_name']['geonames_username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Registered Geonames Username'),
+    '#maxlength' => 64,
+    '#description' => t('<a href="http://www.geonames.org/login">The username</a> for your application can be registered here.
+      You will then receive an email with a confirmation link and after you have confirmed the email you can enable your account
+      for the webservice on your account page'),
+    '#required' => TRUE,
+    '#default_value' => variable_get("geonames_username", "devtrac"),
+    '#weight' => -18,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hooks_app_post_install().
+ */
+function devtrac_geonames_config_app_post_install() {
+  $geo_settings = variable_get("openlayers_geosearch_geocoders", array());
+  $geo_settings['geonames'] = "geonames";
+  variable_set("openlayers_geosearch_geocoders", $geo_settings);
+  // We need to download the initial metadata
+  geonames_metadata_update();
+}

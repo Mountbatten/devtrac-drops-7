@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devtrac All Data Importers Feature feature.
+ */
+
+include_once 'devtrac_all_new_data_importers_feature.features.inc';

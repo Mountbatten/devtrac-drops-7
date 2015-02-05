@@ -1,0 +1,16 @@
+; $Id$ 
+name = Questionaire Views Module
+description = Module for viewing Questionnaires 
+
+package = Questionnaire
+dependencies[] = questionnaire_question
+core = 7.x
+
+
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

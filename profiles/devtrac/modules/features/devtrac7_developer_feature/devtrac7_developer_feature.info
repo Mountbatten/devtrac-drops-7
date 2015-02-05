@@ -1,0 +1,23 @@
+name = Devtrac7 Developer Feature
+description = NEVER RUN IN PRODUCTION
+core = 7.x
+package = Features
+version = 7.x-1.0-beta
+project = devtrac7_developer_feature
+dependencies[] = context
+dependencies[] = context_ui
+dependencies[] = ctools
+dependencies[] = devel_node_access
+dependencies[] = diff
+features[context][] = devtrac_solr_not_map_views_admin
+features[context][] = devtrac7_developers
+features[ctools][] = context:context:3
+features[features_api][] = api:1
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

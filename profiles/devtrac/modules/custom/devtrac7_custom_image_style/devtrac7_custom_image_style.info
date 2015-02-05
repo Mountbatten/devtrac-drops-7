@@ -1,0 +1,14 @@
+name = "Devtrac Custom Image Style Module"
+description = "Renders map icons out side the files directory through an image style ."
+core = "7.x"
+package = "Devtrac" 
+
+files[] = devtrac7_custom_image_style.module
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

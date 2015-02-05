@@ -1,0 +1,1885 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function devtrac7_profile_menu_install() {
+  // Create a menu if it does not exist yet.
+  $menus = devtrac7_profile_menu_menu_default_menu_custom();
+  // Save menu group into menu_custom table
+  foreach($menus as $menu_name => $menu) {
+    // Look in the table first if the data does exist
+    $exists = db_query("SELECT menu_name FROM {menu_custom} WHERE menu_name=:menu_name", array(':menu_name' => $menu_name))->fetchField();
+    // Save the record if the data does not exist
+    if(!$exists) {
+      menu_save($menu);
+    }
+  }
+  // Add some links to the menu if they do not exist yet.
+  $links = devtrac7_profile_menu_menu_default_menu_links();
+  foreach ($links as $identifier => $link){
+    // Look in the table first if the data does exist
+    $exists = db_query("SELECT mlid from {menu_links} WHERE menu_name=:menu_name AND link_title=:link_title AND link_path=:link_path", array(':menu_name' =>  $link['menu_name'], ':link_title' =>  $link['link_title'], ':link_path' => $link['link_path']))->fetchField();
+    // Save the record if the data does not exist
+    if(!$exists) {
+      menu_link_save($link);
+    }
+  }
+  // Make the "Edit My Profile" link the child of the "Welcome, ???" link.
+  $menu_link = db_select('menu_links', 'ml')
+    ->fields('ml')
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', 'user')
+    ->execute()
+    ->fetchAssoc();
+  $mlid = $menu_link['mlid'];
+  db_update('menu_links')
+    ->fields(array(
+      'depth' => 2,
+      'plid' => $mlid,
+    ))
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', 'user/%/edit')
+    ->execute();
+  // Move the existing "My Current Field Trip" link to the
+  // profile menu as a subitem of the "Welcome, ???" link.
+  db_update('menu_links')
+    ->fields(array(
+      'menu_name' => 'menu-my-profile',
+      'depth' => 2,
+      'plid' => $mlid,
+    ))
+    ->condition('router_path', 'devtrac/mycurrentfieldtrip')
+    ->execute();
+  // Make the existing "Add Field Trip" link
+  // a subitem of the "Welcome, ???" link.
+  db_update('menu_links')
+    ->fields(array(
+      'menu_name' => 'menu-my-profile',
+      'depth' => 2,
+      'plid' => $mlid,
+    ))
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', 'node/add/fieldtrip')
+    ->execute();
+  db_update('menu_links')
+    ->expression('p1', 'plid')
+    ->expression('p2', 'mlid')
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', 'node/add/fieldtrip')
+    ->execute();
+  // Move the existing "Log in" link to the profile menu.
+  db_update('menu_links')
+    ->fields(array(
+      'menu_name' => 'menu-my-profile',
+      'hidden' => 0,
+      'customized' => 1,
+    ))
+    ->condition('router_path', 'user/login')
+    ->execute();
+  // Move the existing "Log out" link to the profile
+  // menu as a subitem of the "Welcome, ???" link.
+  db_update('menu_links')
+    ->fields(array(
+      'menu_name' => 'menu-my-profile',
+      'hidden' => 0,
+      'depth' => 2,
+      'customized' => 1,
+      'plid' => $mlid,
+    ))
+    ->condition('router_path', 'user/logout')
+    ->execute();
+  db_update('menu_links')
+    ->expression('p1', 'plid')
+    ->expression('p2', 'mlid')
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', 'user/logout')
+    ->execute();
+
+  // Let's do the view modes.
+  /*
+  $links = devtrac7_profile_menu_views_modes_menu_links();
+  foreach ($links as $identifier => $link){
+    // Look in the table first if the data does exist
+    $exists = db_query("SELECT mlid from {menu_links} WHERE menu_name=:menu_name AND link_title=:link_title AND link_path=:link_path", array(':menu_name' =>  $link['menu_name'], ':link_title' =>  $link['link_title'], ':link_path' => $link['link_path']))->fetchField();
+    // Save the record if the data does not exist
+    if(!$exists) {
+      menu_link_save($link);
+    }
+  }*/
+  // Now do the file exports.
+  $links = devtrac7_profile_menu_file_exports_menu_links($mlid);
+  foreach ($links as $identifier => $link){
+    // Look in the table first if the data does exist
+    $exists = db_query("SELECT mlid from {menu_links} WHERE menu_name=:menu_name AND link_title=:link_title AND link_path=:link_path", array(':menu_name' =>  $link['menu_name'], ':link_title' =>  $link['link_title'], ':link_path' => $link['link_path']))->fetchField();
+    // Save the record if the data does not exist
+    if(!$exists) {
+      menu_link_save($link);
+    }
+  }
+  // Update the hierarchy of all file exports menu items.
+  $menu_link = db_select('menu_links', 'ml')
+    ->fields('ml')
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', '<nolink>')
+    ->execute()
+    ->fetchAssoc();
+  if ($mlid = $menu_link['mlid']) {
+    $fields['plid'] = $mlid;
+  }
+  $fields['depth'] = 2;
+  db_update('menu_links')
+    ->fields($fields)
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', '%analyse%', 'LIKE')
+    ->execute();
+  db_update('menu_links')
+    ->expression('p1', 'plid')
+    ->expression('p2', 'mlid')
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', '%analyse%', 'LIKE')
+    ->execute();
+  db_update('menu_links')
+    ->fields($fields)
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', '%questions%', 'LIKE')
+    ->execute();
+  db_update('menu_links')
+    ->expression('p1', 'plid')
+    ->expression('p2', 'mlid')
+    ->condition('menu_name', 'menu-my-profile')
+    ->condition('router_path', '%questions%', 'LIKE')
+    ->execute();
+
+  // Assign menu menu-my-profile to the second nice menu.
+  variable_set('nice_menus_menu_2', 'menu-my-profile:0');
+  variable_set('nice_menus_name_2', 'Devtrac7 Profile Nice Menu');
+  variable_set('nice_menus_type_2', 'down');
+  variable_set('nice_menus_depth_2', '-1');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function devtrac7_profile_menu_uninstall() {
+  variable_del('nice_menus_menu_2');
+  variable_del('nice_menus_name_2');
+  variable_del('nice_menus_type_2');
+  variable_del('nice_menus_depth_2');
+}
+
+/**
+ * Implements hook_menu_default_menu_custom().
+ */
+function devtrac7_profile_menu_menu_default_menu_custom() {
+  $menus = array();
+
+  $menus['menu-my-profile'] = array(
+    'menu_name' => 'menu-my-profile',
+    'title' => 'Devtrac7 Profile Menu',
+    'description' => 'The menu in the right part of the toolbar containing links for the logged in user.',
+  );
+
+  return $menus;
+}
+
+/**
+ * Implements hook_menu_default_menu_links().
+ */
+function devtrac7_profile_menu_menu_default_menu_links() {
+  $menu_links = array();
+
+  $menu_links['menu-my-profile_edit-my-profile:user/%/edit'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'user/%/edit',
+    'router_path' => 'user/%/edit',
+    'link_title' => 'Edit My profile',
+    'options' => array(
+      'attributes' => array(
+        'title' => '',
+      ),
+      'alter' => TRUE,
+      'menu_token_link_path' => '[current-user:edit-url]',
+      'menu_token_data' => array(
+        'user' => array(
+          'type' => 'user',
+          'plugin' => 'user_context',
+          'options' => array(),
+        ),
+      ),
+      'menu_token_options' => array(
+        'clear' => 0,
+      ),
+      'purl' => array(
+        'disabled' => 1,
+      ),
+      'identifier' => 'menu-my-profile_edit-my-profile:user/%/edit',
+      'menu_token_link_uuid' => 'user/%/edit',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -29,
+    'customized' => 1,
+  );
+
+  $menu_links['menu-my-profile_my-current-field-trip:devtrac/mycurrentfieldtrip'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'mycurrentfieldtrip',
+    'router_path' => 'mycurrentfieldtrip',
+    'link_title' => 'My Current Field Trip',
+    'options' => array(
+      'attributes' => array(
+        'title' => '',
+      ),
+      'identifier' => 'menu-my-profile_my-current-field-trip:devtrac/mycurrentfieldtrip',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -28,
+    'customized' => 0,
+  );
+
+  $menu_links['menu-my-profile_add-field-trip:node/add/fieldtrip'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'node/add/fieldtrip',
+    'router_path' => 'node/add/fieldtrip',
+    'link_title' => 'Add Field Trip',
+    'options' => array(
+      'menu_token_link_path' => 'node/add/fieldtrip?field_fieldtrip_user=[current-user:uid]&field_fieldtrip_places=',
+      'menu_token_data' => array(),
+      'menu_token_options' => array(
+        'clear' => 0,
+      ),
+      'attributes' => array(
+        'title' => '',
+      ),
+      'alter' => FALSE,
+      'query' => array(
+        'field_fieldtrip_user' => 3,
+        'field_fieldtrip_places' => '',
+      ),
+      'identifier' => 'menu-my-profile_add-field-trip:node/add/fieldtrip',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -27,
+    'customized' => 1,
+  );
+
+  $menu_links['menu-my-profile_admin:admin'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'admin',
+    'router_path' => 'admin',
+    'link_title' => 'Admin',
+    'options' => array(
+      'attributes' => array(
+        'title' => '',
+      ),
+      'identifier' => 'menu-my-profile_admin:admin',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -20,
+    'customized' => 0,
+  );
+
+  return $menu_links;
+}
+
+function devtrac7_profile_menu_views_modes_menu_links() {
+  // Set the title. We want to reuse it and add something.
+  $title = 'Shows reports of Devtrac reporters from the field ';
+
+  $menu_items['menu-my-profile_site-reports:sitereportsmap'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports',
+    'router_path' => 'sitereports',
+    'link_title' => 'Map',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'on a map',
+        'orginal-title' => 'map',
+        'class' => array('map', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'map',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports:sitereportsmap',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -50,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_site-reports:sitereportslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports',
+    'router_path' => 'sitereports',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports:sitereportslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_site-reports:sitereportsgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports',
+    'router_path' => 'sitereports',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports:sitereportsgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_actions-items:actionitemslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'actionitems',
+    'router_path' => 'actionitems',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_action-items:actionitemslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_action-items:actionitemsgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'actionitems',
+    'router_path' => 'actionitems',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_action-items:actionitemsgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_field-trips:fieldtripslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'fieldtrips',
+    'router_path' => 'fieldtrips',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_field-trips:fieldtripslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_field-trips:fieldtripsgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'fieldtrips',
+    'router_path' => 'fieldtrips',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_field-trips:fieldtripsgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_organisations:organisationslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'organisations',
+    'router_path' => 'organisations',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_organisations:organisationslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_organisations:organisationsgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'organisations',
+    'router_path' => 'organisations',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_organisations:organisationsgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_activities:activitieslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'activities',
+    'router_path' => 'activities',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_activities:activitieslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_activities:activitiesgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'activities',
+    'router_path' => 'activities',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_activities:activitiesgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_images:imagesmap'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'images',
+    'router_path' => 'images',
+    'link_title' => 'Map',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'on a map',
+        'orginal-title' => 'map',
+        'class' => array('map', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'map',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_images:imagesmap',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -50,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_images:imageslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'images',
+    'router_path' => 'images',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_images:imageslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_images:imagesgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'images',
+    'router_path' => 'images',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_images:imagesgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_statistics-answers:statisticsanswerslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/answers',
+    'router_path' => 'statistic/sanswers',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-answers:statisticsanswerslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_statistics-answers:statisticsanswersgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/answers',
+    'router_path' => 'statistics/answers',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-answers:statisticsanswersgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_admin-units:adminunitsmap'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'adminunits',
+    'router_path' => 'adminunits',
+    'link_title' => 'Map',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'on a map',
+        'orginal-title' => 'map',
+        'class' => array('map', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'map',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_admin-units:adminunitsmap',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -50,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_admin-units:adminunitslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'adminunits',
+    'router_path' => 'adminunits',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_admin-units:adminunitslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_admin-units:adminunitsgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'adminunits',
+    'router_path' => 'adminunits',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_admin-units:adminunitsgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_locations:locationsmap'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'locations',
+    'router_path' => 'locations',
+    'link_title' => 'Map',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'on a map',
+        'orginal-title' => 'map',
+        'class' => array('map', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'map',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_locations:locationsmap',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -50,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_locations:locationslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'locations',
+    'router_path' => 'locations',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_locations:locationslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_locations:locationsgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'locations',
+    'router_path' => 'locations',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_locations:locationsgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_users:userslist'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'users',
+    'router_path' => 'users',
+    'link_title' => 'List',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'in a list',
+        'orginal-title' => 'list',
+        'class' => array('list', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'list',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_users:userslist',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -49,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_users:usersgraphs'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'users',
+    'router_path' => 'users',
+    'link_title' => 'Graphs',
+    'options' => array(
+      'purl' => array(
+        'provider' => 'views_modes',
+        'id' => '',
+        'disabled' => 0,
+      ),
+      'attributes' => array(
+        'title' => $title . 'as graphs',
+        'orginal-title' => 'graphs',
+        'class' => array('graphs', 'purl_search_api_noreset'),
+      ),
+      'query' => array(
+        'display' => 'graphs',
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_users:usersgraphs',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -48,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  return $menu_items;
+}
+
+function devtrac7_profile_menu_file_exports_menu_links($mlid) {
+  // Set the title. We want to reuse it and add something.
+  $title = 'Export ';
+
+  // First do the parent item and retrieve its mlid.
+  $menu_items['menu-my-profile_export:export'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => '<nolink>',
+    'router_path' => '<nolink>',
+    'link_title' => 'Export',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Export',
+        'orginal-title' => 'export',
+        'class' => array('export'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_export:export',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -40,
+    'has_children' => 1,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+  );
+
+  $menu_items['menu-my-profile_site-reports-analyse-csv:sitereportsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports/analyse/csv',
+    'router_path' => 'sitereports/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports-analyse-csv:sitereportsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_site-reports-analyse-csv:sitereportsanalysecsvadmin'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports/analyse/csvadmin',
+    'router_path' => 'sitereports/analyse/csvadmin',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports-analyse-csv:sitereportsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_site-reports-analyse-kml:sitereportsanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports/analyse/kml',
+    'router_path' => 'sitereports/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports-analyse-kml:sitereportsanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_site-reports-analyse-feed:sitereportsanalysefeed'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'sitereports/analyse/feed',
+    'router_path' => 'sitereports/analyse/feed',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_site-reports-analyse-feed:sitereportsanalysefeed',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_action-items-analyse-csv:actionitemsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'actionitems/analyse/csv',
+    'router_path' => 'actionitems/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_action-items-analyse-csv:actionitemsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_action-items-analyse-kml:actionitemsanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'actionitems/analyse/kml',
+    'router_path' => 'actionitems/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_action-items-analyse-kml:actionitemsanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_action-items-analyse-feed:actionitemsanalysefeed'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'actionitems/analyse/feed',
+    'router_path' => 'actionitems/analyse/feed',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_action-items-analyse-feed:actionitemsanalysefeed',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_field-trips-analyse-csv:fieldtripsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'fieldtrips/analyse/csv',
+    'router_path' => 'fieldtrips/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_field-trips-analyse-csv:fieldtripsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_field-trips-analyse-kml:fieldtripsanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'fieldtrips/analyse/kml',
+    'router_path' => 'fieldtrips/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_field-trips-analyse-kml:fieldtripsanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_field-trips-analyse-rss:fieldtripsanalyserss'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'fieldtrips/analyse/rss',
+    'router_path' => 'fieldtrips/analyse/rss',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_field-trips-analyse-rss:fieldtripsanalyserss',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_organisations-analyse-csv:organisationsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'organisations/analyse/csv',
+    'router_path' => 'organisations/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_organisations-analyse-csv:organisationsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_organisations-analyse-rss:organisationsanalyserss'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'organisations/analyse/rss',
+    'router_path' => 'organisations/analyse/rss',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_organisations-analyse-rss:organisationsanalyserss',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_activities-analyse-csv:activitiesanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'activities/analyse/csv',
+    'router_path' => 'activities/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_activities-analyse-csv:activitiesanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_activities-analyse-kml:activitiesanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'activities/analyse/kml',
+    'router_path' => 'activities/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_activities-analyse-kml:activitiesanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_activities-analyse-feed:activitiesanalysefeed'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'activities/analyse/feed',
+    'router_path' => 'activities/analyse/feed',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_activities-analyse-feed:activitiesanalysefeed',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_images-analyse-csv:imagesanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'images/analyse/csv',
+    'router_path' => 'images/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_images-analyse-csv:imagesanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_images-analyse-kml:imagesanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'images/analyse/kml',
+    'router_path' => 'images/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_images-analyse-kml:imagesanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_images-analyse-rss:imagesanalyserss'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'images/analyse/rss',
+    'router_path' => 'images/analyse/rss',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_images-analyse-rss:imagesanalyserss',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_statistics-questions-csv:statisticsquestionscsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/questions/csv',
+    'router_path' => 'statistics/questions/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-questions-csv:statisticsquestionscsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+/*
+  $menu_items['menu-my-profile_statistics-questions-kml:statisticsquestionskml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/questions/kml',
+    'router_path' => 'statistics/questions/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-questions-kml:statisticsquestionskml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+*/
+  $menu_items['menu-my-profile_statistics-analyse-csv:statisticsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/analyse/csv',
+    'router_path' => 'statistics/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-analyse-csv:statisticsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_statistics-analyse-kml:statisticsanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/analyse/kml',
+    'router_path' => 'statistics/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-analyse-kml:statisticsanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_statistics-analyse-rss:statisticsanalyserss'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'statistics/analyse/rss',
+    'router_path' => 'statistics/analyse/rss',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_statistics-analyse-rss:statisticsanalyserss',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_admin-units-analyse-csv:adminunitsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'adminunits/analyse/csv',
+    'router_path' => 'adminunits/analyse/csv',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_admin-units-analyse-csv:adminunitsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_admin-units-analyse-kml:adminunitsanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'adminunits/analyse/kml',
+    'router_path' => 'adminunits/analyse/kml',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_admin-units-analyse-kml:adminunitsanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_admin-units-analyse-rss:adminunitsanalyserss'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'adminunits/analyse/rss',
+    'router_path' => 'adminunits/analyse/rss',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_admin-units-analyse-rss:adminunitsanalyserss',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_locations-analyse-csv:locationsanalysecsv'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'locations/analyse/csv/1',
+    'router_path' => 'locations/analyse/csv/1',
+    'link_title' => $title . 'to CSV',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to CSV',
+        'orginal-title' => 'csv',
+        'class' => array('csv'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_locations-analyse-csv:locationsanalysecsv',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -39,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_locations-analyse-kml:locationsanalysekml'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'locations/analyse/kml/1',
+    'router_path' => 'locations/analyse/kml/1',
+    'link_title' => $title . 'to KML',
+    'options' => array(
+      'attributes' => array(
+        'title' => $title . 'to KML',
+        'orginal-title' => 'kml',
+        'class' => array('kml'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_locations-analyse-kml:locationsanalysekml',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -38,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  $menu_items['menu-my-profile_locations-analyse-rss:locationsanalyserss'] = array(
+    'menu_name' => 'menu-my-profile',
+    'link_path' => 'locations/analyse/rss/1',
+    'router_path' => 'locations/analyse/rss/1',
+    'link_title' => 'Subscribe to RSS Feed',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Subscribe to RSS Feed',
+        'orginal-title' => 'rss',
+        'class' => array('rss'),
+      ),
+      'alter' => 1,
+      'customized' => 1,
+      'identifier' => 'menu-my-profile_locations-analyse-rss:locationsanalyserss',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'weight' => -37,
+    'has_children' => 0,
+    'depth' => 1,
+    'expanded' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-my-profile_export:export',
+  );
+
+  return $menu_items;
+}

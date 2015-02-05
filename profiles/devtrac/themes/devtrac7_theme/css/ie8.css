@@ -1,0 +1,217 @@
+@CHARSET "UTF-8";
+ 
+/*=============================================================================
+ * General Sytles
+ * ==========================================================================*/
+
+.tabledrag-hide {
+	display: none;
+}
+
+.container-12 {
+	/*width: 1200px !important;*/
+}
+
+
+
+
+
+
+
+/*=============================================================================
+ * Header Sytles
+ * ==========================================================================*/
+
+/*=============================== Nav Styles ================================*/
+
+.region-menu .block-nice-menus .nice-menu li.submenu:hover {
+	display: block;
+}
+
+.grid-8.region-my-items-menu {
+  width: 380px;
+}
+
+.grid-4.region-my-tool-menu.header-menus {
+  width: 380px;
+}
+
+.zone-header #region-my-items-menu, .zone-header #region-my-tool-menu {
+  margin: 0 !important;
+}
+
+/*=============================================================================
+ * Form Styles
+ * ==========================================================================*/
+
+/*-------------------------- Global Form Styles -----------------------------*/
+
+.node-form .form-item select ,
+.node-form .form-item input {
+  padding:5px;
+	height: auto;
+}
+
+.section-content input.form-submit {
+  padding:5px 10px;
+  margin: 10px 5px;
+  background: #777;
+  border: none;
+  border-radius: 3px;
+  font-size:1.2em;
+  font-weight:normal;
+  color: #FFF;
+  text-shadow:none;
+}
+
+.section-content input.form-submit:hover {
+  background: #333;
+  color: #FFF;
+}
+
+.form-item textarea,
+.form-item input[type="date"], 
+.form-item input[type="datetime"], 
+.form-item input[type="datetime-local"], 
+.form-item input[type="email"], 
+.form-item input[type="month"], 
+.form-item input[type="number"], 
+.form-item input[type="password"], 
+.form-item input[type="search"], 
+.form-item input[type="tel"], 
+.form-item input[type="text"], 
+.form-item input[type="time"], 
+.form-item input[type="url"], 
+.form-item input[type="week"]{
+  padding:5px;
+  height: auto;
+}
+
+
+
+
+/*------------------------- Specific Form Styles ----------------------------*/
+
+.field-type-field-collection input.form-submit.ajax-processed[value='Remove'] ,
+#edit-field-fieldtrip-fc-purpose-und-0-remove-button {
+  float: right;
+  margin-right: 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* TRASH */
+
+.node-form .form-item-title,
+.node-form .form-wrapper,
+#user-profile-form .fieldset-wrapper .form-wrapper,
+#edit-account.form-wrapper .form-item-name,
+#edit-account.form-wrapper .form-item-current-pass, 
+#edit-account.form-wrapper .form-item-mail,
+#edit-account.form-wrapper .form-item-pass,
+#edit-account.form-wrapper .form-item-status,
+#edit-account.form-wrapper .form-item-roles,
+fieldset#edit-contact.collapsible,
+#edit-field-user-admin-area.form-wrapper .form-item-field-user-admin-area-und,
+#user_user_form_group_user_work_information .fieldset-wrapper .form-wrapper,
+form fieldset.form-wrapper{
+    /*width: 45.5%;*/
+}
+html .page-node .field-widget-text-textarea.form-wrapper{
+    /*width: 95.7%;*/
+		}
+
+/*#ftritem-node-form:first-child{
+  width: 100%;
+  display: block;
+}
+
+.page-node-edit .form-item,
+.page-node-edit .form-wrapper {
+  width: 45%;
+  display: block;
+  float: left;
+  padding: 1%;
+}*/
+.page-node SELECT[multiple]{
+  /*width: 100%;*/
+}
+
+
+.placetype_match_to_counter_number {
+	/*font-size: 80%;*/
+}
+
+/*
+ * Added to make the responsible input field move back to the left where it belongs
+ * WARNING: Might impact other fields
+ */
+tr.even .form-item, tr.odd .form-item {
+  /*white-space: normal;*/
+}
+
+.form-item input#edit-field-fieldtrip-fc-purpose-und-0-field-fieldtrip-purpose-percent-und-0-value  {
+ /* width: 85%;*/
+}
+
+/* Overrides/replaces kim.css line 1377 */
+body.page-node .field-widget-text-textarea.form-wrapper {
+  /*width: 94%;*/
+}
+
+.node-fieldtrip-form #edit-taxonomy-vocabulary-6 {
+  /*width: 45.5%;*/
+}
+
+#edit-taxonomy-vocabulary-6 .form-item .form-select {
+  height: 140px;
+  /*width: 125%;*/
+}
+
+.node-ftritem-form #edit-taxonomy-vocabulary-6 .form-item .form-select {
+  /*height: auto;*/
+}
+
+.node-ftritem-form #edit-taxonomy-vocabulary-6 {
+  height: 46px;
+}

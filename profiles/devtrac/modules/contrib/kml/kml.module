@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * KML module.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function kml_init() {
+  // We have to include our theme preprocessors here until:
+  // http://drupal.org/node/1096770 is fixed.
+  module_load_include('inc', 'kml', 'views/kml_views.theme');
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function kml_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'kml') . '/views',
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function kml_theme() {
+  $path = drupal_get_path('module', 'kml');
+  return array(
+    'kml_placemark' => array(
+      'variables' => array('point' => array(), 'points' => array()),
+      'file' => 'kml_views.theme.inc',
+      'template' => 'kml-placemark',
+      'path' => $path . "/views",
+    ),
+    'kml_style' => array(
+      'variables' => array('points' => array()),
+      'file' => 'kml_style.theme.inc',
+      'template' => 'kml-style',
+      'path' => "$path/views",
+    ),
+    'kml_feed_icon' => array(
+      'variables' => array(
+        'image_path' => '',
+        'url' => '',
+        'query' => NULL,
+        'title' => '',
+      ),
+      'file' => 'kml_views.theme.inc',
+      'path' => $path . "/views",
+    ),
+  );
+}

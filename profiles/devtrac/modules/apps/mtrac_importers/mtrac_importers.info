@@ -1,0 +1,13 @@
+name = "Mtrac Importer Module"
+description = "Adds capability to import data into an mtrac installation."
+core = "7.x"
+package = "Devtrac Apps"
+files[] = mtrac_importers.module
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

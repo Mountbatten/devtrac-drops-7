@@ -1,0 +1,282 @@
+<?php
+/**
+ * user access the Statistics page to access
+ * statistics page's facets
+ * All facets sections should show.
+ * @file
+ * testing the Devtrac facets on a logged in user
+ */
+module_load_include('test', 'simpletest_clone');
+class FacetsVisibilityOnStatTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';  
+  protected $fieldWorker;
+  public static function getInfo() {
+    return array(
+      'name' => 'Devtrac facets access',
+      'description' => t('User accesses facets on the pages designed to have them'),
+      'group' => 'Devtrac'
+        );
+    }
+ /**
+     * Log in a user with the internal browser.
+     *
+     * If a user is already logged in, then the current user is logged out before
+     * logging in the specified user.
+     *
+     * Please note that neither the global $user nor the passed in user object is
+     * populated with data of the logged in user. If you need full access to the
+     * user object after logging in, it must be updated manually. If you also need
+     * access to the plain-text password of the user (set by drupalCreateUser()),
+     * e.g. to login the same user again, then it must be re-assigned manually.
+     * For example:
+     * @code
+     *     // Create a user.
+     *     $account = $this->drupalCreateUser(array());
+     *     $this->drupalLogin($account);
+     *     // Load real user object.
+     *     $pass_raw = $account->pass_raw;
+     *     $account = user_load($account->uid);
+     *     $account->pass_raw = $pass_raw;
+     * @endcode
+     *
+     * @param$user
+     *     User object representing the user to login.
+     *
+     * @see drupalCreateUser()
+     */
+    protected function drupalLogin(stdClass $user) {
+        if ($this->loggedInUser) {
+            $this->drupalLogout();
+        }
+
+        $edit = array(
+                'name' => $user->name,
+                'pass' => $user->pass_raw
+        );
+        $this->drupalPost('user', $edit, t('Log in'));
+
+        // If a "log out" link appears on the page, it is almost certainly because
+        // the login was successful.
+        $pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+
+        if ($pass) {
+            $this->loggedInUser = $user;
+        }
+    }
+  public function setUp() {
+    parent::setUp();
+    $this->public_files_directory = variable_get('file_public_path');
+    // Create and log in a permitted user.
+    $this->fieldWorker = $this->drupalCreateUser(array(
+      'create fieldtrip content',
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->drupalLogin($this->fieldWorker);
+    $this->drupalPost('user/' . $this->fieldWorker->uid . '/edit', array(
+      'roles[5]' => 5,
+      'field_user_firstname[und][0][value]' => 'firstname',
+      'field_user_surname[und][0][value]' => 'lname',
+      'field_user_aboutme[und][0][value]' => 'aboutjan',
+      'name' =>'tester', 'field_user_superior[und][0][target_id]' => 'admin (1)'),
+      t('Save'));
+    }
+    /**
+     * On the user home page there should be n facets of any kind.
+     */
+    public    function testStatisticsFacetstest() {
+      // Testing Statistics page facets.
+      $this->drupalGet('statistics');
+      $this->assertNoTitle(t('Statistics | DevTrac'), t('The statistics page title is found'), 'DevTrac');
+      $this->assertNoTitle('DevTrac | Real time reporting on public services in Uganda', 'Title is found');
+      $this->assertNoRaw('<h3> class="">' . t('Search found no items')    . '</h3>');
+      $this->assertNoText(t('Statistics | DevTrac'), t('satistics title is visible on statistics page'), 'DevTrac');
+      $this->assertNoText('Health Facilities', 'text found');
+      $this->assertNoRaw('<h2' . t('Health Facilities')    . '</h2>');
+      $this->assertNoRaw('<h2 class="block-title">' . t('Current search')    . '</h2>');
+      // Testing user page facets.
+    }
+}
+    /**
+     * Functional tests for authenticated (permitted) Fieldtrip multiple district creation.
+     */
+class FieldtripFeedbackCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';  
+  protected $fieldWorker;
+  public static function getInfo() {
+    return array(
+      'name' => 'Create Fieldtrip Feedback',
+      'description' => 'Unicef User create Fieldtrip Feedback',
+      'group' => 'Devtrac'
+        );
+    }
+
+    /**
+     * Log in a user with the internal browser.
+     *s
+     * If a user is already logged in, then the current user is logged out before
+     * logging in the specified user.
+     *
+     * Please note that neither the global $user nor the passed in user object is
+     * populated with data of the logged in user. If you need full access to the
+     * user object after logging in, it must be updated manually. If you also need
+     * access to the plain-text password of the user (set by drupalCreateUser()),
+     * e.g. to login the same user again, then it must be re-assigned manually.
+     * For example:
+     * @code
+     *     // Create a user.
+     *     $account = $this->drupalCreateUser(array());
+     *     $this->drupalLogin($account);
+     *     // Load real user object.
+     *     $pass_raw = $account->pass_raw;
+     *     *     $account = user_load($account->uid);
+     *     $account->pass_raw = $pass_raw;
+     * @endcode
+     *
+     * @param $user
+     *     User object representing the user to login.
+     *
+     * @see drupalCreateUser()
+     */
+    protected function drupalLogin(stdClass $user) {
+        if ($this->loggedInUser) {
+            $this->drupalLogout();
+        }
+
+        $edit = array(
+                'name' => $user->name,
+                'pass' => $user->pass_raw
+        );
+        $this->drupalPost('user', $edit, t('Log in'));
+
+        // If a "log out" link appears on the page, it is almost certainly because
+        // the login was successful.
+        $pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+
+        if ($pass) {
+            $this->loggedInUser = $user;
+        }
+    }
+
+  public function setup() {
+    parent::setUp();
+    $this->public_files_directory = variable_get('file_public_path');
+    // Create and log in a permitted user.
+    $this->fieldWorker = $this->drupalCreateUser(array(
+      'create fieldtrip content',
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->fieldWorker->roles[] = 'field worker';
+    user_save($this->fieldWorker);
+    $this->drupalLogin($this->fieldWorker);
+    $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+    
+  }
+ /**
+  * Manager check-sout a feedback after site report submition.
+  */
+  public function testManagerOwnFeedBacktest() {
+    $this->drupalGet('node/add/fieldtrip', array('query' => array(
+      'field_fieldtrip_user' => $this->fieldWorker->uid,
+      'field_field_places' =>'')));
+    $this->assertNoText(t('TA Number'), t('TA number field is found'), 'DevTrac');
+    // Populating the fieldtrip create form.
+    // $fullReportSubmitozyq['taxonomy_vocabulary_6[und][]'] = array(80, 81, 82, 83);
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'District Field is removd');
+    $fullReportSubmitozyq['title'] = 'YES WE CAN';
+    $fullReportSubmitozyq['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = $this->randomName(32);
+    $fullReportSubmitozyq['field_fieldtrip_internal_id[und][0][value]'] = 76;
+    $fullReportSubmitozyq['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 2;
+    $fullReportSubmitozyq['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = 100;
+    $fullReportSubmitozyq['field_fieldtrip_start_end_date[und][0][value][date]'] = '26/09/2012';
+    $fullReportSubmitozyq['field_fieldtrip_start_end_date[und][0][value2][date]'] = '26/10/2012';
+    $this->drupalPost(NULL, $fullReportSubmitozyq, t('Save'), array('query' => array('field_fieldtrip_user' => $this->fieldWorker->uid, 'field_fieldtrip_places' => '')));
+    $this->assertText(t('has been created.'), ('field trip is created successifully'), 'DevTrac');
+    $nodeaddreportfullsubmitozyq = $this->drupalGetNodeByTitle($fullReportSubmitozyq["title"]);
+    $this->assertNotNull($nodeaddreportfullsubmitozyq, t('node loaded'));
+    $this->assertNoLink('Add a location to the Field Trip.', 0, t('link Add Location to fieldtrip is changed to add site reports'));
+    $this->drupalGet('node/'.$nodeaddreportfullsubmitozyq->nid.'/addplaceform/ajax/nojs/go', array('query' => array('destination' => 'node/' . $nodeaddreportfullsubmitozyq->nid)));
+    $formsubmitreportsozyq['reporttype'] = 1;
+    //$formsubmitreportsozyq['district'] = 81;
+    $this->assertField('district', 'district filed is removed');
+    // $formsubmitreportsozyq['placetype'] = 1;
+    $this->assertNoField('placetype', 'placetype field is removed');
+    $this->drupalPost(NULL, $formsubmitreportsozyq, t('Submit'), array('query' => array('destination' => 'node/' . $nodeaddreportfullsubmitozyq->nid)));
+    // Now we access edit the site report submission form.
+    // Now fill in the Edit Field Trip Report Item Site Visit form.
+    $this->assertNoLink('Change the narrative of the Site Report.', 0, t('Clicked the change narrative of the site Report'));
+    $this->drupalGet('node/add/ftritem/', array('query' => array('destination' => 'node/'.$nodeaddreportfullsubmitozyq->nid)));
+    $ditnarrativeozyq['taxonomy_vocabulary_7[und]'] = 242;
+    $ditnarrativeozyq['title'] = 'YES THAT IS IT FOR NOW!';
+    $ditnarrativeozyq['field_ftritem_public_summary[und][0][value]'] = $this->randomString(30);
+    $ditnarrativeozyq['field_ftritem_narrative[und][0][value]'] = $this->randomString(210);
+    $ditnarrativeozyq['field_ftritem_lat_long[und][0][geom]'] = 'POINT(33.346199035645 2.911979913712)';
+    $this->assertNoField('taxonomy_vocabulary_6[und', 'taxonomy vocabulary 6 is not showing');
+    $this->assertNofield('taxonomy_vocabulary_8[und]', 'Field Sector code and name is renamed');  
+    $ditnarrativeozyq['taxonomy_vocabulary_8[und][]'] = 48;
+    $ditnarrativeozyq['taxonomy_vocabulary_1[und]'] = 248;
+    //$ditnarrativeozyq['files[field_ftritem_images_und_0]'] = 'sites/default/themes/devtrac7_theme/images/ws_pandas_in_love_1920x1200.jpg';
+    $this->drupalPost(NULL, $ditnarrativeozyq, t('Save'), array('query' => array('destination' => 'node/' . $nodeaddreportfullsubmitozyq->nid)));
+    // Changed the flow of the structure.
+    $this->assertNoText(t('Copied Lat-Lon to the Site Report.'), t('User Added the location on the map'), 'Devtrac');
+    $this->assertNoText(t('Copied District on the Site Report.'), t('User Added the location on the map'), 'Devtrac');
+    $this->assertNoText(t('Copied Place Type to Site Report.'), t('User Copied Place Type to Site Report.'), 'Devtrac');
+    $this->assertNoText(t('has been created.'), t('Place has been created.'), 'Devtrac');
+    $this->assertNoText(t('Defaulted Date Visited to Start Date of Field Trip.'), t('Defaulted Date Visited to Start Date of Field Trip.'), 'Devtrac');
+    $this->assertNoLink('Add a Site Report to the Field Trip.', 0, 'Link to Add a Site Report to the Field Trip.is found');
+    $this->assertNoField('district', 'district filed is removed');
+    $this->drupalGet('node/add/actionitem', array(
+      'query' => array(
+    	'destination' => 'node/' . $nodeaddreportfullsubmitozyq->nid)));
+    // Now adding the field trip site report.
+    $sitereportadd['title'] = 'this is for testing';
+    $sitereportadd['taxonomy_vocabulary_8[und][]'] = 56;
+    $sitereportadd['field_actionitem_followuptask[und][0][value]'] = $this->randomString(100);
+    $sitereportadd['field_actionitem_severity[und]'] = 2;
+    $this->drupalPost('node/add/actionitem', $sitereportadd, t('Save'), array('
+      query' => array(
+        'field_actionitem_responsible' => $this->fieldWorker->uid,
+        'destination' => 'node/' . $nodeaddreportfullsubmitozyq->nid)));
+    $this->assertNoText('has been created.', 'Site report has been created');
+    // Now changing the date visited.
+    $this->assertNoLink('Change the date visited of this is for testing. It has to fall inbetween the start and end date of the Field Trip.', 0, 'change date found');
+    $this->assertNoText('Did you take any photos during the reporting? Please upload the images from here. Click "Choose File" to access the images on your computer.', 'Now at the edit site report page to edit the date visited');
+    // Now changing the date visited of the site report.
+    $datevisited['field_ftritem_date_visited[und][0][value][date]'] = '26/7/2012';
+    $this->assertNoLink('Change the sectors of this is for testing.', 0, 'Sectors for the field trip is clicked');
+    // $this->drupalPost(NULL, $datevisited, t('Save'));
+    $this->assertNoField('sub', 'Submit buttons');
+    // Directly connected to the frtitem.
+    $this->assertNoText(t('Public Summary cannot be longer than 600 characters but is currently 650 characters long.'), t('assertive messages are removed'), 'Devtrac');
+    $this->assertNoText(t('Copied Lat-Lon to the Site Report.'), t('assertive messages are removed'), 'Devtrac');
+    $this->assertNoText(t('Subjects set.'), t('Subjects set assertive messages are removed.'), 'Devtrac');
+    $this->assertNoText(t('Field Trip Report Item YES THAT IS IT FOR NOW! has been updated.'), t('Subjects assertive messages are removed'), 'Devtrac');
+    $this->assertNoLink('Submit', 0, t('link to submit the site report is not found'), 'Devtrac');
+    $this->assertNoLink('Submit the Field Trip to the manager', 0, 'link Submit the Field Trip to the manager is showing');
+    // Now follow the submit link to submit the site report. the manager.
+    $this->drupalGet('node/' . $nodeaddreportfullsubmitozyq->nid . '/setstatus/submit', array('query' => array('destination' => 'user/' . $this->fieldWorker->uid)));
+    $this->assertLink('YES WE CAN', 0, 'field trip YES WE CAN is found in the manager inbox');
+    // Log out the authenticated user.
+    $this->drupalGet('node/' . $nodeaddreportfullsubmitozyq->nid . '/approve/fieldtripcommentform/ajax/nojs/go?', array('query' => array('destination' => 'user/' . $this->fieldWorker->uid)));
+    // Now login the manager to approve the site report.
+    $this->assertText(t('submitted fieldtrip YES WE CAN for your approval.'), t('manager finds the field trip to approve'), 'DevTrac');
+    $this->assertLink('Needs your approval', 0, 'link to field trip to approve found');
+    $this->assertLink('reply', 0, t('link to field trip to approve found'), 'DevTrac');
+    $commentq['comment_body[und][0][value]'] = $this->randomName(12);
+    // Commenting on the submitted fieldtrip.
+    $this->drupalPost(NULL, $commentq, t('Save'), array('query' => array('destination' => 'user/' . $this->fieldWorker->uid)));
+    $this->assertText(t('Your comment has been posted.'), t('manager message is posted successifuly'), 'DevTrac');
+    $this->drupalLogout($this->fieldWorker);
+    $this->drupalGet('user/login');
+    $this->assertResponse(200, 'Page loaded successfully');
+    $log['name'] = 'admin';
+    $log['pass'] = 'admin';
+    $this->drupalPost('user/login', $log, t('Log in'));
+    //$this->clickLink('YES WE CAN', 0, t('Fieldtrip in the inbox is clicked'));
+  }
+}

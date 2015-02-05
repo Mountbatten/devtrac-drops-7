@@ -1,0 +1,19 @@
+apps[server] = "development"
+name = "Solr Server Settings"
+description = "App for setting Solr Server connection details"
+core = 7.x
+package = "Devtrac Apps"
+
+files[] = devtrac_solr_search.module
+
+dependencies[] = search_api_solr
+dependencies[] = search_api_solr_boundingbox_search
+dependencies[] = search_api_solr_dynamic_ranges
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

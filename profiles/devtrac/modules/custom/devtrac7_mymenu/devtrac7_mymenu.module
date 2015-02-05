@@ -1,0 +1,466 @@
+<?php
+
+//function devtrac7_mymenu_menu_alter() {
+
+
+
+
+/*
+ *   Looks like hook_menu but is printed in a block, because the menu
+ *   items all point to the same page
+ */
+function devtrac7_mymenu_mymenu() {
+  // This is the mother of all Devtrac7 admin items
+  // It just navigates to a page with other Devtrac admin options (eg. Edit Questions)
+  $items['sitevisits'] = array(
+    'title' => 'My Team',
+    'description' => 'My Team',
+    'page callback' => '',
+    'access callback' => TRUE,
+    'weight' => -3,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * Provide block that displays comments
+ */
+function devtrac7_mymenu_block_info() {
+  $blocks = array();
+  $blocks['my_menu_block'] = array(
+      'info' => t('My Menu')
+  );
+  return $blocks;
+}
+
+
+
+/**
+ * Implements hook_block_view().
+ *
+ */
+function devtrac7_mymenu_block_view($delta) {
+  global $user;
+  //if ((!$user->uid) || (in_array('administrator', $user->roles))) { return;}; // not for anonymous users
+  if (!$user->uid) { return;}; // admins need to see this too
+  $shouldrender = FALSE;
+  /* Lets gather all the information we need to build the menu array
+   * Some bits we can already put in facets that we can later add
+   * to the options array of the l part of the menu links
+   */
+  if ($districts = _devtrac7_mymenu_getdistricts()) {
+    $districtfacet = array();
+    foreach ($districts as $tid) {
+      $district = taxonomy_term_load($tid);
+      $districtfacet[] = 'taxonomy_vocabulary_' . $district->vid . ':' . $district->tid;
+    }
+  }
+  else {
+    $districtfacet = FALSE;
+  }
+
+  if ($subjects = _devtrac7_mymenu_getsubjects()) {
+    $subjectfacet = array();
+    foreach ($subjects as $tid) {
+      $subject = taxonomy_term_load($tid);
+        $subjectfacet[] = 'taxonomy_vocabulary_' . $subject->vid . ':' . $subject->tid;
+      }
+  }
+  else {
+    $subjectfacet = FALSE;
+  }
+
+  $authorfacet = array();
+  $authorfacet[] = 'author:' . $user->uid;
+
+  $responsiblefacet = array();
+  $responsiblefacet[] = 'field_actionitem_responsible:' . $user->uid;
+
+  if ($colleague = _devtrac7_mymenu_getmanager()) {
+    $colleaguefacet = array();
+    $colleaguefacet[] = 'author%3Afield_user_superior:' . _devtrac7_mymenu_getmanager();
+    $colleagueresponsiblefacet = array();
+    $colleagueresponsiblefacet[] = 'field_actionitem_responsible%3Afield_user_superior:' . _devtrac7_mymenu_getmanager();
+  }
+  else {
+    $colleague = FALSE;
+  }
+
+  if ($team = _devtrac7_mymenu_amimanager()) {
+    $teamfacet = array();
+    $teamfacet[] = 'author%3Afield_user_superior:' . $user->uid;
+    $teamresponsiblefacet = array();
+    $teamresponsiblefacet[] = 'field_actionitem_responsible%3Afield_user_superior:' . $user->uid;
+  }
+  else {
+    $team = FALSE;
+  }
+
+  // Bail out if there is nothing to render
+  if (!($districtfacet | $subjectfacet | $colleague | $team)) {
+    return NULL;
+  }
+
+  /*
+   *  Ok, we have everything. We are going to build a menu that sort of looks like:
+   *
+   *  Site Reports
+   *    My Site Reports
+   *      My Site Reports in My Districts
+   *        My Site Reports in Region A
+   *          My Site Reports in District A
+   *      My Site Reports in My Sectors
+   *        My Site Reports in Sector A
+   *          My Site Reports in Sector A
+   *    Reports in My Districts
+   *      Reports in Region A
+   *        Reports in District A
+   *    Reports with my Sectors
+   *      Reports With Sector A
+   *        Reports with Sector A
+   *    My Teams Reports
+   *
+   */
+  $menu = array (
+    'sitereports' => _devtrac7_mymenu_createlink('Site Reports', 'All Site Reports', 'sitereports', array()),
+    'actionitems' => _devtrac7_mymenu_createlink('Action Items', 'All Action Items', 'actionitems', array()),
+    'fieldtrips' => _devtrac7_mymenu_createlink('Field Trips', 'All Field Trips', 'fieldtrips', array()),
+//    'statistics' => _devtrac7_mymenu_createlink('Statistics', 'All Action Items', 'actionitems', array()),
+  );
+
+  /*
+   *  Always show:
+   */
+  $mymenus = _devtrac7_mymenu_createlink('My Site Reports', 'My Site Reports', 'sitereports', $authorfacet);
+  $mymenua = _devtrac7_mymenu_createlink('My Action Items', 'My Action Items', 'actionitems', $responsiblefacet);
+  $mymenuf = _devtrac7_mymenu_createlink('My Field Trips', 'My Field Trips', 'fieldtrips', $authorfacet);
+
+  /*
+   *  Only show if information is available for district, sector & other people have you as manager
+   */
+  if ($districtfacet) {
+    $mymenus['below']['districts'] = _devtrac7_mymenu_createlink('My Districts', 'My Site Reports in My Districts', 'sitereports', NULL);
+    $dmenus = _devtrac7_mymenu_createlink('My Districts', 'Site Reports in My Districts', 'sitereports', NULL);
+    $mymenua['below']['districts'] = _devtrac7_mymenu_createlink('My Districts', 'My Action Items in My Districts', 'actionitems', NULL);
+    $dmenua = _devtrac7_mymenu_createlink('My Districts', 'Action Items in My Districts', 'actionitems', NULL);
+    $mymenuf['below']['districts'] = _devtrac7_mymenu_createlink('My Districts', 'My FieldTrips in My Districts', 'fieldtrips', NULL);
+    $dmenuf = _devtrac7_mymenu_createlink('My Districts', 'Field Trips in My Districts', 'fieldtrips', NULL);
+
+
+
+
+    /*
+     *  Add the dynamic part of the menu for districts
+     */
+    foreach ($districts as $district) {
+      $regions = taxonomy_get_parents_all($district); // Get all ancestors of the term
+      $regions = array_merge($regions, array('dummy'));
+      $parent = '';
+      end($regions); // Start looping at the end of the array
+      while ($region = prev($regions)) {
+        $term = taxonomy_term_load($region->tid);
+        if (taxonomy_get_parents($region->tid)) { // The term has parents
+          devtrac7_mymenu_insertmenu($term, $parent, $mymenus['below']['districts']['below'], 'My Site Reports in ', 'sitereports', $authorfacet);
+          devtrac7_mymenu_insertmenu($term, $parent, $dmenus['below'], 'Site Reports in ', 'sitereports');
+          devtrac7_mymenu_insertmenu($term, $parent, $mymenuf['below']['districts']['below'], 'My Field Trips in ', 'fieldtrips', $authorfacet);
+          devtrac7_mymenu_insertmenu($term, $parent, $dmenuf['below'], 'Field Trips in ', 'fieldtrips');
+          devtrac7_mymenu_insertmenu($term, $parent, $mymenua['below']['districts']['below'], 'My Action Items in ', 'actionitems', $responsiblefacet);
+          $parent = devtrac7_mymenu_insertmenu($term, $parent, $dmenua['below'], 'Action Items in ', 'actionitems');
+        }
+      }
+    }
+    $menu['sitereports']['below'][1]= $dmenus;
+    $menu['actionitems']['below'][1]= $dmenua;
+    $menu['fieldtrips']['below'][1]= $dmenuf;
+  }
+
+  if ($subjectfacet) {
+    $mymenus['below']['subjects'] = _devtrac7_mymenu_createlink('My Sectors', 'My Site Reports with My Sectors', 'sitereports', NULL);
+    $smenus = _devtrac7_mymenu_createlink('My Sectors', 'Site Reports with My Sectors', 'sitereports', NULL);
+    $mymenua['below']['subjects'] = _devtrac7_mymenu_createlink('My Sectors', 'My Action Items with My Sectors', 'actionitems', NULL);
+    $smenua = _devtrac7_mymenu_createlink('My Sectors', 'Action Items with My Sectors', 'actionitems', NULL);
+    foreach ($subjects as $subject) { // Loop over all the sectors
+      $codes = taxonomy_get_parents_all($subject); // Get all ancestors of the given term
+      $codes = array_merge($codes, array('dummy'));
+      $parent = '';
+      $parents = array();
+      end($codes); // Start looping at the end of the array
+      while ($code = prev($codes)) { // Loop over all the ancestors
+        $term = taxonomy_term_load($code->tid);
+//        if ($termparents = taxonomy_get_parents($code->tid)) { // Get all parents of the given term
+          $termparents = taxonomy_get_parents($code->tid); // Get all parents of the given term
+          if (taxonomy_get_children($code->tid)) { // It has children, so it's not a leaf on our tree
+            if (count($termparents) == 0) { // Term is root (no parents)
+              devtrac7_mymenu_insertmenu($term, $parent, $mymenus['below']['subjects']['below'], 'My Site Reports in ', 'sitereports', $authorfacet, TRUE);
+              devtrac7_mymenu_insertmenu($term, $parent, $smenus['below'], 'Site Reports in ', 'sitereports', array(), TRUE);
+              devtrac7_mymenu_insertmenu($term, $parent, $mymenua['below']['subjects']['below'], 'My Action Items in ', 'actionitems', $responsiblefacet, TRUE);
+              devtrac7_mymenu_insertmenu($term, $parent, $smenua['below'], 'Action Items in ', 'actionitems', array(), TRUE);
+              $parent = '';
+              $parents = array();
+            }
+//            elseif (count($termparents) == 1) { // Term has a single parent
+              // Not so nice, but, a term is a root term, if there is no grantparent
+              // that is because we skip the 'UNICEF level'
+              //$termparents;
+//            }
+            elseif (count($termparents) > 1) { // Term has multiple parents
+              foreach($termparents as $localparent) {
+                if ($localparent) {
+                  devtrac7_mymenu_insertmenu($term, $localparent->name, $mymenus['below']['subjects']['below'], 'My Site Reports in ', 'sitereports', $authorfacet);
+                  devtrac7_mymenu_insertmenu($term, $localparent->name, $smenus['below'], 'Site Reports in ', 'sitereports');
+                  devtrac7_mymenu_insertmenu($term, $localparent->name, $mymenua['below']['subjects']['below'], 'My Action Items in ', 'actionitems', $responsiblefacet);
+                  $parent = devtrac7_mymenu_insertmenu($term, $localparent->name, $smenua['below'], 'Action Items in ', 'actionitems');
+                }
+              }
+              $parents = array();
+              $parents[] = $parent;
+            }
+            else {
+              // This must be root elements, not because they are, but because they have children and only 1 parent
+              // This will surely break if there are root elements with 2 parents (which is pretty crazy)
+              devtrac7_mymenu_insertmenu($term, $parent, $mymenus['below']['subjects']['below'], 'My Site Reports in ', 'sitereports', $authorfacet, TRUE);
+              devtrac7_mymenu_insertmenu($term, $parent, $smenus['below'], 'Site Reports in ', 'sitereports', array(), TRUE);
+              devtrac7_mymenu_insertmenu($term, $parent, $mymenua['below']['subjects']['below'], 'My Action Items in ', 'actionitems', $responsiblefacet, TRUE);
+              devtrac7_mymenu_insertmenu($term, $parent, $smenua['below'], 'Action Items in ', 'actionitems', array(), TRUE);
+              $parents[] = array();
+              $parent = '';
+            }
+          }
+          else { // It's a leaf on our tree (no children)
+            foreach($termparents as $localparent) {
+              devtrac7_mymenu_insertmenu($term, $localparent->name, $mymenus['below']['subjects']['below'], 'My Site Reports in ', 'sitereports', $authorfacet);
+              devtrac7_mymenu_insertmenu($term, $localparent->name, $smenus['below'], 'Site Reports in ', 'sitereports');
+              devtrac7_mymenu_insertmenu($term, $localparent->name, $mymenua['below']['subjects']['below'], 'My Action Items in ', 'actionitems', $responsiblefacet);
+              devtrac7_mymenu_insertmenu($term, $localparent->name, $smenua['below'], 'Action Items in ', 'actionitems');
+            }
+            $parents = array();
+            $parent = '';
+          }
+//        }
+      }
+    }
+    $menu['sitereports']['below'][2]= $smenus;
+    $menu['actionitems']['below'][2]= $smenua;
+  }
+
+  if ($colleague) {
+    $cmenus = _devtrac7_mymenu_createlink('Me and My Colleagues', 'Site Reports from My Team', 'sitereports', $colleaguefacet);
+    $cmenua = _devtrac7_mymenu_createlink('Me and My Colleagues', 'Action Items from My Team', 'actionitems', $colleagueresponsiblefacet);
+    $cmenuf = _devtrac7_mymenu_createlink('Me and My Colleagues', 'Field Trips from My Team', 'fieldtrips', $colleaguefacet);
+    $menu['sitereports']['below'][3]= $cmenus;
+    $menu['actionitems']['below'][3]= $cmenua;
+    $menu['fieldtrips']['below'][3]= $cmenuf;
+  }
+
+  if ($team) {
+    $tmenus = _devtrac7_mymenu_createlink('My Team', 'Site Reports from My Team', 'sitereports', $teamfacet);
+    $tmenua = _devtrac7_mymenu_createlink('My Team', 'Action Items from My Team', 'actionitems', $teamresponsiblefacet);
+    $tmenuf = _devtrac7_mymenu_createlink('My Team', 'Field Trips from My Team', 'fieldtrips', $teamfacet);
+    $menu['sitereports']['below'][4]= $tmenus;
+    $menu['actionitems']['below'][4]= $tmenua;
+    $menu['fieldtrips']['below'][4]= $tmenuf;
+  }
+  /*
+   *  The MyMenus might have submenus from districts and sectors, so they are added last
+   */
+  $menu['sitereports']['below'][0]= $mymenus;
+  $menu['actionitems']['below'][0]= $mymenua;
+  $menu['fieldtrips']['below'][0]= $mymenuf;
+
+  ksort($menu['sitereports']['below']);
+  ksort($menu['actionitems']['below']);
+  ksort($menu['fieldtrips']['below']);
+
+  /*
+   *  And now theme the whole $menu array by nice_menus
+   */
+  $result = theme_nice_menus( array (
+      'id' => '',
+      'menu_name' => '',
+      'mlid' => '0',
+      'hidden' => FALSE,
+      'direction' => 'down',
+      'depth' => 10,
+      'respect_expanded' => TRUE,
+//      'expanded' => TRUE,
+    'menu' => $menu,
+      )
+    );
+
+  // Ok, ugly alarm
+  // PURL insists on inserting display=graphs into the reference string. It should not do that, but there is no way to
+  // tell purl it seems (tried purl = remove in the l function, see down)
+  // so, then do some good ol' string replace stuff.
+  // Same for basepath, but that is only for developers
+  $result = str_replace("?display=graphs#", "", $result);
+  $result = str_replace("?display=list#", "", $result);
+  $result = str_replace("?display=default#", "", $result);
+  $base_path = base_path();
+  if (strlen($base_path) > 1) {
+    // The following line makes the menu paths relative.
+    // This messes things up on all detail pages.
+    // According to https://api.drupal.org/api/drupal/includes!common.inc/function/base_path/7
+    // base_path() adds a "/" to the beginning and end of the returned path if the path is
+    // not empty. At the very least, this will return "/".
+    // Don't see the need for this line of code. Commenting it out.
+    // $result = str_replace(base_path(), "", $result);
+  }
+  else {
+    $result = str_replace("/#", "#", $result);
+  }
+
+  return $result;
+
+
+}
+
+/* Recursive function that inserts menuitems in the right place of a
+ * taxonomy parent hierarchy
+ * This is not working properly for multi-parent taxonomy vocabularies.
+*/
+function devtrac7_mymenu_insertmenu($term, $parent, &$menulevel, $hoovertext, $url, $facet = array(), $isroot = FALSE) {
+  $myfacet = array();
+  $myfacet[] =  'taxonomy_vocabulary_' . $term->vid . ':' . $term->tid;
+  $myfacet = array_merge($facet, $myfacet);
+
+  if ($parent) {
+    foreach($menulevel as $value=>$level) {
+      if ($value == $parent) {
+        if (!(isset($menulevel[$parent]['below'][$term->name]))) {
+          $inserted = $menulevel[$parent]['below'][$term->name] = _devtrac7_mymenu_createlink($term->name, $hoovertext . $term->name, $url, $myfacet);
+        }
+//        return $term->name;
+      }
+      if (isset($menulevel[$value]['below'])) {
+        $inserted = devtrac7_mymenu_insertmenu($term, $parent, $menulevel[$value]['below'], $hoovertext, $url, $facet);
+      }
+    }
+  }
+//  return $term->name;
+//    if ($newparent = devtrac7_mymenu_insertmenu($term, $parent, $level['below'], $hoovertext, $url, $facet)) {
+//      return $newparent;
+//    }
+//  }
+  if (isset($inserted)) {
+    return $term->name;
+  }
+  if ((!isset($menulevel[$term->name])) && ($parent == '')) {
+    $menulevel[$term->name] = _devtrac7_mymenu_createlink($term->name, $hoovertext . $term->name, $url, $myfacet);
+  }
+  return $term->name;
+
+}
+
+/*
+ *  Fetches all districts for a user
+ */
+function _devtrac7_mymenu_getdistricts() {
+  global $user;
+  $query = db_select('users', 'u');
+  $query->join('field_data_taxonomy_vocabulary_6', 'd', 'u.uid = d.entity_id');
+  $query->fields('u', array('uid'));
+  $query->fields('d', array('taxonomy_vocabulary_6_tid'));
+  $query->condition('d.entity_type', 'user');
+  $query->condition('u.uid', $user->uid);
+  $result = $query->execute()->FetchAllAssoc('taxonomy_vocabulary_6_tid');
+  return array_keys($result);
+}
+
+/*
+ *  Fetches all sectors for a user
+ */
+function _devtrac7_mymenu_getsubjects() {
+  global $user;
+  $query = db_select('users', 'u');
+  $query->join('field_data_taxonomy_vocabulary_8', 'd', 'u.uid = d.entity_id');
+  $query->fields('u', array('uid'));
+  $query->fields('d', array('taxonomy_vocabulary_8_tid'));
+  $query->condition('d.entity_type', 'user');
+  $query->condition('u.uid', $user->uid);
+  $result = $query->execute()->FetchAllAssoc('taxonomy_vocabulary_8_tid');
+  return array_keys($result);
+}
+
+/*
+ *  Fetches all the manager for a user
+ */
+function _devtrac7_mymenu_getmanager() {
+  global $user;
+  $query = db_select('users', 'u');
+  $query->join('field_data_field_user_superior', 'm', 'u.uid = m.entity_id');
+  $query->fields('m', array('field_user_superior_target_id'));
+  $query->condition('u.uid', $user->uid);
+  if ($result = $query->execute()->FetchField()) {
+    return $result;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/*
+ *  Returns TRUE if this person has user that filled him/her in as manager
+*/
+function _devtrac7_mymenu_amimanager() {
+  global $user;
+  $val = db_query('SELECT entity_id FROM {field_data_field_user_superior} WHERE field_user_superior_target_id = :uid', array(':uid' => $user->uid))
+    ->rowCount();
+  return ($val > 0);
+}
+
+/*
+ *  Create a single menuitem that nice_menu can theme for us
+ */
+function _devtrac7_mymenu_createlink($title, $fulltitle, $page, $filter) {
+  if (isset($filter)) {
+    return array(
+      'link' => array(
+        'title' => $title,
+        'has_children' => '1',
+        'depth' => '10',
+        'href' => $page,
+        'mlid' => '0',
+        'hidden' => FALSE,
+        'expanded' => TRUE,
+        'localized_options' => array (
+          'attributes' => array (
+            'title' => $fulltitle,
+          ),
+          'query' => array (
+            'f' => $filter,
+          ),
+        ),
+      ),
+    );
+  }
+  else {
+    // In combination with PURL this generates an error.
+    // IE, in some configs, might complain about this.
+    return array(
+        'link' => array(
+            'title' => $title,
+            'has_children' => '1',
+            'depth' => '10',
+            // The "My Districts" and "My Sectors" links are pointing to the wrong search pages.
+            // Going to set href to point to the right search page.
+            'href' => $page,
+            'mlid' => '0',
+            'hidden' => FALSE,
+            'expanded' => TRUE,
+            'localized_options' => array (
+              'fragment' => '#',
+              'html' => TRUE,
+              'attributes' => array (
+                'title' => $fulltitle,
+                'class' => array('grey-menu'),
+              ),
+          ),
+        ),
+    );
+
+  }
+}

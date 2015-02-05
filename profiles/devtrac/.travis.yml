@@ -1,0 +1,45 @@
+language: php
+
+php:
+  - 5.5
+  - 5.4
+  - 5.3
+addons:
+  firefox: "28.0"  
+matrix:
+  - fast_finish: true
+    
+before_install:
+  - php /home/travis/.phpenv/versions/5.5/bin/composer self-update
+  - "sudo apt-get update"
+  - sleep 3
+
+before_script:
+  - export ANT_ARGS='-logger org.apache.tools.ant.listener.AnsiColorLogger'
+  # Apache webserver configuration
+  - curl -sSL https://raw.githubusercontent.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=3.5.0 SOLR_PORT=8080 SOLR_CONFS="3.x/schema.xml 3.x/schema_extra_fields.xml 3.x/schema_extra_types.xml 3.x/solrconfig.xml 3.x/elevate.xml 3.x/solrconfig_extra.xml 3.x/solrcore.properties 3.x/protwords.txt 3.x/mapping-ISOLatin1Accent.txt 3.x/synonyms.txt" bash
+  - sudo find / -name "conf" -type d -print
+  - sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-mysql php5-curl
+  - sudo sed -i -e "s,/var/www,$(pwd)/docroot,g" /etc/apache2/sites-available/default
+  - sudo a2enmod rewrite
+  - sudo a2enmod actions
+  - sudo service apache2 restart
+  # - export ANT_ARGS='-logger org.apache.tools.ant.listener.AnsiColorLogger'
+  # MySQL database configuration
+  - mysql -e 'CREATE DATABASE devtrac;'
+  # Ant build tool configuration
+  - cp build.properties.dist build.properties
+  - sed -i -e "s,username:password@host/db,travis@127.0.0.1/devtrac,g" build.properties
+script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - ant run-tests
+  #- TEST_EXIT=${PIPESTATUS[0]}
+  #- TRAVIS_TEST_RESULT=$(! egrep -i "([0-9]+ fails)|(PHP Fatal error)|([0-9]+ exceptions)")$?
+  #- if [ $TEST_EXIT -eq 0 ]; then exit 0; else exit 1; fi
+  #- TRAVIS_TEST_RESULT
+
+notifications:
+  irc:
+    - "chat.freenode.net#devtrac"
+

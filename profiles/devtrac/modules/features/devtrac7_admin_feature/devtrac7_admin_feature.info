@@ -1,0 +1,35 @@
+name = Devtrac7 Admin Feature
+description = Devtrac7 Admin Feature
+core = 7.x
+package = Devtrac
+version = 7.x-1.0
+project = devtrac7_admin_feature
+dependencies[] = apps
+dependencies[] = ctools
+dependencies[] = ds
+dependencies[] = strongarm
+dependencies[] = views
+dependencies[] = views_infinite_scroll
+datestamp = 1415271197
+features[ctools][] = context:context:3
+features[ctools][] = strongarm:strongarm:1
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[user_permission][] = administer apps
+features[variable][] = apps_allow_voting
+features[variable][] = apps_grouping_mode
+features[variable][] = apps_grouping_vertical
+features[variable][] = apps_install_path
+features[views_view][] = admin_taxonomy_view
+features[views_view][] = admin_view
+features[views_view][] = devtrac_admin_taxonomy
+features[views_view][] = district_check
+features_exclude[dependencies][features] = features
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

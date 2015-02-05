@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for questionnaire campaigns.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function questionnaire_field_field_schema($field) {
+  $columns = array(
+    'id' => array(
+      'description' => 'The identifier of the questionnaire.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'context_type' => array(
+      'description' => 'The entity type of the context the questionnaire was associated with, if any.',
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => TRUE,
+      'default' => '',
+    ),
+    'context_id' => array(
+      'description' => 'The identifier of context the questionnaire was associated with, if any.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'started' => array(
+      'description' => 'The timestamp of the questionnaire was started.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'updated' => array(
+      'description' => 'The timestamp of when the questionnaire was last updated.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'completed' => array(
+      'description' => 'The timestamp of when the questionnaire was completed.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'qid' => array(
+      'description' => 'The identifier of the last question answered.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  );
+
+  return array(
+    'columns' => $columns,
+    'indexes' => array(
+      'id' => array('id'),
+      'context' => array('context_type', 'context_id'),
+    ),
+  );
+}

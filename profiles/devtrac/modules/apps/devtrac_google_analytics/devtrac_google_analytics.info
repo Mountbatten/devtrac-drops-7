@@ -1,0 +1,14 @@
+name = "Devtrac Google Analytics Settings"
+description = App for setting Google Analytics configurations"
+core = 7.x
+package = "Devtrac Apps"
+files[] = devtrac_google_analytics.module
+dependencies[] = "googleanalytics"
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

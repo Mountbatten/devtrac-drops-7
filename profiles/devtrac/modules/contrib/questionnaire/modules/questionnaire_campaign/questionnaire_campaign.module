@@ -1,0 +1,443 @@
+<?php
+
+/**
+ * @file
+ * Send questionnaires to selection of users.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function questionnaire_campaign_menu() {
+  $items['node/%node/campaign'] = array(
+    'title' => 'Campaign',
+    'page callback' => 'questionnaire_campaign_node_page',
+    'page arguments' => array(1),
+    'access callback' => '_questionnaire_campaign_node_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'questionnaire_campaign.pages.inc',
+    'weight' => 100,
+  );
+  $items['node/%node/campaign/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['node/%node/campaign/add'] = array(
+    'title' => 'Add',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('questionnaire_campaign_node_add', 1),
+    'access callback' => '_questionnaire_campaign_node_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'questionnaire_campaign.pages.inc',
+    'weight' => 200,
+  );
+  $items['node/%node/campaign/%questionnaire_campaign/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('questionnaire_campaign_node_add', 1, 3),
+    'access callback' => '_questionnaire_campaign_node_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_CALLBACK, // for now.
+    'file' => 'questionnaire_campaign.pages.inc',
+  );
+  $items['node/%node/campaign/%questionnaire_campaign/status/%'] = array(
+    'title' => 'Enable/Disable a campaign ',
+    'page callback' => 'questionnaire_campaign_status_edit',
+    'page arguments' => array(3, 5),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK, // for now.
+    'file' => 'questionnaire_campaign.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Menu item access callback - Access questionnaire campaign tab.
+ */
+function _questionnaire_campaign_node_page_access($node) {
+  if ($node->type != 'questionnaire') {
+    return FALSE;
+  }
+  if (! node_access('update', $node)) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function questionnaire_campaign_entity_info() {
+  $info['questionnaire_campaign'] = array(
+    'label' => t('Questionnaire campaign'),
+    'controller class' => 'EntityApiController',
+    'entity class' => 'QuestionnaireCampaign',
+    'base table' => 'questionnaire_campaign',
+    'entity keys' => array(
+      'id' => 'id',
+    ),
+    'uri callback' => 'questionnaire_campaign_uri',
+    'form callback' => 'questionnaire_campaign_edit_form',
+    'module' => 'questionnaire_campaign',
+  );
+
+  return $info;
+}
+
+function questionnaire_campaign_edit_form($arg) {
+
+}
+
+/**
+ * Implementation of hook_entity_property_info_alter().
+ *
+ * Supplimenting the default entity property info. Can move everything neatly
+ * into property_info later.
+ */
+function questionnaire_campaign_entity_property_info_alter(&$info) {
+  $properties = &$info['questionnaire_campaign']['properties'];
+  $properties['created']['type'] = 'date';
+  $properties['lastrun']['type'] = 'date';
+  $properties['nid']['type'] = 'node';
+  $properties['enabled']['type'] = 'boolean';
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function questionnaire_campaign_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'questionnaire_campaign') . '/views',
+  );
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function questionnaire_campaign_cron() {
+  // Run any campaigns that are still active and repeating.
+  $result = db_query('SELECT id FROM {questionnaire_campaign} WHERE enabled = 1 AND repeat_interval > 0 AND lastrun + repeat_interval < :now', array(':now' => time()));
+  foreach ($result as $campaign_id) {
+    watchdog('debug', 'Running campaign ' . $campaign_id->id);
+    $campaign = questionnaire_campaign_load($campaign_id->id);
+    $campaign->run();
+  }
+}
+
+/**
+ * Implementation of hook_questionnaire_getcontext().
+ */
+function questionnaire_campaign_questionnaire_getcontext($entity_type, $entity, $recipient) {
+  if (is_array($recipient) && array_key_exists('entity_type', $recipient) && array_key_exists('entity', $recipient) && array_key_exists('medium', $recipient)) {
+    if ($campaign = questionnaire_campaign_user_campaign($recipient['entity_type'], $recipient['entity'], $recipient['medium'])) {
+      // There is a campaign that matches this user, and this medium.
+      return array('questionnaire_campaign' => array($campaign));
+    }
+  }
+}
+
+/**
+ * Implementation of hook_questionnaire_getquestions().
+ */
+function questionnaire_campaign_questionnaire_getquestions($contexts, $recipient) {
+  $questions = array();
+
+  // Early return, nothing to do if no questionnaire_campaign and no 
+  // questionnaires.
+  if (! isset($contexts['questionnaire_campaign'])) {
+     //Case for questionnaires that are not part of a campaign
+    if (isset($contexts['node'])) {
+      foreach ($contexts['node'] as $node){
+        $question_references = field_get_items('node', $node, 'field_questionnaire_questions');
+        foreach ($question_references as $delta => $item) {
+          $collection = field_collection_item_load($item['value']);
+          $question_id = $collection->field_questionnaire_qq['und'][0]['target_id'];
+          // @todo should use an API function here?
+          $questions[$item['value']] = array(
+            'node' => node_load($question_id),
+            'weight' => $delta,
+            'context_type' => 'node',
+            'context_id' => $node->nid,
+            'questionnaire_id' => $node->nid,
+          );
+        }
+      }
+    }
+    return $questions;
+  }
+
+  //Case for questionnaires that are part of a campaign
+  if ($contexts['questionnaire_campaign']) {
+    // We only work with one campaign at a time, load related questionnaire.
+    $campaign = reset($contexts['questionnaire_campaign']);
+    $questionnaire = node_load($campaign->nid);
+    // Retrieve the field from the recipient to find the last question completed.
+    $campaign_field = questionnaire_campaign_user_campaign_field($recipient['entity_type'], $recipient['entity'], $recipient['medium']);
+    // Find the last question answered.
+    $last_question = $campaign_field['qid'];
+    // Cycle through the questions on the questionnaire.
+    $questions_field = field_get_items('node', $questionnaire, 'field_questionnaire_questions');
+    foreach ($questions_field as $delta => $questions_row) {
+      $collection = field_collection_item_load($questions_row['value']);
+      $question_id = $collection->field_questionnaire_qq['und'][0]['target_id'];
+      // If we're adding questions.
+      if ($last_question == 0) {
+        // @todo should use an API function here?
+        $questions[$question_id] = array(
+          'node' => node_load($question_id),
+          'context_type' => 'questionnaire_campaign',
+          'context_id' => $campaign->id,
+          'questionnaire_id' => $campaign->nid,
+          'weight' => -1000 + $delta, // @todo user configurable weighting.
+        );
+        // @todo alternative allow question provider to give a callback. But end
+        // point is a special case - long form needs to know it's the answer etc.
+        if ($questions[$question_id]['endpoint'] = $collection->field_questionnaire_qendpoint['und'][0]['value']) {
+          $questions[$question_id]['callback'] = 'questionnaire_campaign_complete';
+        }
+      }
+      elseif ($last_question == $question_id) {
+        // This was the last question completed. Add the questions from here on.
+        $last_question = 0;
+      }
+    }
+  }
+
+  // If no questions returned. Update recipent to questionnaire completed. @todo
+
+  // @todo Fallback. If $last_question != 0 then no questions were completed.
+  // Probably could happen if a question was deleted and that is not handled
+  // - also to do. Here the questionnaire should be marked as completed.
+  // Possibly triggering a re-assessment of context?
+
+  return $questions;
+}
+
+/**
+ * Completed questionnaire.
+ *
+ * Sets the user field to completed.
+ */
+function questionnaire_campaign_complete($context, $recipient, $question) {
+  $campaign = $context['questionnaire_campaign'];
+  $campaign = reset($campaign);
+  $field = $campaign->questionnaire_field;
+  $items = field_get_items($recipient['entity_type'], $recipient['entity'], $field);
+  foreach ($items as $delta => $item) {
+    if ($item['context_type'] == 'questionnaire_campaign' && $item['context_id'] == $campaign->id) {
+      // Can't use entity_metadata_wrapper on hidden fields.
+      $recipient['entity']->{$field}['und'][$delta]['completed'] = 1;
+      return entity_save($recipient['entity_type'], $recipient['entity']);
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Entity loader.
+ */
+function questionnaire_campaign_load($id) {
+  return current(entity_load('questionnaire_campaign', array($id)));
+}
+
+
+/**
+ * Entity URI callback.
+ */
+function questionnaire_campaign_uri($campaign) {
+  return array(
+    'path' => 'node/' . $campaign->nid . '/campaign/' . $campaign->id,
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function questionnaire_campaign_ctools_plugin_type() {
+  return array(
+    'userlist_providers' => array(
+      'classes' => array('handler'),
+      'use hooks' => TRUE,
+    ),
+    'sending_handlers' => array(
+      'classes' => array('handler'),
+      'use hooks' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_questionnaire_campaign_userlist_providers().
+ */
+function questionnaire_campaign_questionnaire_campaign_userlist_providers() {
+  $path = drupal_get_path('module', 'questionnaire_campaign') . '/plugins/userlist_providers';
+
+  // Base userlist_provider class
+  $plugins['userlist'] = array(
+    'hidden' => TRUE,
+    'handler' => array(
+      'class' => 'QuestionnaireCampaignUserlist',
+      'file' => 'QuestionnaireCampaignUserlist.inc',
+      'path' => $path,
+    ),
+  );
+
+  $plugins['user'] = array(
+    'handler' => array(
+      'class' => 'UserQuestionnaireCampaign',
+      'parent' => 'QuestionnaireCampaignUserList',
+      'file' => 'UserQuestionnaireCampaign.inc',
+      'path' => $path,
+    ),
+  );
+  if (module_exists('search_api_saved_searches')) {
+    $plugins['search_api_saved_searches'] = array(
+      'handler' => array(
+        'class' => 'SearchApiSavedSearchesQuestionnaireCampaign',
+        'parent' => 'QuestionnaireCampaignUserlist',
+        'file' => 'SearchApiSavedSearchesQuestionnaireCampaign.inc',
+        'path' => $path,
+      ),
+    );
+  }
+
+  return $plugins;
+}
+
+/**
+ * Get array of sending handlers.
+ */
+function questionnaire_campaign_get_sending_handler($id = FALSE) {
+  return _questionnaire_campaign_get_plugin('sending_handlers', $id);
+}
+
+/**
+ * Get array of userlist providers.
+ */
+function questionnaire_campaign_get_userlist_provider($id = FALSE) {
+  return _questionnaire_campaign_get_plugin('userlist_providers', $id);
+}
+
+/**
+ * Get current, or next, campaign for a recipient.
+ *
+ * @param string $entity_type
+ * The type of entity for the recipient.
+ * @param Entity $entity
+ * The entity for the recipient.
+ * @param string $medium
+ * The plugin name for the sendinging handler.
+ *
+ * @return Entity
+ * A questionnaire_campaign entity.
+ */
+function questionnaire_campaign_user_campaign($entity_type, $entity, $medium) {
+  if ($campaign = _questionnaire_campaign_user_campaign($entity_type, $entity, $medium)) {
+    return $campaign[0];
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Return current, or next, campaign field for a recipient.
+ *
+ * @param string $entity_type
+ * The type of entity for the recipient.
+ * @param Entity $entity
+ * The entity for the recipient.
+ * @param string $medium
+ * The plugin name for the sendinging handler.
+ *
+ * @return array
+ * The content of the field from the recipient entity for the next campaign.
+ */
+function questionnaire_campaign_user_campaign_field($entity_type, $entity, $medium) {
+  if ($campaign = _questionnaire_campaign_user_campaign($entity_type, $entity, $medium)) {
+    return $campaign[1];
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Internal function to retrieve current, or next, campaign and campaign field
+ * for a recipient.
+ *
+ * @see questionnaire_campaign_user_campaign().
+ * @see questionnaire_campaign_user_campaign_field().
+ */
+function _questionnaire_campaign_user_campaign($entity_type, $entity, $medium) {
+  static $cache = array();
+  list($id, $vid, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  // This usually gets called twice so may as well just return the results.
+  // However it can be called in the same cron run as when the field was set?
+  // if (isset($cache["$entity_type:$id:$vid"])) {
+  //  return $cache["$entity_type:$id:$vid"];
+  // }
+
+  $found = FALSE;
+  foreach (questionnaire_field_get_instances($entity_type, $bundle_name) as $field_name => $field_info) {
+    if (empty($entity->$field_name)) {
+      // Full entity with fields has not necessarily been loaded.
+      field_attach_load($entity_type, array($id => $entity), FIELD_LOAD_CURRENT, array('field_id' => $field_name));
+    }
+    $items = field_get_items($entity_type, $entity, $field_name);
+    if (! $items) {
+      break;
+    }
+    foreach ($items as $delta => $item) {
+      if (! $item['completed'] && $item['context_type'] == 'questionnaire_campaign') {
+        $campaign_field = $item;
+        $campaign = entity_load('questionnaire_campaign', array($item['context_id']));
+        $campaign = reset($campaign);
+        if ($campaign->sender == $medium) {
+          // First field (by delta) that isn't completed, and is being sent by
+          // the required medium meets the requirements.
+          $found = TRUE;
+          break 2;
+        }
+      }
+    }
+  }
+
+  if ($found && $campaign->enabled) {
+    $cache["$entity_type:$id:$vid"] = array($campaign, $campaign_field);
+    return array($campaign, $campaign_field);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Internal function to retrieve lists, or inidividual plugins.
+ */
+function _questionnaire_campaign_get_plugin($name, $id) {
+  static $cache = array();
+
+  if (! $id || ! isset($cache[$name][$id])) {
+    ctools_include('plugins');
+    $plugins = ctools_get_plugins('questionnaire_campaign', $name);
+    foreach ($plugins as $key => $plugin) {
+      if (empty($plugin['hidden'])) {
+        $handler = ctools_plugin_get_class($plugin, 'handler');
+        $cache[$name][$key] = new $handler();
+      }
+    }
+  }
+
+  if ($id) {
+    return isset($cache[$name][$id]) ? $cache[$name][$id] : NULL;
+  }
+  else {
+    return isset($cache[$name]) ? $cache[$name] : NULL;
+  }
+}

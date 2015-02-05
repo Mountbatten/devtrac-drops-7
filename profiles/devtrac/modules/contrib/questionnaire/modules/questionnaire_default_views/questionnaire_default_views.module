@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Questionnaire Default Views feature.
+ */
+
+include_once 'questionnaire_default_views.features.inc';

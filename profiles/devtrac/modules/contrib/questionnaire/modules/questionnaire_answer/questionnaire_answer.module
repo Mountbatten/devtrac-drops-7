@@ -1,0 +1,669 @@
+<?php
+
+/**
+ * @file
+ * Questionnaire answer submission, saving.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function questionnaire_answer_entity_info() {
+  $return['questionnaire_answer'] = array(
+      'label' => t('Answer'),
+      'entity class' => 'QuestionnaireAnswer',
+      'controller class' => 'QuestionnaireAnswerController',
+      'base table' => 'questionnaire_answer',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+          'id' => 'id',
+      ),
+      'bundles' => array(),
+      'bundle keys' => array(
+          'bundle' => 'questionnaire_answer',
+      ),
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
+    'creation callback' => 'questionnaire_answer_create',
+    'access callback' => 'questionnaire_answer_access',
+    'module' => 'questionnaire_answer',
+  );
+
+  $return['questionnaire_submission'] = array(
+      'label' => t('Submission'),
+      'entity class' => 'QuestionnaireSubmission',
+      'controller class' => 'QuestionnaireSubmissionController',
+      'base table' => 'questionnaire_submission',
+      'fieldable' => FALSE,
+      'entity keys' => array(
+          'id' => 'sid',
+      ),
+      'creation callback' => 'questionnaire_submission_create',
+      'access callback' => 'questionnaire_submission_access',
+      'module' => 'questionnaire_answer',
+      'bundles' => array(),
+      'bundle keys' => array(
+          'bundle' => 'questionnaire_submission',
+      ),
+      'module' => 'questionnaire_answer',
+  );
+
+  return $return;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function questionnaire_answer_entity_property_info_alter(&$info) {
+  $properties = &$info['questionnaire_answer']['properties'];
+  $properties['questionnaire_id'] = array(
+      'label' => t("Questionnaire"),
+      'type' => 'node',
+      'entity views field' => TRUE,
+      'description' => t("The Questionnaire."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
+      'required' => TRUE,
+      'schema field' => 'questionnaire_id',
+  );
+  $properties['context'] = array(
+      'label' => t("Context"),
+      'type' => 'entity',
+      'description' => t("The entity of the context in which the question was asked."),
+      'getter callback' => 'questionnaire_answer_entity_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
+      'computed' => TRUE,
+  );
+  $properties['sid'] = array(
+      'label' => t("Submission"),
+      'type' => 'questionnaire_submission',
+      'bundle' => 'questionnaire_submission',
+      'entity views field' => TRUE,
+      'description' => t("The submission of the context."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
+      'required' => TRUE,
+      'schema field' => 'sid',
+  );
+  $properties['question'] = array(
+      'label' => t("Question"),
+      'type' => 'node',
+      'entity views field' => TRUE,
+      'description' => t("The question."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
+      'required' => TRUE,
+      'schema field' => 'question',
+  );
+  $properties['created'] = array(
+      'label' => t("Date created"),
+      'type' => 'date',
+      'description' => t("The date the answer was posted."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
+      'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+      'label' => t("Date changed"),
+      'type' => 'date',
+      'schema field' => 'changed',
+      'description' => t("The date the answer was most recently updated."),
+  );
+  $properties['answernumber'] = array(
+      'label' => t("Answer Number"),
+      'type' => 'decimal',
+      'schema field' => 'answernumber',
+      'description' => t("The answer rendered as text."),
+  );
+  $properties['answertext'] = array(
+      'label' => t("Answer Text"),
+      'type' => 'text',
+      'schema field' => 'answertext',
+      'description' => t("The answer rendered as text."),
+  );
+  $properties['answer'] = array(
+      'label' => t("Answer All"),
+      'type' => 'text',
+      'schema field' => 'answer',
+      'description' => t("The answer rendered as text."),
+  );
+  $properties['recipient'] = array(
+      'label' => t("Recipient"),
+      'type' => 'entity',
+      'description' => t("The entity of the author of the answer."),
+      'getter callback' => 'questionnaire_answer_entity_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer questionnaire answers',
+      'computed' => TRUE,
+  );
+
+  $properties = &$info['questionnaire_submission']['properties'];
+  $properties['created'] = array(
+      'label' => t("Date created"),
+      'type' => 'date',
+      'description' => t("The date the submission was posted."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
+      'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+      'label' => t("Date changed"),
+      'type' => 'date',
+      'schema field' => 'changed',
+      'description' => t("The date the submission was most recently updated."),
+  );
+  $properties['recipient'] = array(
+      'label' => t("Author"),
+      'type' => 'user',
+      'description' => t("The author of the task."),
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer questionnaire answers',
+      'required' => TRUE,
+      'schema field' => 'recipient_id',
+  );
+
+  if (module_exists('questionnaire_field')) {
+    // Use questionnaire field as definition that an entity can answer
+    // questions. Attach answers to these entities.
+    $questionnaire_fields = questionnaire_field_get_instances();
+    foreach ($questionnaire_fields as $field => $instances) {
+      foreach ($instances['bundles'] as $entity_type => $bundles) {
+        foreach ($bundles as $bundle) {
+          $info[$entity_type]['bundles'][$bundle]['properties']['questionnaire_answers'] = array(
+            'label' => t('Answers'),
+            'type' => 'list<questionnaire_answer>',
+            'description' => t('Answers to questionnaire questions'),
+            'computed' => TRUE,
+            'getter callback' => 'questionnaire_answer_property_set',
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Getter callback for hook_entity_property_info_alter().
+ */
+function questionnaire_answer_property_set($data, array $options, $name, $type, $info) {
+  $query = new EntityFieldQuery();
+
+  list($id, $vid, $bundle) = entity_extract_ids($type, $data);
+  $query->entityCondition('entity_type', 'questionnaire_answer')
+    ->propertyCondition('recipient_type', $type)
+    ->propertyCondition('recipient_id', $id);
+  $result = $query->execute();
+
+  if (isset($result['questionnaire_answer'])) {
+    $answer_ids = array_keys($result['questionnaire_answer']);
+    return entity_load('questionnaire_answer', $answer_ids);
+  }
+
+  return array();
+}
+
+/**
+ * Implements hook_permission().
+ */
+function questionnaire_answer_permission() {
+  // We set up permisssions to manage entity types, manage all entities and the
+  // permissions for each individual entity
+  $permissions = array(
+    /**
+      'administer questionnaire answers' => array(
+          'title' => t('Administer Questionnaire Answers'),
+          'description' => t('Edit and delete all Questionnaire Answers'),
+      ),
+     * 
+     */
+      'view questionnaire answers' => array(
+          'title' => t('View Questionnaire Answers'),
+          'description' => t('View all Questionnaire Answers'),
+      ),
+  );
+
+  return $permissions;
+}
+
+
+/**
+ * Determines whether the given user has access to a model.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ * @param $model
+ *   Optionally a model or a model type to check access for. If nothing is
+ *   given, access for all models is determined.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function questionnaire_answer_access($op, $entity, $account = NULL, $entity_type = 'questionnaire_answer') {
+  global $user;
+  if (empty($account)){
+    $account = $user;
+  }
+  
+  if ($op == 'view') {
+    if (user_access('view questionnaire answers', $account)) {
+    return TRUE;
+    }
+  }
+//  elseif ($op == 'create' || $op == 'update' || $op == 'delete') {
+//    if (user_access('administer questionnaire answers', $account)) {
+//    return TRUE;    
+//    }    
+//  }  
+  return FALSE;
+}
+
+
+
+
+/**
+ * Create a model object.
+ * 
+ * @param array $values
+ *    An array representing the values to use when creating an answer entity.
+ * 
+ * @return entity
+ *    The answer entity.
+ *    
+ */
+function questionnaire_answer_create($values = array()) {
+  return entity_get_controller('questionnaire_answer')->create($values);
+}
+
+
+/**
+ * Saves a model to the database.
+ *
+ * @param $answer
+ *   The answer entity to save to the database.
+ */
+
+function questionnaire_answer_save(QuestionnaireAnswer $answer) {
+  return $answer->save();
+}
+
+
+
+/**
+ * Sets up content to show an individual model.
+ * 
+ * @param object $questionnaire_answer
+ * @param string $view_mode
+ * 
+ * @return object $content
+ * @todo - get rid of drupal_set_title();
+ */
+function questionnaire_answer_page_view($questionnaire_answer, $view_mode = 'full') {
+  $controller = entity_get_controller('questionnaire_answer');
+  $content = $controller->view(array($questionnaire_answer->id => $questionnaire_answer));
+  drupal_set_title($questionnaire_answer->answer);
+
+  if (module_exists('flag')) {
+    $content['flag_interesting'] = array(
+      '#markup' => flag_create_link('questionnaire_answer_interesting', $questionnaire_answer->id),
+    );
+    $content['flag_follow_up'] = array(
+      '#markup' => flag_create_link('questionnaire_answer_follow_up', $questionnaire_answer->id),
+    );
+    $flag = flag_get_flag('questionnaire_answer_follow_up');
+    if ($flag && $flag->is_flagged($questionnaire_answer->id)) {
+      $content['flag_resolved'] = array(
+      '#markup' => flag_create_link('questionnaire_answer_resolved', $questionnaire_answer->id),
+      );
+    }
+  }
+
+  return $content;
+}
+
+
+
+/**
+ * Create a submission object.
+ * 
+ * @param array $values
+ * @return object $submission
+ */
+function questionnaire_submission_create($values = array()) {
+  $submission = entity_get_controller('questionnaire_submission')->create($values);
+//  $submission->answers = array();
+  return $submission;
+}
+
+/**
+ * Load a submission object.
+ * 
+ * @param string $sid
+ *    The submission id of the submission to be loaded.
+ * 
+ * @return object $submission | boolean FALSE
+ */
+function questionnaire_submission_load($sid) {
+  if ($submissions = entity_get_controller('questionnaire_submission')->load(array($sid))) {
+    $submission = $submissions[$sid];
+    $submission->loadanswers();
+    return $submission;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Find a submission.
+ *
+ * @todo
+ */
+function questionnaire_submission_find($qnid, $context) {
+  /**
+  $query = db_select('questionnaire_submission', 'a')
+  ->fields('a', array('sid'))
+  ->condition('qnid', $qnid)
+  ->condition('context', $context);
+  if ($sids = $query->execute()->fetchAllAssoc('sid', PDO::FETCH_ASSOC)) {
+    // $sids is now keyed by the fields sid, which is what we need, so we use array_keys to get an array of sids
+    $sids = array_keys($sids);
+    if ($submissions = entity_load('questionnaire_submission', $sids)) {
+      return $submissions;
+    }
+  }
+   * 
+   */
+  return FALSE;
+}
+
+
+/**
+ * Saves a model to the database.
+ *
+ * @param $model
+ *   The model object.
+ */
+function questionnaire_submission_save(QuestionnaireSubmission $submission) {
+  // Presently should be attached to a questionnaire.
+  // @todo is there a logic to it not being?
+  if (! empty($submission->questionnaire_id)) {
+    $questionnaire = node_load($submission->questionnaire_id);
+    if (!$questionnaire)  {
+      return FALSE;
+    } // The original questionnaire node has been deleted
+  }
+
+  // Attach taxonomy terms from context to answers.
+  if (variable_get('questionnaire_question_copy_termfields_from_context_' . $questionnaire->type, FALSE)) {
+    $terms = $submission->addtaxonomyfields($submission->context_id);
+    $context = node_load($submission->context_id);
+    $fields = field_info_instances("node", $context->type);
+    foreach ($fields as $field_name => $field) {
+      $field_info = field_info_field($field_name);
+      $type = $field_info['type'];
+      if ($field_info['type'] == 'taxonomy_term_reference') {
+        // TODO support more than 1 term per taxonomy
+        // TODO do a strategy for multi-lingual (when there are more than 1 translation for a taxonomy term?)
+        if(isset($context->{$field_name}[$context->language][0]['tid'])){
+          $terms[$field_name] = $context->{$field_name}[$context->language][0]['tid'];
+        }
+      }
+    }
+  }
+
+  // Save the answers.
+  $answers = $submission->answers;
+   /* No updates, just delete and re-save */
+  // TODO implement Changed timestamp feature.
+  if ($submission->sid != '') {
+    entity_delete_multiple('questionnaire_answer', array_keys($submission->answers));
+    unset($submission->answers);
+  }
+  $result = $submission->save();
+  foreach($answers as &$answer) {
+    $answer->sid = $submission->sid;
+    switch (questionnaire_submission_getquestiontype($answer->question)) {
+      case "number" :
+        $answer->answernumber = $answer->answer;
+        break;
+      case "select" :
+      case "checkboxes" :
+      case "radios" :
+        $answer->answertext = $answer->answer;
+        $answer->answernumber = NULL;
+        break;
+      case "open":
+        // If the questionnaire_fuzzy module is enabled, save the answer as
+        // fuzzy.
+        if (module_exists('questionnaire_fuzzy')) {
+          $answer->fuzzy = $answer->answer;
+          $answer->answer = '';
+          $answer->answernumber = NULL;
+        }
+        // Otherwise save the answer as text.
+        else {
+          $answer->answertext = $answer->answer;
+          $answer->answernumber = NULL;
+        }
+        break;
+      case "taxonomy":
+        // Load the vocabulary using the question and use it to get the correct
+        // taxonomy term.
+        $question_node = node_load($answer->question);
+        $question = entity_metadata_wrapper('node', $question_node);
+        if (isset($node->qq_options_vocabulary)) {
+          $vocabulary_machinename = $question->qq_options_vocabulary->value();
+          $term = taxonomy_get_term_by_name($answer->answer, $vocabulary_machinename);
+          // Only use the first term that matches answer.
+          $term = reset($term);
+          if (empty($term)) {
+            // If the questionnaire_fuzzy module is enabled, save the answer as
+            // fuzzy.
+            if (module_exists('questionnaire_fuzzy')) {
+              $answer->fuzzy = $answer->answer;
+              $answer->answer = '';
+              $answer->answernumber = NULL;
+              break;
+            }
+            // Otherwise create a new term.
+            else {
+              $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_machinename);
+              $newterm = new stdClass();
+              $newterm->name = $answer->answer;
+              $newterm->vid = $vocabulary->vid;
+              $newterm->parent = 0;
+              taxonomy_term_save($newterm);
+              // Load the created term.
+              $term = taxonomy_get_term_by_name($answer->answer, $vocabulary_machinename);
+              $term = reset($term);
+            }
+          }
+
+
+          $answer->answertext = $answer->answer;
+
+          // Add the answer to the $terms array for the answer object.
+          $vocabulary_fieldname = 'field_' . $vocabulary_machinename;
+          $terms[$vocabulary_fieldname] = $term->tid;
+        }
+        break;
+      default :
+        $answer->answertext = $answer->answer;
+        $answer->answernumber = NULL;
+        break;
+    }
+
+    if (isset($terms)) {
+      $answer->terms = $terms;
+    }
+
+    if (isset($answer->terms)) {
+      // expected format for now is 'taxonomy_field_name' => tid
+      foreach ($answer->terms as $field => $term) {
+        $answer->{$field}['und'][]['tid'] = $term;
+      }
+    }
+
+    $answer->save();
+  }
+
+  foreach (module_implements('questionnaire_submission_save') as $module) {
+    $function = $module . '_questionnaire_submission_save';
+    $result = call_user_func($function, $submission, $answers);
+  }
+
+  return $result;
+}
+
+/**
+ * Returns the type of a question.
+ * 
+ * @param string $question
+ *    The node id of the question.
+ * 
+ * @return string | boolean FALSE
+ *    A string that represents the type of the question.
+ */
+function questionnaire_submission_getquestiontype($question) {
+  if (($node = node_load($question)) && (isset($node->questionnaire_question_type['und']))) {
+    return $node->questionnaire_question_type['und'][0]['value'];
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Getter callback for hook_entity_property_info_alter().
+ */
+function questionnaire_answer_entity_get($data, array $options, $name, $type, $info) {
+  $wrapper = NULL;
+
+  $name_type = $name . '_type';
+  $name_id = $name . '_id';
+  // quick fix; this might be an array or an entity.
+  $data = (array) $data;
+  $entity_id = $data[$name_id];
+  $entity_type = $data[$name_type];
+
+  if (! empty($entity_type) && ! is_null($entity_id)) {
+    $wrapper = entity_metadata_wrapper($entity_type, $entity_id);
+  }
+
+  return $wrapper;
+}
+
+
+// Rendering Answers
+/**
+ * Implements hook_menu().
+ */
+function questionnaire_answer_menu() {
+    $items = array();
+
+    // Menu item for viewing models
+    $items['questionnaire_answer/%questionnaire_answer'] = array(
+      //'title' => 'Title',
+      'title' => 'Answer title',
+      'page callback' => 'questionnaire_answer_page_view',
+      'page arguments' => array(1),
+      'access callback' => 'questionnaire_answer_access',
+      'access arguments' => array('view', 1),
+      'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function questionnaire_answer_load($qaid){
+  $answer = entity_load('questionnaire_answer', array($qaid));
+  return isset($answer[$qaid])?$answer[$qaid]:NULL;
+}
+
+// Flags
+
+/**
+ * Implements hook_flag_default_flags().
+ */
+function questionnaire_answer_flag_default_flags() {
+  $flags = array();
+  $flags['questionnaire_answer_follow_up'] = array(
+    'entity_type' => 'questionnaire_answer',
+    'title' => 'Follow Up',
+    'global' => 1,
+    'types' => array(),
+    'flag_short' => 'Follow Up',
+    'flag_long' => 'This answer requires a follow up.',
+    'flag_message' => 'The answer [questionnaire_answer:answer] shall be followed up.',
+    'unflag_short' => 'Cancel Follow Up.',
+    'unflag_long' => 'This answer does not require a follow up.',
+    'unflag_message' => 'The answer [questionnaire_answer:answer] shall not be followed up.',
+    'unflag_denied_text' => '',
+    'link_type' => 'toggle',
+    'weight' => 0,
+    'show_in_links' => array(),
+    'show_as_field' => 0,
+    'show_on_form' => 0,
+    'access_author' => '',
+    'show_contextual_link' => FALSE,
+    'api_version' => 3,
+    'module' => 'questionnaire_answer',
+    'locked' => array(
+      0 => 'name',
+    ),
+  );
+  $flags['questionnaire_answer_interesting'] = array(
+    'entity_type' => 'questionnaire_answer',
+    'title' => 'Interesting',
+    'global' => 1,
+    'types' => array(),
+    'flag_short' => 'Interesting',
+    'flag_long' => 'Mark this answer as interesting.',
+    'flag_message' => 'The answer [questionnaire_answer:answer] is interesting.',
+    'unflag_short' => 'Unset the Interesting Flag.',
+    'unflag_long' => 'This answer is ordinary.',
+    'unflag_message' => 'The answer [questionnaire_answer:answer] is ordinary.',
+    'unflag_denied_text' => '',
+    'link_type' => 'toggle',
+    'weight' => 0,
+    'show_in_links' => array(),
+    'show_as_field' => 0,
+    'show_on_form' => 0,
+    'access_author' => '',
+    'show_contextual_link' => FALSE,
+    'api_version' => 3,
+    'module' => 'questionnaire_answer',
+    'locked' => array(
+      0 => 'name',
+    ),
+  );
+  $flags['questionnaire_answer_resolved'] = array(
+    'entity_type' => 'questionnaire_answer',
+    'title' => 'Resolved',
+    'global' => 1,
+    'types' => array(),
+    'flag_short' => 'Set to Resolved.',
+    'flag_long' => 'This answer has been resolved.',
+    'flag_message' => 'The answer [questionnaire_answer:answer] has been resolved.',
+    'unflag_short' => 'Unset the Resolved Flag.',
+    'unflag_long' => 'This answer has not been resolved.',
+    'unflag_message' => 'The answer [questionnaire_answer:answer] has not been resolved.',
+    'unflag_denied_text' => '',
+    'link_type' => 'toggle',
+    'weight' => 0,
+    'show_in_links' => array(),
+    'show_as_field' => 0,
+    'show_on_form' => 0,
+    'access_author' => '',
+    'show_contextual_link' => FALSE,
+    'api_version' => 3,
+    'module' => 'questionnaire_answer',
+    'locked' => array(
+      0 => 'name',
+    ),
+  );
+  return $flags;
+
+}

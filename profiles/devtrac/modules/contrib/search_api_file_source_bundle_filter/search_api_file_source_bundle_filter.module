@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Defines a new Search API Data Alteration callback that filters files on the
+ * source bundles they are attached to.
+ *
+ * To clarify, the files are filtered on selected source bundles from entity
+ * types like content types, taxonomy vocabularies and users.
+ */
+
+/**
+ * Implements hook_search_api_alter_callback_info().
+ */
+function search_api_file_source_bundle_filter_search_api_alter_callback_info() {
+  $callbacks['search_api_file_source_bundle_filter'] = array(
+    'name' => t('File source bundle filter'),
+    'description' => t('Filter files on the source bundles they are attached to.'),
+    'class' => 'SearchApiFileSourceBundleFilter',
+    // Filters should be executed first.
+    'weight' => -10,
+  );
+  return $callbacks;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function search_api_file_source_bundle_filter_entity_property_info_alter(&$info) {
+  // Define usage property info for nodes.
+  $info['file']['properties']['file_bundles'] = array(
+    'label' => t('File bundles (node)'),
+    'description' => 'Lists bundles that use a file',
+    'type' => 'list<struct>',
+    'entity views field' => TRUE,
+    'getter callback' => 'search_api_file_source_bundle_getter_callback',
+  );
+}
+
+/**
+ * Getter callback for listing usage of a file by other entities.
+ */
+function search_api_file_source_bundle_getter_callback($file, array $options, $name, $type, $info) {
+  $type_fields = array(
+    'node' => 'type',
+    'taxonomy_term' => 'vocabulary_machine_name',
+  );
+  // Extract the type of the using entity.
+  $using_entity_type = entity_property_list_extract_type($info['type']);
+  // Get the file entity.
+  $file_entity = entity_metadata_wrapper($type, $file);
+  // Get the file type.
+  $file_type = $file_entity->type();
+  // Retrieve all entities that reference the file entity.
+  $usage = file_get_file_references($file, $field = NULL, $age = FIELD_LOAD_CURRENT, $file->type);
+  $results = array();
+  foreach ($usage as $field_name => $using_entities) {
+    foreach ($using_entities as $entity_type => $using_entity) {
+      $results[$entity_type][] = reset($using_entity)->$type_fields[$entity_type];
+    }
+  }
+  // Return the entity ids of the entities that reference the file entity.
+  return $results;
+}

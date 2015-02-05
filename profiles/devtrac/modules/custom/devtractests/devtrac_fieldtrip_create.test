@@ -1,0 +1,461 @@
+<?php
+
+/**
+ * Functional tests for fieldWorker (permitted) Fieldtrip creation.
+ */
+module_load_include('test', 'simpletest_clone');
+class FieldtripCreatePermittedTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $fieldWorker;
+  public static function getInfo() {
+    return array(
+      'name' => 'fieldWorker (permitted) user Creates Fieldtrip  ',
+      'description' => 'Have an fieldWorker user with all permissions of role "field worker".',
+      'group' => 'Devtrac',
+    );
+  }
+
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   * 
+   * 1. Create a new User with all permissions of role "field worker" (rid = 5).
+   * 2. Log the user into the system.
+   */
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+  
+  public function setUp() {
+    parent::setUp();
+      // Create and log in a permitted user.
+    $this->public_files_directory = variable_get('file_public_path');
+    $this->fieldWorker = $this->drupalCreateUser(array(
+    'get any binary files',
+    		'get own binary files',
+    		'hide own comments',
+    		'post comments',
+    		'save file information',
+    		'skip comment approval',
+    		'submit questions',
+    		'view taxonomy_vocabulary_1',
+    		'access comments',
+    		'access content',
+    		'access proxy router',
+    		'access user profiles',
+    		'administer own comments',
+    		'create taxonomy_vocabulary_1',
+    		'create fieldtrip content',
+    		));
+    // Loading a user by role name 
+    $this->fieldWorker->roles[] = 'field worker';
+    user_save($this->fieldWorker);
+    $this->drupalLogin($this->fieldWorker);
+    $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+ }
+  /**
+   * Assess 'Create Fieldtrip' permission.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Open the Fieltrip creation form.
+   * 2. Negative test for "Access denied".
+   * 3. Test for form title "Create Field Trip".
+   */
+  public function testFieldtripCreatefieldWorkerPermittedtest() {
+    $this->drupalGet('node/add/fieldtrip', array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+        'field_fieldtrip_places' => '')));
+    // We should not get an "Access denied".
+    $this->assertNoResponse(403, 'allowed to access the page');
+    $this->assertResponse(200, 'access accepted');
+    $this->assertText(t('Create Field Trip'), 'fieldWorker user permitted to open Create Field Trip form.', 'Devtrac');
+    $this->assertNoText(t('Access denied'), 'fieldWorker user permitted to create a fieldtrip.', 'Devtrac');
+  }
+  /**
+   * Assess 'Fieldtrip Submission'.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1.  Open the Fieltrip creation form.
+   * 
+   * 2.  Test that the "Title" field exists on the form.
+   * 
+   * 3.  Test that the "Proms TA Number" field exists on the form.
+   * 
+   * 4.  Test that the "Dictrict" field exists on the form.
+   * 
+   * 5.  Test that the "Purpose(s) of the Fieldtrip" field group exists on the form.
+   * 
+   * 6.  Test that the "Purpose" field exists on the form.
+   * 
+   * 7.  Test that the "Percentage" field exists on the form.
+   * 
+   * 8.  Test that the "Description" field exists on the form.
+   * 
+   * 9.  Test that the "Start and End Date" fieldgroup exists on the form.
+   * 
+   * 10. Test that both "Date" fields exist on the form.
+   */
+  public function testFieldtripCreateFormFieldstest() {
+    $this->drupalGet('node/add/fieldtrip', array(
+    'query' => array(
+      'field_fieldtrip_user' => $this->fieldWorker->uid,
+      'field_fieldtrip_places' => '')));
+    $this->assertNoTitle(t('Create Field Trip | DevTrac'), t('FieldTrips DevTrac page title is visible to non registered user'), 'Devtrac');
+    $this->assertText(t('Title'), t('Title provision found'), t('Remove'));
+    $this->assertText(t('Description'), t('Description provision found'), 'Devtrac');
+    $this->assertText(t('Purpose'), t('Purpose provision found'), 'Devtrac');
+    $this->assertNoText(t('District'), t('District provision not found'), 'Devtrac');
+    $this->assertNoRaw('<title>' . 'Create Field Trip | DevTrac'  . '</title>');
+    $this->assertField(t('field_fieldtrip_fc_purpose_und_0_remove_button'), t('remove field button found'), 'DevTrac');
+    $this->assertField(t('op'), t('Save button is found'), 'Save');
+    $this->assertField(t('field_fieldtrip_fc_purpose_add_more'), t('Add more field found'), 'DevTrac');
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with empty "Title" field.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Create a new node of type "fieldtrip" with an empty "Title".
+   * 
+   * 2. Test for "Title field is required.".
+   */
+  public function testFieldtripCreateEmptyTitletest() {
+    $this->drupalGet('node/add/fieldtrip', array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+        'field_fieldtrip_places' => '')));
+    $emptytitle['title'] = '';
+    $emptytitle['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = '';
+    // Now create a node field trip. 
+    $this->drupalPost('node/add/fieldtrip', $emptytitle, t('Save'), array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+        'field_fieldtrip_places' => '')));
+    $this->assertNoText(t('District field is required.'), 'Description field changed', 'DevTrac');
+    $this->assertNoText('Administrative Boundaries field is not required.', 'Administrative Boundaries field is required. left empty');
+    $this->assertText('Title field is required.', t('Title field is not filled'), 'DevTrac');
+    $this->assertNoLink(t('Contact Us'), 0 ,t('Link to contact page is not found'));
+    $this->assertNoLink(t('About'), 0 ,t('Link to about devtrac page is not found'));
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with empty "Proms TA Number" field.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Create a new node of type "fieldtrip" with an empty "Proms TA Number".
+   *
+   * 2. Test for "Proms TA Number field is nolonger required.".
+   */
+  public function testFieldtripCreateEmptyPromsTANumber() {
+    $ptaempty['field_fieldtrip_internal_id[und][0][value]'] = '';
+    $this->drupalPost('node/add/fieldtrip', $ptaempty, t('Save'), array(
+    'query' => array(
+      'field_fieldtrip_user' => $this->fieldWorker->uid,
+      'field_fieldtrip_places' => '')));
+    $this->assertNoText(t('TA Number field is required'), t('Proms TA Number field is not required and was renamed'), 'Devtrac');
+    $this->assertNoLink(t('Contact Us'), 0 ,t('Link to contact page is found'));
+    $this->assertNoLink(t('About'), 0 ,t('Link to about devtrac page is found'));
+    $this->assertText(t('Title field is required.'), t('Title field is not filled'), 'DevTrac');
+    $this->assertNoText(t('District field is required.'), t('District field is not filled'), 'DevTrac');
+    $this->assertNoText('Administrative Boundaries field is required.', 'Administrative Boundaries field is not required. left empty');
+    $this->assertText(t('Percentage field is required.'), t('Percentage field is required.'), 'DevTrac');
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with empty "District" field.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Create a new node of type "fieldtrip" with an empty "District".
+   * 
+   * 2. Test for "District field is required.".
+   */
+  public function testFieldtripCreateEmptyDistricttest() {
+  	$this->drupalGet('node/add/fieldtrip');
+     //$input111['taxonomy_vocabulary_6[und][]'] = 81;
+     $this->assertNoField('taxonomy_vocabulary_6[und][]', 'taxonomy_vocabulary_6[und][] is no longer found');
+     $this->drupalPost('node/add/fieldtrip', NULL, t('Save'), array(
+       'query' => array(
+         'field_fieldtrip_user' => $this->fieldWorker->uid,
+         'field_fieldtrip_places' => ''))); 
+     $this->assertNoText(t('District field is required.'), t('One cant successifully create a fieldtrip, without choosing a district.'), 'DevTrac');
+     $this->assertNoLink(t('Contact Us'), 0 ,t('Link to contact page is found'));
+     $this->assertNoLink(t('About'), 0 ,t('Link to about devtrac page is found'));
+     $this->assertText(t('Title field is required.'), t('Title field is not filled'), 'DevTrac');
+     $this->assertText(t('Percentage field is required.'), t('Percentage field is required.'), 'DevTrac');
+     $this->assertNoText(t('Progress:'), t('Progress bar is showing'), 'Devtrac');
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with empty "Purpose" field.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Create a new node of type "fieldtrip" with an empty "Purpose".
+   * 
+   * 2. Test for "Purpose field is required.".
+   */
+  public function testFieldtripCreateEmptyPurposetest() {
+  	$this->drupalGet('node/add/fieldtrip');
+    $descr['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = '';
+    $this->drupalPost('node/add/fieldtrip', $descr, t('Save'), array(
+    'query' => array(
+      'field_fieldtrip_user' => $this->fieldWorker->uid,
+      'field_fieldtrip_places' => '')));
+    $this->assertText('Purpose field is required.', t('Purpose must be filled'), 'DevTrac');
+    $this->assertText('Title field is required.', t('Title field is not filled'), 'DevTrac');
+    $this->assertText('Percentage field is required.', t('Percentage field is required.'), 'DevTrac');
+    $this->assertNoLink(t('Contact Us'), 0 ,t('Link to contact page is found'));
+    $this->assertNoLink('About', 0 ,'Link to about devtrac page is found');
+    $this->assertText('Title field is required.', t('Title field is not filled'), 'DevTrac');
+    $this->assertText('Percentage field is required.', t('Percentage field is required.'), 'DevTrac');
+    $this->assertNoText('Progress:', t('Progress bar is showing'), 'Devtrac');
+  
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with empty "Percentage" field.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Create a new node of type "fieldtrip" with an empty "Percentage".
+   * 
+   * 2. Test for "Percentage field is required.".
+   */
+  public function testFieldtripCreateEmptyPercentagetest() {
+  	$this->drupalGet('node/add/fieldtrip');
+    $parce['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = '';
+    $this->drupalPost('node/add/fieldtrip', $parce, t('Save'), array(
+    'query' => array(
+      'field_fieldtrip_user' => $this->fieldWorker->uid,
+      'field_fieldtrip_places' => '')));
+    $this->assertText('Percentage field is required.', t('You did not fill percentage field'), 'DevTrac');
+    $this->assertNoLink('Contact Us', 0 ,t('Link to contact page is found'));
+    $this->assertNoLink('About', 0 ,t('Link to about devtrac page is found'));
+    $this->assertText(t('Title field is required.'), t('Title field is not filled'), 'DevTrac');
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with empty "Percentage" field.
+   * 
+   * Precondition: User has all permissions of role "field worker".
+   * 
+   * 1. Create a new node of type "fieldtrip" with an empty "Description.
+   * 
+   * 2. Test for "Description field is required.".
+   */
+  public function testFieldtripCreateEmptyDescriptiontest() {
+  	$this->drupalGet('node/add/fieldtrip');
+    $rn1='My future fieldtrip';
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'taxonomy_vocabulary_6[und][] is removed from the field trip add form');
+    $purpose['title'] = $rn1;
+    $purpose['title'] = 'My future fieldtrip';
+    $purpose['field_fieldtrip_internal_id[und][0][value]'] = $this->randomName(32);
+    $purpose['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 3; 
+    $purpose['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = '';
+    $purpose['field_fieldtrip_start_end_date[und][0][value][date]'] = '26/09/2012';
+    $purpose['field_fieldtrip_start_end_date[und][0][value2][date]'] = '26/10/2012';
+    $purpose['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = '';
+    $this->drupalPost('node/add/fieldtrip', $purpose, t('Save'), array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+        'field_fieldtrip_places' => '')));
+    $this->assertNoText(t('Purpose field is required.'), t('Purpose must be filled'), 'DevTrac');
+    $this->assertNoText(t('District field is required.'), t('Description field is not filled'), 'DevTrac');
+    $this->assertNoText('Administrative Boundaries field is required.', 'Administrative Boundaries field is not required. left empty');
+    $this->assertText(t('Percentage field is required.'), t('Percentage field is left empty'), 'DevTrac');
+  }
+  /**
+   * Assess Fieldtrip is created.
+   *
+   * Precondition: User has all permissions of role "field worker".
+   *
+   * 1. Create a new node of type "fieldtrip" with title "My fieldtrip title".
+   * 
+   * 2. Test for page title for "My fieldtrip title".
+   */
+  public function testFieldtripCreateFieldtripTitletest() {
+  	$this->drupalGet('node/add/fieldtrip');
+    $rname1 = 'My fieldtrip title';
+     //$fill['taxonomy_vocabulary_6[und][]'] = 81;
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'taxonomy_vocabulary_6[und][] ws remaoved');
+    $fill['title'] = $rname1;
+    $fill['field_fieldtrip_internal_id[und][0][value]'] = $this->randomName(32);
+    $fill['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 2; 
+    $fill['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = 100;
+    $this->drupalPost('node/add/fieldtrip', $fill, t('Save'), array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+        'field_fieldtrip_places' => '')));   
+  }
+  /**
+   * Assess Fieldtrip is NOT listed in the "Current Fieldtrip" block.
+   *
+   * Precondition: User has all permissions of role "field worker".
+   *
+   * 1. Create a new node of type "fieldtrip" with title "My future fieldtrip".
+   * 
+   *    Enter start and end dates in the future.
+   *    
+   * 2. Navigate to the user page.
+   */
+  public function testFieldtripCreateFieldtripNotCurrent() {    
+    $this->drupalGet('node/add/fieldtrip');
+    $this->assertNoText(t('TA Number'), t('TA number field is not found'), 'DevTrac'); 
+     //
+    $percentage = array('field_fieldtrip_fc_purpose_percent[und][0][value]' =>78);
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'taxonomy_vocabulary_6[und][] iis removed');
+    $field['title'] = 'My future fieldtrip';
+    $field['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = $this->randomName(10);
+    $field['field_fieldtrip_internal_id[und][0][value]'] = $this->randomName(10);
+    $field['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 3; 
+    $field['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = 100;
+    $field['field_fieldtrip_start_end_date[und][0][value][date]'] = '26/09/2014';
+    $field['field_fieldtrip_start_end_date[und][0][value2][date]'] = '26/10/2014';
+    $this->drupalPost('node/add/fieldtrip', $field, t('Save'), array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+        'field_fieldtrip_places' => '')));
+    $this->assertText(t('has been created.'), ('field trip is created successifully'), 'DevTrac');
+	  $nodeAddreportfullSubmitozyq = $this->drupalGetNodeByTitle($field["title"]);
+    $this->assertNOLink(t('My future fieldtrip'),0, t('Found link to my future fieldtrip'));
+    $this->assertLink(t('Add a Site Report to the Field Trip.'), 0, 'Add a Site Report to the Field Trip link is found');
+    $this->drupalGet('user/' . $this->fieldWorker->uid);
+    }
+  /**
+   * Assess Fieldtrip is listed in the "Current Fieldtrip" block.
+   *
+   * Precondition: User has all permissions of role "field worker".
+   *
+   * 1. Create a new node of type "fieldtrip" with title "My current fieldtrip".
+   * 
+   *    Leave start and end dates unchanged.
+   *    
+   * 2. Navigate to the user page.
+   */
+  public function testFieldtripCreateFieldtripCurrent() {
+  	$this->drupalGet('node/add/fieldtrip');
+    $rname1 = $this->randomName(32);
+    $rn1 = 'My current fieldtrip';
+    $rname3 = $this->randomName(32);
+    $rn3 = array('field_fieldtrip_proms_ta_id[und][0][value]' => $rname3);
+    $this->assertNoField('field_fieldtrip_proms_ta_id[und][0][value]', 'proms ta id is not found');
+    $percentage = array('field_fieldtrip_fc_purpose_percent[und][0][value]' =>78);
+     //$input1['taxonomy_vocabulary_6[und][]'] = 81;
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'taxonomy_vocabulary_6[und][] is removed');
+    $input1['title'] = $rn1;
+    $input1['field_fieldtrip_internal_id[und][0][value]'] = $this->randomName(32);
+    $input1['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 2; 
+    $input1['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = 100;
+    $input1['field_fieldtrip_start_end_date[und][0][value][date]'] = '26/09/2012';
+    $input1['field_fieldtrip_start_end_date[und][0][value2][date]'] = '26/10/2012';
+    $input1['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = $this->randomName(32);
+    $this->drupalPost('node/add/fieldtrip', $input1, t('Save'));
+    $this->assertNoText(t('has been created.'), ('field trip is not created successifuly ta is long'), 'DevTrac');
+    // This will be marked as a fail because the TA number is more than 24 needed length.
+  }
+  /**
+   * Assess Fieldtrip is listed on the "Open FieldTrips" tab.
+   *
+   * Precondition: User has all permissions of role "field worker".
+   *
+   * 1. Create a new node of type "fieldtrip" with title "My fieldtrip title".
+   * 
+   * 2. Navigate to the user page with the Open Fieldtrips showing.
+   */
+  public function testFieldtripCreateFieldtripListed() {
+  	$this->drupalGet('node/add/fieldtrip');
+    $rname1 = $this->randomName(32);
+    $rname3 = $this->randomName(32);
+    $percentage = array('field_fieldtrip_fc_purpose_percent[und][0][value]' =>78);
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'District filed is removed');
+    $name1['title'] = 'My fieldtrip title';
+    $this->assertField('field_fieldtrip_internal_id[und][0][value]', 'Internal id field is found');
+    $this->assertNoField('field_fieldtrip_proms_ta_id[und][0][value]', 'Proms at field is removed');
+    $name1['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 3; 
+    $name1['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = 100;
+    $name1['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = $this->randomName(12);
+    $name1['field_fieldtrip_start_end_date[und][0][value][date]'] = '26/09/2012';
+    $name1['field_fieldtrip_start_end_date[und][0][value2][date]'] = '26/10/2012';
+    $this->drupalPost('node/add/fieldtrip', $name1, t('Save'), array(
+      'query' => array(
+        'field_fieldtrip_user' => $this->fieldWorker->uid,
+      	'field_fieldtrip_places' => '')));
+    // For now the fieldtrip is not created.
+    // Refer to (fieldtripActionsSubmission.test) for this implementation. 
+    $this->assertNoLink('My latest fieldtrip', 0, t('Found the link for my current fieldtrip'), 'DevTrac');
+  }
+  /**
+   * Assess 'Fieldtrip Submission' with an invalid "Percentage" field.
+   *
+   * Precondition: User has all permissions of role "field worker".
+   *
+   * 1. Create a new node of type "fieldtrip" with an empty "Description.
+   * 
+   * 2. Test for "Description field is required.".
+   */
+  public function testFieldtripCreateInvalidPercentagetest() {
+    
+    $this->drupalGet('node/add/fieldtrip');
+    $rn1='My future fieldtrip';
+    $this->assertNoField('taxonomy_vocabulary_6[und][]', 'taxonomy_vocabulary_6[und][] is removed from the field trip add form');
+    $purpose['title'] = $rn1;
+    $purpose['title'] = 'My future fieldtrip';
+    $purpose['field_fieldtrip_internal_id[und][0][value]'] = $this->randomName(32);
+    $purpose['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'] = 3;
+    $purpose['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'] = 1000;
+    $purpose['field_fieldtrip_start_end_date[und][0][value][date]'] = '26/09/2012';
+    $purpose['field_fieldtrip_start_end_date[und][0][value2][date]'] = '26/10/2012';
+    $purpose['field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_descr][und][0][value]'] = '';
+    $this->drupalPost('node/add/fieldtrip', $purpose, t('Save'), array(
+      'query' => array(
+      'field_fieldtrip_user' => $this->fieldWorker->uid,
+      'field_fieldtrip_places' => '')));
+    $this->assertNoText(t('Purpose field is required.'), t('Purpose must be filled'), 'DevTrac');
+    $this->assertNoText(t('District field is required.'), t('Description field is not filled'), 'DevTrac');
+    $this->assertNoText('Administrative Boundaries field is required.', 'Administrative Boundaries field is not required. left empty');
+    $this->assertText(t('Percentage: the value may be no greater than 100.'), t('Percentage field is greater than 100%'), 'DevTrac');
+  }
+}

@@ -1,0 +1,16 @@
+name = "Devtrac Mapbox Module"
+description = "Adds capability for users to add their own mapbox ids."
+core = "7.x"
+package = "Devtrac Apps"
+
+files[] = devtrac_mapbox.module
+files[] = includes/devtrac_mapbox_layers.inc
+
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

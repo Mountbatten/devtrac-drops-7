@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ */
+
+// Making Devtrac to Devtrac Importer an app.
+
+/**
+ * Implements hook_apps_app_info()
+ */
+function devtrac_to_devtrac_importer_apps_app_info() {
+  return array(
+    'demo content description' => 'This will load sample data to give an impression of what Devtrac looks like when it is filled up.',
+    'demo content module' => 'devtrac_to_devtrac_demodata',
+  );
+}

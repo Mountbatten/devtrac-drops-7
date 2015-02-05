@@ -1,0 +1,197 @@
+<?php
+
+function OL_lat_long_install(){
+
+        $resultSQL = db_select('openlayers_maps', 'c')
+        ->fields('c')
+        ->condition('name', 'geofield_widget_map','=')
+        ->execute()
+        ->fetchAssoc();
+        
+        $array_search = unserialize($resultSQL['data']);
+        $array_search['behaviors']['openlayers_behavior_OKC']=array();
+        $resultSQL['data'] = serialize($array_search);
+        //force the behaviors to be active by default
+        $update = db_update('openlayers_maps')
+          ->condition('name', 'geofield_widget_map','=')
+          ->fields(array(
+            'data' => $resultSQL['data'],
+          ))
+          ->execute();
+
+}
+
+
+function OL_lat_long_form_alter(&$form, &$form_state, $form_id){
+
+
+  // check if the current user has the right to edit or create a content
+  $access = 0;
+  if(isset($form['#bundle'])){
+    $access = user_access($form['#bundle'].': Edit own content');
+    if($access == 0){
+      $access = user_access($form['#bundle'].': Create new content');
+    }
+  }
+
+
+  if(arg(0) == 'node') {
+      $nid = arg(1);
+  }
+
+  if(isset($nid) && /*arg(2) == 'edit' && */$access==1){
+
+
+
+    $entity=$form['#entity_type'];
+    $bundle=$form['#bundle'];
+
+    //get the widget related of the current node
+    $instance = field_info_instances($entity, $bundle);
+    foreach ($instance as $key => $value) {
+      if(!empty($value['widget'])){
+        $widgetlist[$key] = $value['widget']['type'];
+      }
+    }
+    
+
+    foreach ($widgetlist as $key => $value) {
+    //if the widget geofield openlayer is used
+      if ($value == 'geofield_openlayers'){
+        drupal_add_js(drupal_get_path('module', 'OL_lat_long') .'/js/OL_lat_long.js', array(
+            'weight' => '999',
+          )
+        );
+        //set the name of the field using geofield openlayer widget
+        $fieldName = array_search('geofield_openlayers', $widgetlist);
+        $result = db_select('field_data_'.$fieldName, 'c')
+            ->fields('c')
+            ->condition('entity_id', $nid,'=')
+            ->execute()
+            ->fetchAssoc();
+        $lat = $result[$fieldName.'_lat'];
+        $lon = $result[$fieldName.'_lon'];
+        $type = $result[$fieldName.'_geo_type'];
+        if($type != 'point'){
+          $lat = '';
+          $lon = '';
+        }
+
+        $form['choice'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('OpenLayers Latitude/Longitude or Map'),
+          '#weight' => 5,
+        );
+          
+        $form['latlon'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Latitude/Longitude'),
+        );
+
+        $form['choice']['edit-field-checkbox-lat-long'] = array(
+          '#type' => 'radios',
+          '#title' => t('What kind of data do you want to use'),
+          '#title_display' => 'before',
+          '#default_value' => /*isset($check) ? $check :*/ 0,
+          '#options' => array(0 => t('The map'), 1 => t('The Latitude and Longitude fields'))
+          );
+
+        $form['latlon']['edit-field-map-lat-long'] = array(
+          '#type' => 'container',
+          '#title' => t('The current Latitude and Longitude'),
+          '#title_display' => 'before',
+          '#children' => '<div id="longitude"></div><div id="latitude"></div>',
+          );
+
+        $form['choice']['edit-field-lon'] = array(
+            '#type' => 'textfield',
+            '#title' => 'Longitude',
+            '#description' => t('Use your own Longitude, -180.0 to 180.0'),
+            '#title_display' => 'before',
+            '#default_value' => isset($lon) ? $lon : NULL,
+            '#states' => array(
+              'visible' => array(
+                ':input[name="edit-field-checkbox-lat-long"]' => array('value' => 1)
+              ),
+            ),
+          );
+
+        $form['choice']['edit-field-lat'] = array(
+          '#type' => 'textfield',
+          '#title' => 'Latitude',
+          '#description' => t('Use your own Latitude, -90.0 to 90.0'),
+          '#title_display' => 'before',
+          '#default_value' => isset($lat) ? $lat : NULL,
+          '#states' => array(
+            'visible' => array(
+              ':input[name="edit-field-checkbox-lat-long"]' => array('value' => 1),
+            ),
+          )
+        );
+        $form['choice']['edit-field-button'] = array(
+          '#type' => 'container',
+          '#children' => '<div id="redrawPoint">Click here to see the changes on the map</div>',
+          '#states' => array(
+            'visible' => array(
+              ':input[name="edit-field-checkbox-lat-long"]' => array('value' => 1),
+            ),
+          )
+        );
+                       
+        $form['#validate'][] = 'OL_lat_long_form_validate';
+        array_unshift($form['#submit'], 'OL_lat_long_form_submit');
+      }
+    }
+  }
+}
+
+
+function OL_lat_long_form_validate($form, &$form_state){
+
+  if(isset($nid) && arg(2) == 'edit'){
+    //check if the value are latitude and longitude
+    $subject = $form_state['values']['edit-field-lon'];
+    $pattern = '/^[+-]?\d+\.\d+/';
+    $lonVal = '/^-?((([1]?[0-7][0-9]|[1-9]?[0-9])\.{1}\d{1,15}$)|[1]?[1-8][0]\.{1}0{0,15}$)/';
+    $latVal = '/^-?([1-8]?[0-9]\.{1}\d{0,15}$|90\.{1}0{0,15}$)/';
+
+    preg_match($lonVal, $subject, $matches);
+    if(count($matches) === 0){
+      form_set_error('edit-field-lon', 'You need to type a real Longitude');
+    }
+
+    $subject2 = $form_state['values']['edit-field-lat'];
+    preg_match($latVal, $subject2, $matches2);
+    if(count($matches2) === 0){
+      form_set_error('edit-field-lat', 'You need to type a real Latitude');
+    }
+  }
+}
+
+function OL_lat_long_form_submit($form, &$form_state){
+
+    //if the radio is on the latitude/longitude, change the value of the point
+  if($form_state['values']['edit-field-checkbox-lat-long'] == 1){
+    $form_state['values']['field_'.$form['#bundle']]['und']['0']['geom'] = 
+      'POINT ('.$form_state['values']['edit-field-lat'].' '.$form_state['values']['edit-field-lon'].')';
+  }
+}
+
+function OL_lat_long_openlayers_behaviors(){
+  //bahaviors to remove the control key -,+,up and down. Otherwise we can't type any - on the textfiel
+  return array(
+    'openlayers_behavior_OKC' => array(
+      'title' => t('Override key control'),
+      'description' => t('Remove the "-" and "+" zoom keys and left and right keys'),
+      'type' => 'behaviors',
+      'behavior' => array(
+        'class' => 'openlayers_behavior_OKC',
+        'parent' => 'openlayers_behavior',
+        'path' => drupal_get_path('module', 'OL_lat_long') . '/includes',
+        'file' => 'openlayers_behavior_OKC.inc',
+        
+      ),
+    ),
+  );
+}
+

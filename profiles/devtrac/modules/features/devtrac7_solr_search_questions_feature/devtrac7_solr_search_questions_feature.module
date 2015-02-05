@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the devtrac7_solr_search_questions_feature feature.
+ */
+
+include_once 'devtrac7_solr_search_questions_feature.features.inc';

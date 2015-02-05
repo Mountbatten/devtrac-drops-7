@@ -1,0 +1,1245 @@
+<?php
+// $Id: questionnaire_question.module,v 1.1.2.1 2010/12/21 07:38:27 batje Exp $
+
+/**
+ * @file
+ * Question permissions, access functions, creation and saving.
+ */
+
+/**
+ * @todo implementation of hook_trigger_info
+ *
+ */
+/*function questionnaire_question_trigger_info() {
+  return array(
+    'questionnaire_question' => array(
+      'questionnaire_question_getcontext' => array(
+        'label' => t('When the question module wants to know which questions to show'),
+      ),
+      'questionnaire_question_getquestions' => array(
+        'label' => t('When the question form is generated and we need some questions'),
+      ),
+    ),
+  );
+}*/
+
+/**
+ * Implements hook_permission().
+ *
+ * @todo descriptions. Are they all required?
+ */
+function questionnaire_question_permission() {
+  return array(
+    'view questions' => array(
+      'title' => t('View questions'),
+      'description' => t('View Questions'),
+    ),
+    'submit questions' => array(
+      'title' => t('Submit questions'),
+      'description' => t('View the Add Submission button'),
+    ),
+    'create questionnaire_question' => array(
+      'title' => t('Create questionnaire_question'),
+      'description' => t('Create Questions'),
+    ),
+    'edit any questionnaire_question' => array(
+      'title' => t('Edit any questionnaire_question'),
+      'description' => t('Edit any question'),
+    ),
+    'delete any questionnaire_question' => array(
+      'title' => t('Delete any questionnaire_question'),
+      'description' => t('Delete any question'),
+    ),
+  );
+}
+/**
+ * Implements hook_node_access().
+ */
+function questionnaire_question_node_access($node, $op, $account = NULL) {
+  global $user;
+  if (empty($account)){
+    $account = $user;
+  }
+  //Ignore nodes that are not questionnaire_questions.
+  if ((is_object($node) ? $node->type : $node) !== 'questionnaire_question') {
+    return NODE_ACCESS_IGNORE;
+  }
+  
+  if ($op == 'view') {
+    if (user_access('view questions', $account)){
+      return NODE_ACCESS_ALLOW;
+    }
+  }
+  
+  switch ($op) {
+    case "view":
+      if (user_access('view questions', $account)){
+        return NODE_ACCESS_ALLOW;
+      }
+    case "create":
+      if (user_access('create questionnaire_question', $account)){
+        return NODE_ACCESS_ALLOW;
+      }
+    case "update":
+      if (user_access('edit any questionnaire_question', $account)){
+        return NODE_ACCESS_ALLOW;
+      }
+    case "delete":
+      if (user_access('delete any questionnaire_question', $account)){
+        return NODE_ACCESS_ALLOW;
+      }
+  }
+  return NODE_ACCESS_DENY;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function questionnaire_question_menu() {
+  $items['node/%node/questions'] = array(
+    'title' => t('Questions'),
+    'description' => t('View the Questions for this Node.'),
+    'page callback' => 'questionnaire_question_questions',
+    'page arguments' => array(1),
+    'file' => 'questionnaire_question.page.inc',
+    'access callback' => 'questionnaire_question_questions_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['node/%node/submissions'] = array(
+    'title' => t('Submissions'),
+    'description' => t('View the Submissions for this Node.'),
+    'page callback' => 'questionnaire_question_submissions',
+    'page arguments' => array(1),
+    'file' => 'questionnaire_question.page.inc',
+    'access callback' => 'questionnaire_question_questions_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['node/%node/addsubmission'] = array(
+    'title' => t('Add Submission'),
+    'description' => t('Add Submission to questionnaire.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('questionnaire_question_submission_form', 1),
+    'file' => 'questionnaire_question.page.inc',
+    'access callback' => 'questionnaire_question_addsubmission_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_ACTION,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['node/%node/editsubmission/%questionnaire_submission'] = array(
+    'title' => t('Edit Submission'),
+    'description' => t('Edit Submission of questionnaire.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('questionnaire_question_submission_form', 1, 3),
+    'file' => 'questionnaire_question.page.inc',
+    'access callback' => 'questionnaire_question_editsubmission_access',
+    'access arguments' => array(1, 3),
+    'type' => MENU_LOCAL_ACTION,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  /**
+   * In order for this menu item to be work, there must be a setting on the 
+   * questionnaire or node that is set to be a questionnaire that restricts 
+   * users to making only 1 submission per questionnaire per user.
+   * The setting can be added to the entity(Questionnaire/Node/Other Entity) 
+   * as a checkbox and stored in a variable that the 
+   * questionnaire_submission_find function can then use to find the submission.
+   *
+  $items['node/%node/editsubmission'] = array(
+    'title' => t('Edit Submission'),
+    'description' => t('Edit Submission of questionnaire.'),
+    'page callback' => 'questionnaire_question_submission_edit_fromcontext',
+    'page arguments' => array(1),
+    'access callback' => 'questionnaire_question_editsinglesubmission_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_ACTION,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'questionnaire_question.page.inc',
+  );
+   **/
+
+  return $items;
+}
+
+/**
+ * Returns a link to the edit page of a submission.
+ * 
+ * This function returns the link to the edit page of a submission, if one does 
+ * not exist it returns a link to the add submission page for the current 
+ * questionnaire.
+ * 
+ * @param string $nid
+ *    The node id of the current node.
+ * @object $context
+ *    An object reprensenting the context of the questionnaire that the 
+ *    submission belongs to.
+ * @param object $luser
+ *    
+ * @return string 
+ *    A string that is the link to the required page
+ */
+function questionnaire_get_submission_link($nid, $context, $luser = NULL) {
+  if (questionnaire_question_addsubmission_access($nid)) {
+    global $user;
+    if (!$luser) {
+      $luser = $user;
+    }
+//    $submission = db_query("SELECT sid FROM {questionnaire_submission} WHERE qid = :qnid AND context = :context AND uid = :uid", array(':qnid' => $nid, ':context' => $context, ':uid' => $luser->uid))->fetchField();
+    // Currently questionnaire_submission table has a questionnaire_id and context_id instead of qid and context and there is no uid field.
+    $submission = db_query("SELECT sid FROM {questionnaire_submission} WHERE questionnaire_id = :qnid AND context_id = :context", array(':qnid' => $nid, ':context' => $context))->fetchField();
+    if ($submission) {
+      return 'node/' . $nid . '/editsubmission/' . $submission;
+    }
+    else {
+      return 'node/' . $nid . '/questions/addsubmission';
+    }
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Deletes a question
+ * 
+ * @param object &$node
+ *    The question to delete
+ */
+function questionnaire_question_delete(&$node) {
+  db_delete('questionnaire_question')
+  ->condition('nid', $node->nid)
+  ->execute();
+}
+
+/**
+ * Function that retrieves an array of alowed values from an array of question
+ * options.
+ * 
+ * @param array $questionoptions
+ *   An array of options that can be answers to the question. 
+ * 
+ * @return array $allowed_values
+ *   An array of sanitized allowed values. 
+ */
+function questionnaire_question_allowed_values($questionoptions) {
+  $allowed_values = array();
+//  $list = explode("\n", $questionoptions);
+//  $list = array_map('trim', $list);
+//  $list = array_filter($list, 'strlen');
+  foreach ($questionoptions as $opt) {
+    // Sanitize the user input with a permissive filter.
+    $opt = filter_xss_admin($opt['value']); //In the content (cck) module there is a special function for this that is perhaps more secure TODO check that out
+    if (strpos($opt, '|') !== FALSE) {
+      list($key, $value) = explode('|', $opt);
+      $allowed_values[$key] = (isset($value) && $value !== '') ? $value : $key;
+    }
+    else {
+      $allowed_values[$opt] = $opt;
+    }
+  }
+  return $allowed_values;
+}
+
+/**
+ * Returns an array question types.
+ * 
+ * @return array
+ *    An array of all the question types that this module provides.
+ */
+function questionnaire_question_getquestiontypes() {
+  return array('select' => 'Select', 'checkboxes' => 'Checkboxes', 'radios' => 'Radios', 'number' => 'Number', 'message' => 'Message', 'open' => 'Open', 'taxonomy' => 'Taxonomy');
+  // Extra type 'calculated' => 'Calculated' not implemented yet. Shall be in a
+  // future relase.
+}
+
+/**
+ * Returns an array of vocabularies from which answers may be chosen.
+ *
+ * @return array
+ *    An associative array of all the vocabularies from which answers for this
+ *    field can be chosen.
+ */
+function questionnaire_question_getoptionsvocabulary() {
+  $vocabulary_list = array();
+  $available_vocabularies = taxonomy_vocabulary_get_names();
+  foreach ($available_vocabularies as $key => $information) {
+    $vocabulary_list[$key] = $information->name;
+  }
+  return $vocabulary_list;
+}
+
+/**
+ * Returns the text that is eqiuvalent to the answer to a question.
+ * 
+ * @param string $qid
+ *    The node id of the questionnaire.
+ * @param object $answer
+ *    The answer supplied for the question.
+ * 
+ * @param string $answertext
+ *    The text that shall be stored in the database for the answer.
+ */
+function questionnaire_question_process_answer($qid, $answer) {
+  $question = node_load($qid);
+  $qtype = $question->questiontype;
+  $options = questionnaire_question_getquestiontypes();
+  // lookup questiontype
+  switch ($options[$qtype]) {
+    case 'select':
+      $options = questionnaire_question_allowed_values($question->questionnaire_question_options[$question->language]);
+      $answertext = $options[$answer];
+      break;
+    case 'checkboxes':
+      $answertext = $answer;
+      break;
+    case 'radios':
+      $answertext = ($answer == 0 ) ? 'No' : 'Yes';
+      break;
+    case 'number':
+    case 'open':
+    case 'taxonomy':
+      $answertext = $answer;
+      break;
+    // @TODO not yet fully implemented. Shall be in a future release.
+    case 'time':
+      $time = explode(':', $answer);
+      $answertext = $time[0] * 3600 + $time[1] * 60;
+      break;
+  }
+  return $answertext;
+}
+
+/**
+ * Menu access callback for viewing questions and submissions pages.
+ * 
+ * @param object $node
+ *  The question entity the user is trying to access.
+ * 
+ * @return boolean
+ *  A boolean indicating whether or not the user can view the question.
+ */
+function questionnaire_question_questions_access($node) {
+  // If user doesn't have view questions access we can deny access immediately.
+  if (! user_access('view questions')) {
+    return FALSE;
+  }
+
+  // Otherwise check the node.
+  if (questionnaire_question_isquestionnaire($node->type)) {
+    // @todo need to check if there are any questions or answers.
+    return TRUE;
+  }
+  else {
+    // Not a questionnaire, but it has answers? @todo Is that correct?
+    // If this node has ever been a context, return questions and answers that 
+    // are attached to this context. 
+    $count = db_query("SELECT COUNT(qa.context_id) FROM {questionnaire_answer} qa WHERE qa.context_id = :context AND qa.context_type = 'node'", array(':context' => $node->nid))->fetchField();
+    if((bool) $count) {
+      return TRUE;
+    }
+    else {
+      // If the node has never been a context but has been a questionnaire 
+      // before, return questions and answers that were attached to this 
+      // questionnaire.
+      $count = db_query("SELECT COUNT(qa.questionnaire_id) FROM {questionnaire_answer} qa WHERE qa.questionnaire_id = :questionnaire AND qa.context_type = 'node'", array(':questionnaire' => $node->nid))->fetchField();
+      if((bool) $count) {
+        return TRUE;
+      }
+    }
+  }
+}
+
+/*
+ *   Below is things to do with submissions
+ */
+
+/**
+ * Menu access callback for adding a submission to a questionnaire.
+ * 
+ * @param object $node
+ *  The questionnaire entity for which the user is trying to add a submission.
+ * 
+ * @return boolean
+ *  A boolean indicating whether or not the user can add a submission to the
+ *  questionnaire.
+ *
+ * We need to take a good look at the logic here.
+ * This needs to adapt to other scenarios than devtrac
+ */
+function questionnaire_question_addsubmission_access($node) {
+ // return true;
+  global $user;
+  // Only the reporter is allowed to create/edit a submission
+  if (user_access('submit questions') && questionnaire_question_isquestionnaire($node->type)) {
+    // and does this nodetype support questionnaires?
+    //if (($user->uid == $node->uid) && (node_access('update', $node))
+    //  && (questionnaire_question_isquestionnaire($node->type))) {
+    //    // and does this nodetype support questionnaires?
+    // make sure there are questions for this questionnairetype.
+    // check if there are submissions (when questions become disabled,
+    // the submissions migh still be there)
+    // (If there are submissions, no add new submissions (for now)
+
+    // For native questionnaires, the qstatus should not be 'Closed'
+    if (isset($node->qstatus) && ($node->qstatus == 'Closed')) {
+      return FALSE;
+    }
+    // Commenting out this line because it does not let the rest of the
+    // function  execute and we need that to happen.
+    // return TRUE;
+
+    // @todo
+    // <---
+//    if ((questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user' => $user), array('node' => $node), 'node page'))) !== FALSE) {
+    if ((questionnaire_submission_find($node->nid, questionnaire_question_getcontext('node', $node, 'node page'))) !== FALSE) {
+      // TODO make this configurable on the questionnaire settings:
+      // either this questionnaire can only be filled once, or many times
+      // (per user!)
+      return FALSE;
+    }
+    // Last check, there have to be questions. No questions, no submission
+    // @todo clean up..
+    $recipient = array(
+      'entity_type' => 'user',
+      'entity' => $user,
+      'medium' => 'node page',
+    );
+    $questionnaire = $node;
+    if ($node->type == 'questionnaire') {
+      $context = array('node' => array($node));
+    }
+    else {
+      $context = questionnaire_question_getcontext('node', $questionnaire, $recipient);
+    }
+    $questions = questionnaire_question_getquestions($context, $recipient, 0, $questionnaire);
+    return (count($questions)>0);
+  }
+  return FALSE;
+}
+
+/**
+ * Access callback for viewing submissions
+ * 
+ * @return boolean
+ *  A boolean indicating whether or not the user can view the submission.
+ */
+function questionnaire_submission_access() {
+  return TRUE;
+}
+
+/**
+ * Menu access callback for editing a submission.
+ * 
+ * @param object $node
+ *  The questionnaire entity to which the submission the user is trying to edit
+ *  belongs.
+ * @param object $submission
+ *  The submission entity the user is trying to edit.
+ * 
+ * @return boolean
+ *  A boolean indicating whether or not the user can edit the submission.
+ */
+function questionnaire_question_editsubmission_access($node, $submission) {
+  global $user;
+  if ($node) {
+    // Only the reporter is allowed to create/edit a submission
+    //  if (($user->uid == $node->uid) && user_access('submit questions')
+    //    && questionnaire_question_isquestionnaire($node->type)) {
+    //      // and does this nodetype support questionnaires?
+    //
+    //
+    // @todo
+    if (($user->uid == $submission->recipient_id) && (node_access('update', $node))
+      && (questionnaire_question_isquestionnaire($node->type))) {
+
+      return true;
+
+      // and does this nodetype support questionnaires?
+      // make sure there are questions for this questionnairetype.
+      // TODO, also check if there are submissions (when questions become
+      // disabled, the submissions migh still be there)
+      // Only show this menu if there is only 1 submission, otherwise, you have
+      // to use some other means to get to the submission you need to edit
+      if (questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user' ,$node), array('node', $node), 'node page')) !== FALSE) {
+        // TODO make this configurable on the questionnaire settings:
+        // either this questionnaire can only be filled once, or many times
+        // (per user!)
+        return TRUE;
+      }
+    }
+    elseif (($user->uid == $submission->recipient_id) || (in_array('administrator', array_values($user->roles)))) {
+      return TRUE;
+    }
+  }  
+  return FALSE;
+}
+
+/**
+ * Menu access callback for editing a single submission.
+ * 
+ * @param object $node
+ *  The questionnaire entity to which the submission the user is trying to edit
+ *  belongs.
+ * 
+ * @return boolean
+ *  A boolean indicating whether or not the user can edit the submission.
+ */
+function questionnaire_question_editsinglesubmission_access($node) {
+  global $user;
+  if ($node) {
+    // Only the reporter is allowed to create/edit a submission
+    //  if (($user->uid == $node->uid) && user_access('submit questions') && questionnaire_question_isquestionnaire($node->type)) { 
+    // and does this nodetype support questionnaires?
+    if (($user->uid == $node->uid) && (node_access('update', $node)) && (questionnaire_question_isquestionnaire($node->type))) {
+      return true;
+
+      // @todo
+      //
+      //
+      // and does this nodetype support questionnaires?
+      // make sure there are questions for this questionnairetype.
+      //TODO, also check if there are submissions (when questions become disabled, the submissions migh still be there)
+      // Only show this menu if there is only 1 submission, otherwise, you have to use some other means to get to the submission you need to edit
+      $submissions = questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user', $user), array('node', $node), 'node page'));
+      if (($submissions !== FALSE) && (count($submissions) == 1)) {
+        // TODO make this configurable on the questionnaire settings: either this questionnaire can only be filled once, or many times (per user!)
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+
+/**
+ * Returns the form control that belongs to a question. 
+ * 
+ * Used here and in the fuzzy module.
+ * 
+ * @param int $nid
+ *    $nid is the node id of the question.
+ * @param object $answer
+ *    This is the aanswer already stored in the database for the question.
+ * 
+ * @return array $control
+ *    An array representing the form control to display on the form.
+ */
+function questionnaire_question_getquestioncontrol($nid, $answer) {
+  $control = array();
+  $node_object = node_load($nid);
+  $node = entity_metadata_wrapper('node', $node_object);
+  $options = NULL;
+
+  if (isset($node) && $node != FALSE){
+    if (isset($node->qq_options_vocabulary)) {
+     $vocabulary = taxonomy_vocabulary_machine_name_load($node->qq_options_vocabulary->value());
+    }
+    $question_type = $node->questionnaire_question_type->value();
+    switch ($question_type) {
+      case 'select':
+        $formtype = 'select';
+        $description = t('Please select the appropriate option');
+        $options = questionnaire_question_allowed_values($node_object->questionnaire_question_options[$node->language->value()]);
+        break;
+      case 'checkboxes':
+        $formtype = 'checkboxes';
+        $description = t('Please select the appropriate options');
+        $options = questionnaire_question_allowed_values($node_object->questionnaire_question_options[$node->language->value()]);
+        if ($answer == '') {
+          $answer = array();
+        }
+        break;
+      case 'radios':
+        $formtype = 'radios';
+        $description = t('Please select the appropriate option');
+        $options = questionnaire_question_allowed_values($node_object->questionnaire_question_options[$node->language->value()]);
+        break;
+      case 'number':
+        $formtype = 'textfield';
+        $description = t('Please provide a number');
+        break;
+      case 'time':
+        $formtype = 'textfield';
+        $description = t('Please provide a time in the format HH:MM');
+        break;
+      case 'message':
+        // This is really a quite different situation.
+        return array('#markup' => '<p>' . check_plain($node->title->value()) . '</p>');
+      case 'open':
+        $formtype = 'textfield';
+        $description = t('Please provide free text.');
+        break;
+      case 'taxonomy':
+        $formtype = 'textfield';
+        $description = t('Please provide the appropriate term');
+        // For the taxonomy type questions, the textfield calls the
+        // taxonomy_autocomplete() function.
+        // see https://www.drupal.org/node/854216
+        $autocomplete_path = 'taxonomy/autocomplete/field_' . $vocabulary->machine_name;
+        break;
+    }
+    $control = array(
+        '#type' => $formtype,
+        '#title' => $node->nid->value() . ' ' . check_plain($node->title->value()),
+        '#description' => $description,
+        '#default_value' => $answer,
+    );
+    if (isset($options)) {
+      $control['#options'] = $options;
+    }
+    if (isset($autocomplete_path)) {
+      $control['#autocomplete_path'] = $autocomplete_path;
+    }
+    return $control;
+  }
+}
+
+/**
+ * Validate the answer to a question.
+ *
+ * @param int $qid
+ *   Node id of the question.
+ * @param mixed $answer
+ *   The value to validate.
+ * 
+ * @return bool|string
+ *   FALSE if there in no error, or string error message.
+ */
+function questionnaire_question_validate_answer($qid, $answer) {
+  $question = node_load($qid);
+
+  $question_type_field = field_get_items('node', $question, 'questionnaire_question_type');
+  $question_type = reset($question_type_field);
+  $question_type = $question_type['value'];
+
+  $result = FALSE;
+  switch ($question_type) {
+    case 'number':
+      if (!preg_match('/^[0-9]+$/', $answer)) {
+        $result = 'Please enter an integer number (digits only) for question: "' . $question->title . '".';
+      }
+      break;
+
+    case 'time':
+      if (!preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $answer)) {
+        $result = 'Please enter a time with a 24-hour format (HH:MM) for question: "' . $question->title . '".';
+      }
+      break;
+  }
+
+  return $result;
+}
+
+/**
+ * Save answers.
+ *
+ * @param array $answers
+ *    An array of answers that have been submitted.
+ * 
+ * @return string $sid
+ *    The submission id for the saved submission.
+ *    
+ * @todo should this be in questionnaire_answers.
+ */
+function questionnaire_question_saveanswers($answers) {
+  // Legacy API handling.
+  if (empty($answers['recipient_id']) && isset($answers['uid'])) {
+    if (!($uid = $answers['uid'])) {
+      $uid = $user->uid;
+    }
+    $answers['recipient_type'] = 'user';
+    $answers['recipient_id'] = $uid;
+  }
+  if (empty($answers['questionnaire_id']) && isset($answers['qnid'])) {
+    $answers['questionnaire_id'] = $answers['qnid'];
+  }
+  if (empty($answers['context_id']) && isset($answers['context'])) {
+    $answers['context_type'] = 'node';
+    $answers['context_id'] = $answers['context'];
+  }
+
+  // Submissions. Merge with field.
+  if (isset($answers['sid'])) {
+    $sid = $answers['sid'];
+    $submissionobject = questionnaire_submission_load($sid);
+    $submissionobject->changed = date('U');
+  }
+  else {
+    $submissionobject = questionnaire_submission_create(array());
+    $submissionobject->recipient_type = $answers['recipient_type'];
+    $submissionobject->recipient_id = $answers['recipient_id'];
+    $submissionobject->created = date('U');
+    $submissionobject->changed = date('U');
+    $submissionobject->questionnaire_id = $answers['questionnaire_id'];
+    $submissionobject->context_type = $answers['context_type'];
+    $submissionobject->context_id = $answers['context_id'];
+  }
+
+  // Answers. Create answer objects.
+  foreach ($answers['answers'] as $answer) {
+    $answer['created'] = date('U');
+    $answer['questionnaire_id'] = $answers['questionnaire_id'];
+    $answer['context_type'] = $answers['context_type'];
+    $answer['context_id'] = $answers['context_id'];
+    $answer['recipient_id'] = $answers['recipient_id'];
+    $answer['recipient_type'] = $answers['recipient_type'];
+    // note also included should be 'question' and 'answer' keys from the
+    // supplied array.
+
+    $questionnaire_answer = questionnaire_answer_create($answer);
+    $submissionobject->answers[] = $questionnaire_answer;
+  }
+
+  // Save submission.
+  questionnaire_submission_save($submissionobject);
+
+  return $submissionobject->sid;
+}
+
+/**
+ * Creates a submission.
+ * 
+ * @param string $uid
+ *    The user id for the user that is creating this submission.
+ * @param string $qnid
+ *    The questionnaire id for the questionnaire this submission is made from.
+ * @param string $context
+ *    The name of the $context for this submission.
+ * 
+ * @return string $sid
+ *    The submission id for the submission created.
+ */
+function questionnaire_question_create_submission($uid, $qnid, $context) {
+  $submission = array();
+  $submission['uid'] = $uid;
+  $submission['created'] = date('U');
+  $submission['context'] = $context;
+  $submission['qnid'] = $qnid;
+  drupal_write_record('questionnaire_submission', $submission);
+  return $submission['sid'];
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function questionnaire_question_node_type_delete($info) {
+  variable_del('questionnaire_question_isquestionnaire_' . $info->type);
+  variable_del('questionnaire_question_copy_termfields_from_context' . $info->type);
+  variable_del('questionnaire_question_vocabulary_' . $info->type);
+  variable_del('questionnaire_question_context_' . $info->type);
+
+}
+
+/**
+ * Implements hook_node_type_update().
+ */
+function questionnaire_question_node_type_update($info) {
+  if (!empty($info->old_type) && $info->old_type != $info->type) {
+    if (questionnaire_question_isquestionnaire($info->old_type)) {
+      $settings = variable_get('questionnaire_question_isquestionnaire_' . $info->old_type, array());
+      $settings_voc = variable_get('questionnaire_question_vocabulary_' . $info->old_type, array());
+      $settings_context = variable_get('questionnaire_question_context_' . $info->old_type, array());
+      variable_del('questionnaire_question_isquestionnaire_' . $info->old_type);
+      variable_del('questionnaire_question_vocabulary_' . $info->old_type);
+      variable_del('questionnaire_question_context_' . $info->old_type);
+      variable_set('questionnaire_question_isquestionnaire_' . $info->type, 1);
+      variable_set('questionnaire_question_vocabulary_' . $info->type, $form_state['values']['questionnaire_question_vocabulary']);
+      variable_set('questionnaire_question_context_' . $info->type, $form_state['values']['questionnaire_question_context']);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function questionnaire_question_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'node_type_form') {
+    $form['questionnaire_question'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Questionnaire'),
+      '#group' => 'additional_settings',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 33,
+      '#description' => "Settings for the Questionnaire module",
+
+    );
+    if ($form['#node_type']->type != 'questionnaire') {
+      $form['questionnaire_question']['questionnaire_question_isquestionnaire'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Use this content type as a questionnaire'),
+        '#default_value' => variable_get('questionnaire_question_isquestionnaire_' . $form['#node_type']->type, FALSE),
+        '#description' => "This content type is a Questionnaire.",
+      );
+      // field for questionnaire vocabulary
+      $form['questionnaire_question']['questionnaire_question_vocabulary'] = array(
+        '#type' => 'select',
+        '#title' => t('Vocabulary.'),
+        '#default_value' => variable_get('questionnaire_question_vocabulary_' . $form['#node_type']->type, 0),
+        '#description' => "This the vocabulary that connects questions to this entity.",
+        '#options' => questionnaire_question_get_vocabulary_names(),
+        '#states' => array(
+            'visible' => array(
+            ':input[name=questionnaire_question_isquestionnaire]' =>  array ('checked' => TRUE),
+                ),
+            ),
+      );
+      $form['questionnaire_question']['questionnaire_question_context'] = array(
+        '#type' => 'select',
+        '#title' => t('Context Field'),
+        '#default_value' => variable_get('questionnaire_question_context_' . $form['#node_type']->type, ''),
+        '#description' => "This is the field that stores the context for this Questionnaire.",
+        '#options' => questionnaire_question_get_entity_reference_fields($form['#node_type']->type),
+        '#states' => array(
+            'visible' => array(
+            ':input[name=questionnaire_question_isquestionnaire]' =>  array ('checked' => TRUE),
+                ),
+            ),
+      );
+    }
+    $form['questionnaire_question']['questionnaire_question_copy_termfields_from_context'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Copy Term Fields from Context'),
+        '#default_value' => variable_get('questionnaire_question_copy_termfields_from_context_' . $form['#node_type']->type, FALSE),
+        '#description' => "All Taxonomy Fields defined on a used Context will be copied (automatically) to Answers and the values of these
+        fields in the given context will be <em>copied</em> upon submission of the Questionnaire.",
+    );
+  }
+  if ($form_id == 'questionnaire_question_node_form') {
+    $form['questionnaire_question_options']['#states'] = array(
+      'visible' => array(
+        'select[name="questionnaire_question_type[und]"]' =>  array(array ('value' => 'select'), array ('value' => 'checkboxes'), array ('value' => 'radios')),
+      ),
+    );
+    $form['qq_options_vocabulary']['#states'] = array(
+      'visible' => array(
+        'select[name="questionnaire_question_type[und]"]' =>  array(array ('value' => 'taxonomy')),
+      ),
+    );
+    $form['#validate'] = array('questionnaire_question_node_form_validate');
+  }
+}
+
+/**
+ * Simple function for validating a questionnaire_question.
+ *
+ * @see questionnaire_question_form_alter()
+ */
+function questionnaire_question_node_form_validate($form, &$form_state) {
+  if ($form_state['input']['questionnaire_question_type'][$form_state['node']->language] == 'taxonomy' &&
+      $form_state['input']['qq_options_vocabulary'][$form_state['node']->language] == '_none') {
+    form_set_error('qq_options_vocabulary', t('Options Vocabulary field is required for Taxonomy type questions.'));
+  }
+}
+
+/**
+ * Simple function to figure out if a nodetype is a questionnaire.
+ * 
+ * @param string $node_type
+ *    The nodetype of the node in question.
+ * 
+ * @return boolean
+ *    A boolean representing whether the nodetype is a questionnaire.
+ */
+function questionnaire_question_isquestionnaire($node_type) {
+  return variable_get('questionnaire_question_isquestionnaire_' . $node_type, FALSE);
+}
+
+/**
+ * Simple function that returns an array of vocabulary machine names.
+ * 
+ * @return array $names
+ *    An array of vocabulary names.
+ */
+function questionnaire_question_get_vocabulary_names() {
+  $names = array();
+  $vocabularies = taxonomy_get_vocabularies();
+  foreach ($vocabularies as $vocabulary) {
+    $names[$vocabulary->machine_name] = $vocabulary->name;
+  }
+  return $names;
+}
+
+/**
+ * Returns an array of all entity reference fields attached to the node type.
+ * 
+ * @param string $node_type
+ *    The nodetype of the node in question.
+ * 
+ * @return array $entity_reference_fields
+ *    An array of field id => field name pairs of entity reference fields.
+ */
+function questionnaire_question_get_entity_reference_fields($node_type){
+  $entity_reference_fields = array('' => 'This entity is the context.');
+  $fields = field_info_instances("node", $node_type);
+  foreach ($fields as $field_name => $field) {
+    $field_info = field_info_field($field_name);
+    $type = $field_info['type'];
+    if ($type == 'entityreference') {
+      $entity_reference_fields[$field_name] = $field_name;
+    }
+  }
+  return $entity_reference_fields;
+}
+
+
+/**
+ * API functions: Get context for questions; and get questions for that context.
+ *
+ * You can retrieve a context for questions. Different modules can implement
+ * context, and vary it depependent on the recipient, the entity involved and
+ * the medium used.
+ *
+ * Which questions are returned can depend on this context.
+ */
+
+/**
+ * Retrieve a context for a question.
+ *
+ * Calls all modules implementing hook_questionnaire_getcontext(). Each module
+ * that implements the hook and returns the context inthe form of an array can 
+ * add contexts to the result.
+ *
+ * @param string $entity_type
+ * @param Entity $entity
+ *   The related entity for this question, if known. For example the
+ *   questionnaire node  or the node to which questions are attached to by a 
+ *   vocabulary.
+ * @param array $recipient
+ *   Recipient for questions.
+ *   array(
+ *     'entity_type' => recipient entity type,
+ *     'entity' => recipient entity,
+ *     'medium' => an arbitary string describing the medium in which the
+ *     question is to asked to the recipient,
+ *   ).
+ *
+ * @return array
+ *   One or more contexts. Where a context is an entity.
+ *   Examples: questionnaire node, campaign entity, a set of taxonomy term
+ *   entities. array($entity_type => array( $entities ) );
+ */
+function questionnaire_question_getcontext($entity_type = NULL, $entity = NULL, $recipient = array()) {
+  $context = array();
+  $modules_with_hook_implemented = array();
+  
+  // Look through all the enabled modules for those that implement the 
+  // hook_questionnaire_getcontext().
+  foreach (module_implements('questionnaire_getcontext') as $module) {
+    // Call only the custom implementations of the hook to return a context.
+    if ($module != 'questionnaire') {
+      array_push($modules_with_hook_implemented, $module);
+      $function = $module . '_questionnaire_getcontext';
+      $result = call_user_func($function, $entity_type, $entity, $recipient);
+      if (isset($result) && is_array($result)) {
+        $context = array_merge($context, $result);
+      }
+    }
+  }
+  // If there are no modules with the hook implemented, call the default
+  // implementation to return a context.
+  if (sizeof($modules_with_hook_implemented) == 0) {
+    $function = 'questionnaire_questionnaire_getcontext';
+      $result = call_user_func($function, $entity_type, $entity, $recipient);
+      if (isset($result) && is_array($result)) {
+        $context = array_merge($context, $result);
+    }
+  }
+  return $context;
+}
+
+/**
+ * Retrieve a question.
+ *
+ * Calls all modules implementing hook_questionnaire_getquestions(). Each module
+ * based on the context can add questions to the result.
+ *
+ * @param array $context
+ *   An array of contexts. @see questionnaire_question_getcontext().
+ * @param array $recipient
+ *   Array describing the recipient @see questionnaire_question_getcontext().
+ * @param int $limit
+ *   The maximum number of questions to return. Default 0, all questions meeting
+ *   the context for the recipient.
+ * @param array $questionnaire
+ *    An array for the entity that is the questionnaire.
+ *
+ * @return array
+ *   Array of question nodes.
+ *   array( $nid => array('node' => $question, 'weight' => $weight )).
+ */
+function questionnaire_question_getquestions($context, $recipient = array(), $limit = 0, $questionnaire = NULL) {
+  $questions = array();
+  $modules_with_hook_implemented = array();
+  
+  // Look through all the enabled modules for those that implement the 
+  // hook_questionnaire_getquestions().
+  foreach (module_implements('questionnaire_getquestions') as $module) {
+    // Call only the custom implementations of the hook to return questions.
+    if ($module != 'questionnaire') {
+      array_push($modules_with_hook_implemented, $module);
+      $function = $module . '_questionnaire_getquestions';
+      $result = call_user_func($function, $context, $recipient, $questionnaire);
+      if (isset($result) && is_array($result)) {
+        $questions = array_merge($questions, $result);
+      }
+    }
+  }
+  // If there are no modules with the hook implemented, call the default
+  // implementation to return questions.
+  if (sizeof($modules_with_hook_implemented) == 0) {
+    $function = 'questionnaire_questionnaire_getquestions';
+    $result = call_user_func($function, $context, $recipient, $questionnaire);
+    if (isset($result) && is_array($result)) {
+      $questions = array_merge($questions, $result);
+    }
+  }
+  
+  uasort($questions, 'drupal_sort_weight');
+  drupal_alter('questionnaire_getquestions', $questions, $context, $recipient, $questionnaire);
+
+  if ($limit) {
+    $questions = array_slice($questions, 0, $limit, true);
+  }
+
+  return $questions;
+}
+
+/**
+ * Implements hook_services_resources().
+ */
+function questionnaire_question_services_resources() {
+  $resources['questionnaire'] = array();
+  $resources['questionnaire']['actions'] = array();
+  $resources['questionnaire']['actions']['submit'] = array (
+              'help' => 'Submits a questionnaire',
+              'callback' => 'questionnaire_question_submitquestions',
+              'access callback' => 'questionnaire_question_submitquestions_access',
+              'access arguments' => array('update'),
+              'access arguments append' => TRUE,
+              'args' => array(
+                  'qnid' => array(
+                    'name' => 'qnid',
+                    'type' => 'string',
+                    'description' =>  t('The questionnaire nid.'),
+                    'source' => array('data' => 'qnid'),
+                    'optional' => TRUE,
+                   ),
+                  'contextnid' => array(
+                    'name' => 'contextnid',
+                    'type' => 'string',
+                    'description' => t('The nid of the context of the questions.'),
+                    'source' => array('data' => 'contextnid'),
+                    'optional' => TRUE,
+                  ),
+                  'answers' => array(
+                    'name' => 'answers',
+                    'type' => 'array',
+                    'description' => t('The Answers to Questions, with the nid of the question as the key and the answer as the value.'),
+                    'source' => array('data' => 'answers'),
+                    'optional' => TRUE,
+                  ),
+              ),
+
+      );
+  return $resources;
+}
+
+/**
+ * Submits answer(s) for a questionnaire.
+ * 
+ * Callback for Implements hook_services_resources().
+ * 
+ * @param string $qnid
+ *  The id of the questionnaire entity.
+ * @param string $contextnid
+ *  The id of the context entity.
+ * @param array $answers
+ *  An array of answer entities.
+ * 
+ * @return string $sid
+ *  The id of the submission entity that has been created.
+ */
+function questionnaire_question_submitquestions($qnid, $contextnid, $answers) {
+  // Load the required includes for drupal_execute
+  $nid = NULL;
+  $answers = (array) $answers;
+
+  $answers['qnid'] = $qnid;
+  $answers['contextnid'] = $contextnid;
+  $answers['op'] = t('Submit');
+
+  // Setup form_state
+  $form_state = array();
+  $form_state['values'] = (array) $answers;
+
+  $ret = drupal_form_submit('questionnaire_question_submission_form', $form_state, $qnid);
+
+  // Fetch $nid out of $form_state
+  $sid = $form_state['sid'];
+
+  if ($errors = form_get_errors()) {
+    // TODO fix this for normal posts (or fix it for services, whatever you like
+    return services_error(implode("\n", $errors), 401);
+  }
+  return $sid;
+
+}
+
+/**
+ * Access callback for hook_services_resources().
+ */
+function questionnaire_question_submitquestions_access($op = 'submit', $args = array()) {
+  return TRUE; //TODO
+}
+
+/**
+ * Callback function with additional information about the responsecount field
+ */
+function questionnaire_question_responsecount_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $properties = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$field['field_name']];
+  $properties['label'] = t('Response Count');
+  $properties['description'] = t('The number of responses in the system for this question.');
+  $properties['type'] = 'integer';
+  $properties['getter callback'] = 'questionnaire_question_responsecount_getter_callback';
+  $properties['computed'] = TRUE;
+  $properties['entity token'] = TRUE;
+}
+
+/**
+ * Getter for the responsecount attribute on a questionaire_question node
+ */
+function questionnaire_question_responsecount_getter_callback($node) {
+  $value = db_query("SELECT COUNT(id) as cnt FROM {questionnaire_answer} WHERE question = :qid", array('qid'=> $node->nid))->fetchField();
+  return $value;
+}
+
+/**
+ * Adds Response Count attribute to core node
+ *
+ * Implements hook_node_load()
+ */
+function questionnaire_question_node_load($nodes, $types) {
+  foreach ($nodes as $node) {
+    if ($node->type == 'questionnaire_question') {
+      $node->qq_responsecount[$node->language][0]['value'] = questionnaire_question_responsecount_getter_callback($node);
+    }
+  }
+}
+
+/**
+* Implements hook_field_info().
+*
+* Provides additional fields for questionnaire_question.
+*/
+function questionnaire_question_field_info() {
+  return array(
+  // We name our field as the associative name of the array.
+    'questionnaire_question_responsecount' => array(
+      'label' => t('Response Count'),
+      'description' => t('Shows the amount of responses to this question.'),
+      'default_widget' => 'number',
+      'default_formatter' => 'number_integer',
+      'property_type' => 'integer', // we add the property type here
+      'property_callbacks' => array('questionnaire_question_responsecount_property_info_callback'), // we add the callback
+      'instance_settings' => array('prefix' => '', 'suffix' => ''),
+      'no_ui' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info_alter()
+ */
+function questionnaire_question_field_formatter_info_alter(&$info) {
+  // Let a new field type re-use an existing formatter.
+  $info['number_integer']['field types'][] = 'questionnaire_question_responsecount';
+}
+
+/*
+ * Implements hook_field_is_empty()
+ */
+function questionnaire_question_field_is_empty($item, $field) {
+  // Even if the field were empty, that would be 0
+  return FALSE;
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function questionnaire_question_node_presave($node) {
+  if ($node->type == 'questionnaire_question' && $node->questionnaire_question_type[$node->language][0]['value'] == 'taxonomy' && isset($node->qq_options_vocabulary[$node->language][0]['value'])) {
+    $field = field_info_field('field_' . $node->qq_options_vocabulary[$node->language][0]['value']);
+    $instances = field_info_instance('questionnaire_answer', 'field_' . $node->qq_options_vocabulary[$node->language][0]['value'], 'questionnaire_answer');
+    if (empty($instances)) {
+      $vocabulary = taxonomy_vocabulary_machine_name_load($node->qq_options_vocabulary[$node->language][0]['value']);
+      $field_name = 'field_' . $vocabulary->machine_name;
+      if (empty($field)) {
+        $field = array(
+          'active' => 1,
+          'cardinality' => 1,
+          'deleted' => 0,
+          'entity_types' => array(),
+          'field_name' => $field_name,
+          'foreign keys' => array(
+            'tid' => array(
+              'columns' => array(
+                'tid' => 'tid',
+              ),
+              'table' => 'taxonomy_term_data',
+            ),
+          ),
+          'indexes' => array(
+            'tid' => array(
+              0 => 'tid',
+            ),
+          ),
+          'locked' => 0,
+          'module' => 'taxonomy',
+          'settings' => array(
+            'allowed_values' => array(
+              0 => array(
+                'vocabulary' => $vocabulary->machine_name,
+                'parent' => 0,
+              ),
+            ),
+          ),
+          'translatable' => 0,
+          'type' => 'taxonomy_term_reference',
+        );
+        field_create_field($field);
+      }
+
+      $instance = array(
+        'bundle' => 'questionnaire_answer',
+        'default_value' => NULL,
+        'deleted' => 0,
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'module' => 'taxonomy',
+            'settings' => array(),
+            'type' => 'taxonomy_term_reference_link',
+            'weight' => 7,
+          ),
+        ),
+        'entity_type' => 'questionnaire_answer',
+        'field_name' => $field_name,
+        'label' => $vocabulary->name,
+        'required' => 0,
+        'settings' => array(),
+        'widget' => array(
+          'active' => 0,
+          'module' => 'taxonomy',
+          'settings' => array(
+            'autocomplete_path' => 'taxonomy/autocomplete',
+            'size' => 60,
+          ),
+          'type' => 'taxonomy_autocomplete',
+        ),
+      );
+      field_create_instance($instance);
+    }
+  }
+}

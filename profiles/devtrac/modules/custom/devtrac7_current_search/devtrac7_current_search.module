@@ -1,0 +1,42 @@
+<?php
+/**
+ * @file
+ * This module changes the html output of the current search group
+ * so that it contains the label of the field group  in the title of each active link
+ * this allows us to use beautytips to have nice popups on hoover of the
+ *
+ * As a bonus, we also filter out the facet for Question on the answers view
+ *
+ * There is additional themeing going on in the template.php
+ */
+
+/**
+ * Returns an array of available current search plugins.
+ *
+ * @return array
+ *   An associative array keyed by plugin ID to human readable label.
+ */
+function devtrac7_current_search_get_plugins() {
+  $plugins = &drupal_static(__FUNCTION__, array());
+  if (!$plugins) {
+    foreach (ctools_get_plugins('current_search', 'items') as $id => $plugin) {
+      $plugins[$id] = $plugin['handler']['label'];
+    }
+  }
+  return $plugins;
+}
+
+
+/**
+ * Implements hook_current_search_items().
+ */
+function devtrac7_current_search_current_search_items() {
+  return array(
+    'devtracgroup' => array(
+      'handler' => array(
+        'label' => t('Devtrac Field group'),
+        'class' => 'CurrentSearchDevtracGroup',
+      ),
+    ),
+  );
+}

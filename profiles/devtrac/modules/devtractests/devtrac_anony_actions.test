@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Creating a Fieldtrip on the DevTrac distribution.
+ **/
+/**
+ * Functional tests for anonymous Fieldtrip creation.
+ */
+class FieldtripCreateAnonymousTestCase extends DrupalWebTestCase {
+  protected $profile = 'devtrac';
+  public static function getInfo() {
+    return array(
+      'name' => 'Anonymous fieldtrip create authentication',
+      'description' => 'Have an anonymous user create a Fieldtrip.',
+      'group' => 'Devtrac',
+    );
+  }
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp();
+    // Nothing else to do.
+  }
+
+  /**
+   * Assess 'Create Fieldtrip' permission for anonymous user.
+   * 1. Open the Fieltrip creation form.
+   * 2. Test for "Access denied".
+   */
+  public function testFieldtripCreateAnonymous() {
+    $this->drupalGet('node/add/fieldtrip');
+    $this->assertText(t('Access denied'), t('Anonymous user not permitted to create a fieldtrip.'), 'Devtrac');
+  }
+
+  /**
+   * Functional tests for authenticated (not permitted) Fieldtrip creation.
+   * 
+   */
+  public function testFieldtripCreateNotPermitted() {
+    $this->drupalGet('node/add/fieldtrip');
+    // We should get an "Access denied".
+    $this->assertNoResponse(200, 'Access denied');
+    $this->assertText(t('Access denied'), t('Authenticated user not permitted to create a fieldtrip.'), 'Devtrac');
+    $this->assertNoLink(t('SITE REPORTS'), 0 ,t('Link to site report devtrac page'));
+  }
+  /**
+   * Functional tests for authenticated (not permitted) Fieldtrip creation.
+   */
+  public function testTaNumberExisttest() {
+    $this->drupalGet('node/add/fieldtrip');
+    $ta['field_fieldtrip_proms_ta_id[und][0][value]'] = '';
+    $this->assertNoField(t('$ta'), t('TA Number field is exists'), 'DevTrac');
+    $this->assertNoText(t('TA Number'), t('Fill in the TA Number'), 'DevTrac');
+    $this->assertNoText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');
+  }
+  /**
+   * Functional tests for authenticated (not permitted) Fieldtrip creation.
+   */
+  public function testStatusCodetest() {
+    $this->drupalGet('node/add/fieldtrip');
+    $this->assertResponse(403, 'The server says that you are not authorised to access the requested page Access denied');
+  }
+  /**
+   * Anonymous user zooms into a map.
+   */
+  public function testMapZoom() {
+    $this->drupalGet('sitereports', array('zoom' => 7, 'lat' => 2.02107, 'lon' => 32.18994, 'layers' => 'Site Reports', 'baseLayers' => 'OSM Mapnik'));
+    $this->assertResponse(200, 'map zoomed in');
+    $this->drupalGet('sitereports', array('zoom' => 10, 'lat' => 2.02107, 'lon' => 32.18994, 'layers' => 'Site Reports', 'baseLayers' => 'OSM Mapnik'));
+    $this->assertResponse(200, 'map zoomed in');
+  }
+  
+  /**
+   * Anonymous user zooms into a map.
+   */
+  public function testMapZoomOLocation() {
+  	$this->drupalGet('locations', array('display' => 'map', 'zoom' => 7, 'lat' => 2.02107, 'lon' => 32.18994, 'layers' => 'Site Reports', 'baseLayers' => 'OSM Mapnik'));
+  	$this->assertResponse(200, 'map zoomed in');
+  	$this->drupalGet('locations', array('zoom' => 10, 'lat' => 2.02107, 'lon' => 32.18994, 'layers' => 'Site Reports', 'baseLayers' => 'OSM Mapnik'));
+  	$this->assertResponse(200, 'map zoomed in');
+  	$this->drupalGet('locations', array('zoom' => 20, 'lat' => 2.02107, 'lon' => 32.18994, 'layers' => 'Site Reports', 'baseLayers' => 'OSM Mapnik'));
+  	$this->assertResponse(200, 'map zoomed in');
+  }
+  
+}

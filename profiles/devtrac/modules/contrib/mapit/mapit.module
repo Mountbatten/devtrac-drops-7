@@ -1,0 +1,1306 @@
+<?php
+/**
+ * @file
+ * Module for Extending the taxonomy fields so as to get location information
+ * from the mapit website.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function mapit_menu() {
+
+  $items['admin/config/mapit'] = array(
+    'title' => 'Mapit settings',
+    'description' => 'Description of your Mapit settings page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mapit_admin_settings_form'),
+    'access arguments' => array('administer mapit settings'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['mapit/%/%/sync'] = array(
+    'title' => 'Sync Entity',
+    'description' => 'Sync Entity',
+    'page callback' => 'mapit_entity_sync',
+    'page arguments' => array(1, 2),
+    'access callback' => 'mapit_get_field_access',
+    'access arguments' => array(1, 2),
+    'type' => MENU_CALLBACK,
+  );
+  $items['mapit/%/%/sync/js'] = array(
+    'title' => 'Sync Entity',
+    'description' => 'Sync Entity',
+    'page callback' => 'mapit_entity_sync_js',
+    'page arguments' => array(1, 2),
+    'access callback' => 'mapit_get_field_access',
+    'access arguments' => array(1, 2),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Access function that figures out if the user is allowed to update
+ * the current mapit field. Used in the menu and the field formatter
+ */
+function mapit_get_field_access($entity_type, $entity_id) {
+  global $user;
+  $access = FALSE;
+  $entity = entity_load($entity_type, array($entity_id));
+  if(!empty($entity )) {
+    $entity = array_shift($entity);
+  }
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+
+  $access = entity_access('update', $entity_type, $entity, $user);
+  // $access is an array of booleans, if there is 1 boolean FALSE: no access.
+  if (($access) && module_exists('field_permissions')) {
+    //find mapit field
+    $fields = field_info_instances($entity_type, $bundle);
+    $fieldnames = array();
+
+    //extract fields with sync values
+    foreach($fields as $instance) {
+      if($instance['widget']['type'] == 'mapit') {
+        $field = $field = field_info_field($instance['field_name']);
+        // For node the operation is 'update' for field_permissions it is 'edit'
+        $temp = module_invoke_all('field_access', 'edit', $field, $entity_type, $entity, $user);
+        // $access is an array of booleans, if there is 1 boolean FALSE: no access.
+        $access = !in_array(0, $temp);
+      }
+    }
+  };
+  return $access;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function mapit_field_formatter_info() {
+  return array(
+    'mapit_taxonomy_term_reference_link' => array(
+      'label' => t('Mapit autofill'),
+      'description' => t('Mapit autofill'),
+      'field types' => array('taxonomy_term_reference'),
+    ),
+  );
+}
+
+function mapit_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  taxonomy_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, $items, $displays);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function mapit_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // The following lines of code (the foreach loop) were copied from
+  // taxonomy_field_formatter_view() since we want the field to display similar
+  // to a taxonomy term.
+  foreach ($items as $delta => $item) {
+    if ($item['tid'] == 'autocreate') {
+      $element[$delta] = array(
+        '#markup' => check_plain($item['name']),
+      );
+    }
+    else {
+      $term = $item['taxonomy_term'];
+      $uri = entity_uri('taxonomy_term', $term);
+      $element[$delta] = array(
+        '#type' => 'link',
+        '#title' => $term->name,
+        '#href' => $uri['path'],
+        '#options' => $uri['options'],
+      );
+    }
+  }
+  if ($instance['widget']['type'] == 'mapit') {
+    $mapit_undefined_area = variable_get('mapit_undefined_area');
+    $langcode = LANGUAGE_NONE;
+
+    if(isset($mapit_undefined_area[$langcode]) && isset($items[0]['tid']) && $items[0]['tid'] == $mapit_undefined_area[$langcode])  {
+      list($entity_id, ,) = entity_extract_ids($entity_type, $entity);
+      $access = mapit_get_field_access($entity_type, $entity_id);
+      if ($access) {
+        $id = "mapit-view-" . $entity_type . "-" . $entity_id;
+        $element[0]['#attributes'] = array('class' => array('mapit-field', ),
+          'id' => $id,
+          'entity_type' => $entity_type,
+          'entity_id' => $entity_id,
+        );
+      }
+      else {
+        // Remove the link from the element
+        $element = $element;
+        $element = Array ( Array(
+          '#type' => 'markup',
+          '#markup' => $element[0]['#title'],
+        ));
+      }
+    }
+  };
+
+  return $element;
+}
+
+/**
+ *
+ * @param type $entity_type
+ * @param type $entity_id
+ * @return string
+ */
+function mapit_entity_sync($entity_type , $entity_id) {
+  if ($term = mapit_geocode_entity($entity_type , $entity_id)) {
+    return l($term->name, 'taxonomy/term/' . $term->tid);
+  }
+  else {
+    return t("No Admin Unit Found");
+  }
+}
+
+/**
+ * Ajax callback to find place
+ * @param type $entity_type
+ * @param type $entity_id
+ */
+function mapit_entity_sync_js($entity_type , $entity_id) {
+  if ($term = mapit_geocode_entity($entity_type , $entity_id)) {
+    $result = array (
+      'markup' => l($term->name, 'taxonomy/term/' . $term->tid),
+      'entity_type' => $entity_type,
+      'entity_id' => $entity_id,
+    );
+  }
+  else {
+    $result = array (
+      'markup' => t("No Admin Unit Found"),
+      'entity_type' => $entity_type,
+      'entity_id' => $entity_id,
+    );
+  }
+    
+  print drupal_json_encode($result);
+}
+
+/**
+ * Get the reverse geocoding of a location point.
+ * @param type $entity_type
+ * @param type $entity_id
+ * @return type
+ */
+function mapit_geocode_entity($entity_type , $entity_id) {
+  $term = FALSE;
+  $entity = entity_load($entity_type, (array) $entity_id);
+
+  if(!empty($entity )) {
+    $entity = array_shift($entity);
+  }
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+
+  //find mapit field
+  $fields = field_info_instances($entity_type, $bundle);
+  $fieldnames = array();
+
+  //extract fields with sync values
+  foreach($fields as $field) {
+    if($field['widget']['type'] == 'mapit') {
+      $geofield_name = $field['widget']['settings']['mapit_setting_geofield'];
+
+      $lon = $entity->{$geofield_name}[$entity->language][0]['lon'];
+      $lat = $entity->{$geofield_name}[$entity->language][0]['lat'];
+
+      $term = mapit_point_taxonomy_term($lat, $lon , 4326, FALSE);
+      if($term) {
+        // Assign the new term to the entity.
+        $entity->{$field['field_name']}[$entity->language][0]['tid'] = $term->tid;
+        $entity->mapitsave = TRUE;
+        entity_save($entity_type, $entity);
+        watchdog('mapit', "lat/lon(" . $lat . ' ' . $lon . ") Entity: " . $entity_id . "tid :" . $term->tid);
+      }
+      else {
+        watchdog('mapit', "No address for " . $lat .  ") Entity: " . $entity_id . "tid :" . $term->tid);
+      }
+    }
+  }
+  return $term;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function mapit_permission() {
+  return array(
+    'administer mapit settings' => array(
+      'title' => t('Administer mapit settings'),
+      'description' => t('Administer mapit settings.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function mapit_admin_settings_form_validate($form, &$form_state) {
+
+  // Test if a field has been selected twice.
+  $fields = array(
+    'mapit_osm_id',
+    'mapit_osm_rel',
+    'mapit_geofield',
+    'mapit_osm_type',
+    'mapit_flag',
+    'mapit_wikipedia',
+    'mapit_longname',
+  );
+
+  for ($i = 0; $i < count($fields); $i++) {
+    $freq = 0;
+    $field_id = $form_state['values'][$fields[$i]];
+    for ($j = 0; $j < count($fields); $j++) {
+      if ($field_id == $form_state['values'][$fields[$j]]) {
+        $freq++;
+      }
+    }
+
+    if ($freq > 1) {
+      form_set_error($fields[$i], t('%label : Field cant be selected more than once.',
+          array(
+            '%label' => $form[$fields[$i]]['#title'],
+          )
+      ));
+    }
+  }
+}
+
+/**
+ * Implements hook_settings_form().
+ */
+function mapit_admin_settings_form($form, &$form_state) {
+
+  $options_taxonomy = _mapit_taxonomy_get_list();
+  $field_disabled = FALSE;
+  $selected = isset($form_state['values']['mapit_vocabulary']) ? $form_state['values']['mapit_vocabulary'] : variable_get('mapit_vocabulary');
+
+  if (!empty($selected)) {
+    //$vocabulary = current(taxonomy_vocabulary_load_multiple(array($selected), array()));
+    $vocabulary = taxonomy_vocabulary_machine_name_load($selected);
+    $term_count = taxonomy_get_tree($vocabulary->vid);
+    if (!empty($term_count)) {
+      $field_disabled = TRUE;
+    }
+    $text_options = _mapit_entity_get_fields_list('taxonomy_term', $vocabulary->machine_name, 'text');
+    $long_text_options = _mapit_entity_get_fields_list('taxonomy_term', $vocabulary->machine_name, 'long text');
+    $geofield_options = _mapit_entity_get_fields_list('taxonomy_term', $vocabulary->machine_name, 'geofield');
+    $link_options = _mapit_entity_get_fields_list('taxonomy_term', $vocabulary->machine_name, 'link');
+  }
+  else {
+    $text_options = array();
+    $long_text_options = array();
+    $geofield_options = array();
+    $link_options = array();
+  }
+  $form['mapit_max_queue_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum Queue size'),
+    '#description' => t('No of items to queue for the cron job. default is 20'),
+    '#default_value' => 20,
+  );
+  $form['mapit_vocabulary'] = array(
+    '#title' => t('Vocabularies'),
+    '#description' => t('Select the the vocabulary that will be autofilled by the mapit module.'),
+    '#options' => $options_taxonomy,
+    '#type' => 'select',
+    '#default_value' => variable_get('mapit_vocabulary'),
+    '#disabled' => $field_disabled,
+    '#required' => TRUE,
+    '#ajax' => array(
+      'callback' => 'mapit_dependent_fields_dropdown_callback',
+      'wrapper' => 'osm_id_wrapper',
+    ),
+  );
+  $form['mapit_osm_id'] = array(
+    '#type' => 'select',
+    '#prefix' => '<div id="osm_id_wrapper" >',
+    '#title' => t('OSM ID. Required a Text Field'),
+    '#description' => t("OSM ID"),
+    '#options' => $text_options,
+    '#default_value' => variable_get('mapit_osm_id'),
+    '#required' => TRUE,
+    '#disabled' => $field_disabled,
+  );
+
+  $form['mapit_osm_rel'] = array(
+    '#type' => 'select',
+    '#title' => t('OSM relation id'),
+    '#description' => t("OSM Relation. Requires a Text Field"),
+    '#options' => $text_options,
+    '#default_value' => variable_get('mapit_osm_rel'),
+    '#required' => TRUE,
+    '#disabled' => $field_disabled,
+  );
+  $form['mapit_geofield'] = array(
+    '#type' => 'select',
+    '#title' => t('Geofield'),
+    '#description' => t("Geofield. Has to be a geofield with a WKT Widget"),
+    '#options' => $geofield_options,
+    '#default_value' => variable_get('mapit_geofield'),
+    '#required' => TRUE,
+    '#disabled' => $field_disabled,
+  );
+  $form['mapit_osm_type'] = array(
+    '#type' => 'select',
+    '#title' => t('OSM Type'),
+    '#description' => t("OSM Type. Requires a Text Field"),
+    '#options' => $text_options,
+    '#default_value' => variable_get('mapit_osm_type'),
+    '#required' => TRUE,
+    '#disabled' => $field_disabled,
+  );
+  $form['mapit_flag'] = array(
+    '#type' => 'select',
+    '#title' => t('Country Flag'),
+    '#description' => t("Country flag. Requires a Long text Field"),
+    '#options' => $long_text_options,
+    '#default_value' => variable_get('mapit_flag'),
+    '#required' => FALSE,
+    '#disabled' => $field_disabled,
+  );
+  $form['mapit_wikipedia'] = array(
+    '#type' => 'select',
+    '#title' => t('Wikipedia Link'),
+    '#description' => t("Wikipedia Link. Required a Link Field"),
+    '#options' => $link_options,
+    '#default_value' => variable_get('mapit_wikipedia'),
+    '#required' => FALSE,
+    '#disabled' => $field_disabled,
+  );
+  $form['mapit_longname'] = array(
+    '#type' => 'select',
+    '#title' => t('Longname of the location'),
+
+    '#description' => t("The full name of a location. Required a Text Field"),
+    '#options' => $text_options,
+    '#default_value' => variable_get('mapit_longname'),
+    '#required' => FALSE,
+    '#disabled' => $field_disabled,
+  );
+  $generations = mapit_get_generations();
+  $form['mapit_generation'] = array(
+    '#type' => 'select',
+    '#title' => t('Mapit Generation'),
+    '#description' => t("Mapit Generation to use for querying."),
+    '#options' => $generations,
+    '#default_value' => variable_get('mapit_generation'),
+    '#required' => TRUE,
+  );
+  $form['mapit_discard_ids'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Location IDs to dicard'),
+    '#description' => t("The IDs that should be discarded. The discard ids have to be separated with commas e.g. xxx1, xxx2, xxx3"),
+    '#default_value' => variable_get('mapit_discard_ids', 0),
+    '#required' => FALSE,
+    '#disabled' => $field_disabled,
+  );
+
+  $form['mapit_discard_types'] = array(
+    '#type' => 'textarea',
+    '#suffix' => '</div>',
+    '#title' => t('Types to discard'),
+    '#description' => t("The administrave levels that should be discarded. The discard type have to be entered separated with commas e.g. O02, O03"),
+    '#default_value' => variable_get('mapit_discard_types', 'OLC'),
+    '#required' => FALSE,
+    '#disabled' => $field_disabled,
+  );
+
+//   $form['mapit_discard_types'] = array(
+//       '#type' => 'textarea',
+//       '#suffix' => '</div>',
+//       '#title' => t('Types to discard'),
+//       '#description' => t("The administrave levels that should be discarded. The discard type have to be entered separated with commas e.g. O02, O03"),
+//       '#default_value' => variable_get('mapit_discard_types', 'OLC'),
+//       '#required' => FALSE,
+//       '#disabled' => $field_disabled,
+//   );
+
+  // Pass the form array through system_settings_form().
+  return system_settings_form($form);
+}
+
+/**
+ * Dropdown callback.
+ *
+ * @param array $form
+ *   Current Form
+ * @param array $form_state
+ *   Form state
+ *
+ * @return array
+ *   Array form fields to refresh.
+ */
+function mapit_dependent_fields_dropdown_callback($form, $form_state) {
+  $fields = array(
+    $form['mapit_osm_id'],
+    $form['mapit_osm_rel'],
+    $form['mapit_osm_type'],
+    $form['mapit_geofield'],
+    $form['mapit_wikipedia'],
+    $form['mapit_longname'],
+    $form['mapit_flag'],
+    $form['mapit_discard_ids'],
+    $form['mapit_discard_types'],
+  );
+  return $fields;
+}
+
+/**
+ * Retrieve all available generations from the mapit website and
+ * return all the active ones in reverse chronological order.
+ *
+ * @param bool $verbose
+ *   Whether or not to report status messages on screen.
+ * @return array
+ *   Array of all active mapit generations.
+ *     keys are the generation numbers.
+ *     values are the generation descriptions.
+ */
+function mapit_get_generations($verbose = FALSE) {
+  if($verbose) {
+    drupal_set_message("Get generations: http://global.mapit.mysociety.org/generations.json");
+  }
+
+  // Setup the request parameters.
+  $url = "http://global.mapit.mysociety.org/generations.json";
+  watchdog('mapit', 'url' . $url );
+  $options = array(
+    'headers' => array('Content-Type' => 'text/json; charset=UTF-8'),
+  );
+  // Do the request.
+  $json = drupal_http_request($url, $options);
+
+  // Bail out if the request failed.
+  if ($json->code != 200) {
+    return array();
+  }
+
+  // Filter out the inactive generations.
+  $generations = drupal_json_decode($json->data);
+  foreach ($generations as $generation) {
+    if ($generation['active']) {
+      $active_generations[$generation['id']] = $generation['description'];
+    }
+  }
+
+  // Return the active generations in reverse order. Preserve the keys.
+  return array_reverse($active_generations, TRUE);
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function mapit_cron_queue_info() {
+  return array(
+    'mapit_tagentity' => array(
+      'worker callback' => 'mapit_tagentity',
+      'time' => 20,
+    ),
+  );
+}
+
+/**
+ * Tagging entities with new taxonomy values.
+ *
+ * @param array $item
+ *   Item from job queue
+ */
+function mapit_tagentity($item) {
+  // It is possible that a user changes the value while the item is queued.
+  // We don't want mapit to overwrite that value.
+  $entities = entity_load($item['entity_type'], array($item['entity_id']));
+  $entity = array_shift($entities);
+  $vocabulary_name = variable_get('mapit_vocabulary', '0');
+  // If the value is still "Undefined Area", process the item.
+  if ($entity->{$item['field_name']}[$entity->language][0]['tid'] == mapit_get_undefined_area_tid($vocabulary_name)) {
+    if ($term = mapit_point_taxonomy_term($item['lat'], $item['lon'])) {
+      // Assign the new term to the entity.
+      $entity->{$item['field_name']}[$entity->language][0]['tid'] = $term->tid;
+      $entity->mapitsave = true;
+      watchdog('mapit', "lat/lon(" . $item['lat'] . ' ' . $item['lon'] . ") Enity: " . $item['entity_id'] . "tid :" . $term->tid);
+      // Save the entity.
+      entity_save($item['entity_type'], $entity);
+    }
+    else {
+      watchdog('mapit', "No address for " . $item['lat'] . ' ' . $item['lon'] . " Enity: " . $item['entity_id']);
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function mapit_cron() {
+  $queue = DrupalQueue::get('mapit_tagentity');
+  $queue_size = $queue->numberOfItems();
+  if ($queue_size < 1) {
+    mapit_find_mapit_fields();
+  }
+}
+
+/**
+ * Get fields in a taxonomy.
+ *
+ * @param int $vid
+ *   Vocabulary ID
+ * @param string $datatype
+ *   Field Data type
+ */
+function _mapit_taxonomy_get_fields_list($vid, $datatype = '') {
+
+  $vocabulary = taxonomy_vocabulary_load_multiple(array($vid), array());
+  $fields = field_info_instances('taxonomy_term', $vocabulary[$vid]->machine_name);
+  $return = array();
+
+  foreach ($fields as $field) {
+    if ($field['widget']['module'] == $datatype) {
+      $return[$field['field_id']] = $field['label'];
+    }
+  }
+
+  return $return;
+}
+
+/**
+ * Get all fields that have a mapit widget.
+ *
+ * @param string $entity_type
+ *   Entity type
+ * @param string $bundle_name
+ *   Bundle name
+ * @param string $datatype
+ *   Field Data type
+ */
+function _mapit_entity_get_fields_list($entity_type, $bundle_name, $datatype = NULL) {
+
+  $field_types = field_info_field_types();
+  $fields = field_info_instances($entity_type, $bundle_name);
+
+  $return = array();
+  foreach ($fields as $field) {
+    $field_info = field_info_field($field['field_name']);
+    if(isset($field_types[$field_info['type']]['label'])) {
+      $label = $field_types[$field_info['type']]['label'];
+
+      if ($datatype == NULL || $label == ucfirst($datatype)) {
+          $return[$field['field_name']] = $field['label'];
+      }
+    }
+
+  }
+
+  return $return;
+}
+
+/**
+ * Get list of all taxonomy vocabularies for select list.
+ *
+ * @return array
+ *   Array of all vocabularies. 
+ */
+function _mapit_taxonomy_get_list() {
+
+  $taxonomies = taxonomy_get_vocabularies();
+  $return = array();
+
+  foreach ($taxonomies as $taxonomy) {
+    $return[$taxonomy->machine_name] = $taxonomy->name;
+  }
+
+  return $return;
+}
+
+/**
+ * Get a point(lat,lon) and return the address tree.
+ *
+ * @param float $lat
+ *   Latitude value
+ * @param float $lon
+ *   Longititude value
+ * @param int $projection
+ *   Projection value
+ *
+ * @return array
+ *   Location hierachy
+ */
+function mapit_point_address_tree($lat, $lon, $projection = 4326, $verbose =  FALSE) {
+  $generation = variable_get('mapit_generation');
+  $url = "http://global.mapit.mysociety.org/point/$projection/$lon,$lat.json";
+  // Mapit uses latest generation by default if not specified.
+  if (isset($generation)) {
+    $url .= "?generation=$generation";
+  }
+
+  if ($verbose) {
+    drupal_set_message("Get location tree for point ($lon,$lat) : $url");
+  }
+  watchdog('mapit', 'url' . $url );
+  $options = array(
+    'headers' => array('Content-Type' => 'text/json; charset=UTF-8'),
+  );
+  $json = drupal_http_request($url, $options);
+
+  if ($json->code != 200) {
+    return 0;
+  }
+
+  $tree = drupal_json_decode($json->data);
+  uasort($tree, "_mapit_array_cmp");
+  return $tree;
+}
+
+/**
+ * Get the term from the lat/lon values.
+ *
+ * @param int $lat
+ *   Latitude value
+ * @param int $lon
+ *   Longititude value
+ *
+ * @return object
+ *   Taxonomy term
+ */
+function mapit_point_taxonomy_term($lat, $lon, $projection = 4326, $verbose = FALSE) {
+
+  $vocabulary_name = variable_get('mapit_vocabulary',"0");
+  $langcode = LANGUAGE_NONE;
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_name);
+  if (!$vocabulary) {
+    return FALSE;
+  }
+  $entity = 'taxonomy_term';
+  $bundle = $vocabulary->machine_name;
+  //debug(field_info_instance('taxonomy_term','field_osmid','districts'));
+  //get field api fields from the settings variables
+  $geofield_field = field_info_instance($entity, variable_get('mapit_geofield', "0"), $bundle);
+  $osm_type_field = field_info_instance($entity, variable_get('mapit_osm_type', "0"), $bundle);
+  $osm_id_field = field_info_instance($entity, variable_get('mapit_osm_id', "0"), $bundle);
+  $osm_rel_field = field_info_instance($entity, variable_get('mapit_osm_rel', "0"), $bundle);
+  $osm_type_field = field_info_instance($entity, variable_get('mapit_osm_type', "0"), $bundle);
+  $osm_flag_field = field_info_instance($entity, variable_get('mapit_flag', "0"), $bundle);
+  $osm_wiki_field = field_info_instance($entity, variable_get('mapit_wikipedia', "0"), $bundle);
+  $osm_long_field = field_info_instance($entity, variable_get('mapit_longname', "0"), $bundle);
+
+  $osm_discard_ids = array_map('_mapit_string_to_integer', explode(',', variable_get('mapit_discard_ids', "0")));
+
+  $osm_discard_types = array_map('trim', explode(',', variable_get('mapit_discard_types', "0")));
+
+  $tree = mapit_point_address_tree($lat, $lon, $projection, $verbose);
+  watchdog('mapit','tree : ' . print_r(array_keys($tree),true));
+  // If Location doesn't exist.
+  if (is_array($tree) && empty($tree)) {
+    $unknown_tid = mapit_get_unknown_area_tid($vocabulary->machine_name, $langcode = LANGUAGE_NONE) ;
+    $term = taxonomy_term_load($unknown_tid);
+    return $term;
+  }
+  elseif (!$tree) {
+    return FALSE;
+  }
+
+  $parentterm = NULL;
+  foreach ($tree as $treenode) {
+    // Remove values that have to be discarded.
+    if (in_array($treenode['type'], $osm_discard_types) || in_array(intval($treenode['id']), $osm_discard_ids)) {
+      continue;
+    }
+
+    $term = FALSE;
+
+    $metadata = array();
+    $terms = taxonomy_get_term_by_name($treenode['name'], $vocabulary->machine_name);
+
+    $query = new EntityFieldQuery();
+    // ->addTag('efq_mapit_debug')
+    $query->entityCondition('entity_type', 'taxonomy_term')->entityCondition('bundle', $vocabulary->machine_name)
+    ->fieldCondition($osm_id_field['field_name'], 'value', $treenode['id'], '=');
+
+    $result = $query->execute();
+
+    $parent_osm_type = isset($parentterm) ? $parentterm[0]->{$osm_type_field['field_name']}[$langcode][0]['value'] : 0;
+    $term_osm_type = $treenode['type'];
+
+    if ($result) {
+      $termobj = array_shift($result['taxonomy_term']);
+      $term = taxonomy_term_load($termobj->tid);
+    }
+    else {
+      $term = new stdClass();
+      $term->vid = $vocabulary->vid;
+      $term->name = $treenode['name'];
+
+      if (isset($treenode['codes']['osm_rel'])) {
+        $term->{$osm_rel_field['field_name']}[$langcode][0]['value'] = $treenode['codes']['osm_rel'];
+        $metadata = mapit_get_metadata($treenode['codes']['osm_rel'], $verbose);
+
+        if (!empty($metadata)) {
+          $term->name = $metadata['name'];
+          $term->{$osm_flag_field['field_name']}[$langcode][0]['value'] = $metadata['flag'];
+          $term->{$osm_long_field['field_name']}[$langcode][0]['value'] = $metadata['longname'];
+
+          // Not that en has been used up to when and if the site becomes
+          // fully multi lingual.
+          if(!empty($metadata['wiki'])) {
+            $metadata['wiki'] = str_replace(' ', '%20', $metadata['wiki']);
+            $lang_wiki = explode(":",$metadata['wiki']);
+            $lcode = count($lang_wiki) > 1 ? $lang_wiki[0] ."." : "";
+            $term->{$osm_wiki_field['field_name']}[$langcode][0] = array(
+              'title' => $metadata['name'],
+              'url' => "http://" . $lcode . "wikipedia.org/wiki/" . $metadata['wiki'],
+            );
+            $term->description = mapit_get_description($metadata['wiki']);
+          }
+        }
+      }
+
+      if (isset($parentterm)) {
+        if ($parent_osm_type != $term_osm_type) {
+          $parentvalues = array();
+          foreach ($parentterm as $parentitem) {
+            $parentvalues[] = $parentitem->tid;
+          }
+          $term->parent = $parentvalues;
+        }
+        elseif(isset($parentterm[0]->parent)) {
+          $term->parent = $parentterm[0]->parent;
+        }
+      }
+
+      $term->{$geofield_field['field_name']}[$langcode][0]['geom'] = mapit_get_wkt_by_osmid($treenode['id'], $verbose);
+
+      $term->{$osm_id_field['field_name']}[$langcode][0]['value'] = $treenode['id'];
+      if (isset($treenode['codes']['osm_rel'])) {
+        $term->{$osm_rel_field['field_name']}[$langcode][0]['value'] = $treenode['codes']['osm_rel'];
+      }
+      $term->{$osm_type_field['field_name']}[$langcode][0]['value'] = $treenode['type'];
+      taxonomy_term_save($term);
+    }
+
+    if ($parent_osm_type != $term_osm_type) {
+      $parentterm = array();
+      $parentterm[] = $term;
+    }
+    else {
+      $parentterm[] = $term;
+    }
+  }
+
+  return $term;
+}
+
+/**
+ * Retrieve the first paragraph of a page on wikipedia.
+ *
+ * @param type $title
+ *   The title of the page on wikipedia
+ * @param bool $verbose
+ *   Whether or not to report status messages on screen.
+ *
+ * @return array
+ *   The first paragraph of the wikipedia page with the requested title.
+ */
+function mapit_get_description($title, $verbose = FALSE) {
+  if ($verbose) {
+    drupal_set_message("Get description for wikipedia page titled : $title");
+  }
+  $url = "http://en.wikipedia.org/w/api.php?action=query&continue=&prop=extracts&exintro&explaintext&format=json&titles=$title";
+  watchdog('mapit', 'url' . $url );
+  $options = array(
+    'headers' => array('Content-Type' => 'text/json; charset=UTF-8'),
+    'timeout' => 60.0,
+  );
+  $json = drupal_http_request($url, $options);
+
+  if ($json->code != 200) {
+    return '';
+  }
+
+  $data = drupal_json_decode($json->data);
+  $pages = $data['query']['pages'];
+  $page = reset($pages);
+  $intro = $page['extract'];
+
+  return $intro;
+}
+
+/**
+ * Get load the wkt of a particular id.
+ *
+ * @param int $id
+ *   Relation id
+ *
+ * @return string
+ *   WKT string boundaries for a location
+ */
+function mapit_get_wkt_by_osmid($id, $verbose = FALSE) {
+  if($verbose) {
+    drupal_set_message("Getting WKT file from : http://global.mapit.mysociety.org/area/$id.wkt");
+  }
+  $url = "http://global.mapit.mysociety.org/area/$id.wkt";
+
+  $options = $options = array(
+    'headers' => array('Content-Type' => 'text/plain; charset=UTF-8'),
+  );
+  $json = drupal_http_request($url, $options);
+  // Used a trick to uncompress the always compressed return value
+  // http://www.php.net/manual/en/function.gzuncompress.php#Vu101643
+  // This is a bug in the mapitverver configuration.
+  if ($json->code != '200') {
+    return FALSE;
+  }
+
+  if (isset($json->headers['content-encoding']) && $json->headers['content-encoding'] == 'gzip') {
+    $comp = file_get_contents('compress.zlib://data:who/cares;base64,' . base64_encode($json->data));
+  }
+  else {
+    $comp = $json->data;
+  }
+  return $comp;
+}
+
+/**
+ * Get svg from url.
+ *
+ * @param string $url
+ *   Url for country flag
+ *
+ * @return string
+ *   SVG string
+ */
+function mapit_get_map_svg($url, $verbose = FALSE) {
+  if($verbose) {
+    drupal_set_message("Gets svg file : $url");
+  }
+
+  $options = $options = array(
+    'headers' => array('Content-Type' => 'text/xml'),
+  );
+  $json = drupal_http_request($url, $options);
+  if ($json->code != '200') {
+    return FALSE;
+  }
+
+  if (isset($json->headers['content-encoding']) && $json->headers['content-encoding'] == 'gzip') {
+    $comp = file_get_contents('compress.zlib://data:who/cares;base64,' . base64_encode($json->data));
+  }
+  else {
+    $comp = $json->data;
+  }
+
+  return $comp;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function mapit_field_widget_info() {
+  return array(
+    'mapit' => array(
+      'label' => t('Mapit Autofill'),
+      'field types' => array('taxonomy_term_reference'),
+      'settings' => array(
+        'size' => 60,
+      ),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+      ),
+    ),
+  );
+}
+
+
+
+
+/**
+ * Get dummy term un case term is unknown.
+ *
+ * @param string $vocabulary_name
+ *   Vocabulary name
+ *
+ * @return int
+ *   tid of 'Unknown term'
+ */
+function mapit_get_unknown_area_tid($vocabulary_name, $langcode = LANGUAGE_NONE) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_name);
+  //$terms = taxonomy_get_term_by_name('Unknown Area', $vocabulary->machine_name);
+  $mapit_unknown_area = variable_get('mapit_unknown_area');
+  $term = taxonomy_term_load($mapit_unknown_area[$langcode]);
+  if (empty($mapit_unknown_area[$langcode]) || empty($term)) {
+    $term = new stdClass();
+    $term->name = 'Unknown Area';
+    $term->description = "This area is not mapped in the mapit database";
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+
+    $tid = $term->tid;
+    $mapit_unknown_area[$langcode] = $tid;
+    variable_set('mapit_unknown_area',$mapit_unknown_area);
+  }
+  else {
+    $tid = $mapit_unknown_area[$langcode];
+  }
+
+  return $tid;
+}
+
+/**
+ * Get dummy term un case term is undefined.
+ *
+ * @param string $vocabulary_name
+ *   Vocabulary name
+ *
+ * @return int
+ *   tid of 'Undefined term'
+ */
+function mapit_get_undefined_area_tid($vocabulary_name, $langcode = LANGUAGE_NONE) {
+  $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_name);
+  //$terms = taxonomy_get_term_by_name('Undefined Area', $vocabulary->machine_name);
+  $mapit_undefined_area = variable_get('mapit_undefined_area');
+  $term = taxonomy_term_load($mapit_undefined_area[$langcode]);
+  if (empty($mapit_undefined_area[$langcode]) || empty($term)) {
+    $term = new stdClass();
+    $term->name = 'Undefined Area';
+    $term->description = "Waiting for a value from the Mapit widget.";
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+
+    $tid = $term->tid;
+    $mapit_undefined_area[$langcode] = $tid;
+    variable_set('mapit_undefined_area',$mapit_undefined_area);
+  }
+  else {
+    $tid = $mapit_undefined_area[$langcode];
+  }
+
+  return $tid;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function mapit_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  switch ($instance['widget']['type']) {
+    case 'mapit':
+      // Copy what options_select widget does to get the select values
+      // for our dropdown (see options module).
+      $value_key = key($field['columns']);
+      $multiple = $field['cardinality'] > 1 || $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED;
+      $has_value = isset($items[0][$value_key]);
+      $properties = _options_properties('mapit', $multiple, $element['#required'], $has_value);
+
+      $entity_type = $element['#entity_type'];
+      $entity = $element['#entity'];
+
+      $default_tid = mapit_get_undefined_area_tid($field['settings']['allowed_values'][0]['vocabulary']);
+
+      // Prepare the list of options.
+      $options = _options_get_options($field, $instance, $properties, $entity_type, $entity);
+      $default_values = _options_storage_to_form($items, $options, $value_key, $properties);
+
+      if (isset($default_values[$delta])){
+        $default_tid = $default_values[$delta];
+      }
+
+      $widget = $element + array(
+        '#type' => 'select',
+        // Add a 0 option to the options array so that values can be unselected.
+        '#options' => array(0 => '--select--') + $options,
+        '#default_value' => $default_tid,
+        '#disabled' => TRUE,
+        '#attributes' => array('class' => array('mapit')),
+      );
+
+      $element['tid'] = $widget;
+      break;
+  }
+  return $widget + array('value' => $element);
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function mapit_field_widget_settings_form($field, $instance) {
+  $form['mapit_setting_geofield'] = array(
+    '#type' => 'select',
+    '#title' => t('Geofield Field'),
+    '#description' => t("Geofield field that will be attached with the mapit field"),
+    '#options' => _mapit_entity_get_fields_list($instance['entity_type'], $instance['bundle'], 'geofield'),
+    '#required' => TRUE,
+  );
+
+  if(!empty($instance['widget']['settings']['mapit_setting_geofield'])){
+    $default_value = $instance['widget']['settings']['mapit_setting_geofield'];
+    $form['mapit_setting_geofield']['#default_value'] = $default_value;
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_query_alter().
+ */
+function mapit_query_alter($query) {
+  if ($query->hasTag('efq_mapit_debug')) {
+    //dpm((string) $query);
+    //watchdog("mapit",(string) $query);
+  }
+}
+
+/**
+ * Get all fields that have have a mapit widget.
+ * @return string
+ *   An fields with a mapit widget
+ */
+function mapit_find_mapit_fields() {
+
+  $langcode = LANGUAGE_NONE;
+  $mapit_fields = mapit_valid_mapit_fields();
+  $queue = DrupalQueue::get('mapit_tagentity');
+  $projection = '4326';
+  $job = array();
+  $max_queue_size = variable_get('mapit_max_queue_size',20);
+  $itemcount = 0;
+
+  foreach ($mapit_fields as $field) {
+    $field_name = $field['field_name'];
+    $entity_type = $field['entity_type'];
+    $geofield_name = $field['widget']['settings']['mapit_setting_geofield'];
+    $field_info = field_info_field_by_id($field['field_id']);
+
+    $ids = array();
+    $default_tid = mapit_get_undefined_area_tid($field_info['settings']['allowed_values'][0]['vocabulary']);
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', $entity_type)
+          ->entityCondition('bundle', $field['bundle'])
+          //->addTag('efq_mapit_debug')
+          ->fieldCondition($field_name, 'tid', $default_tid, '=');
+
+    $result = $query->execute();
+    if ($result) {
+      //$geofield = field_info_field_by_id($geofield_id);
+      $ids = array_keys($result[$entity_type]);
+      $entities = entity_load($entity_type, $ids);
+
+      foreach ($entities as $entitykey => $entity) {
+        $langcode = entity_language($entity_type, $entity) ? entity_language($entity_type, $entity) : 'und';
+        if (!empty($entity->{$geofield_name})) {
+          $data = $entity->{$geofield_name};
+
+          $job = array(
+            'lat' => $data[$langcode][0]['lat'],
+            'lon' => $data[$langcode][0]['lon'],
+            'projection' => $projection,
+            'entity_id' => $entitykey,
+            'entity_type' => $entity_type,
+            'field_name' => $field_name,
+          );
+          $queue->createItem($job);
+
+          //bail out if the max_queue_size has been exceeded
+          if($max_queue_size < $itemcount++) {
+            return;
+          }
+        }
+      }
+    }
+  }
+  return '';
+}
+
+/**
+ * Get all mapit fields in all entities.
+ *
+ * @return array
+ *   All field instances will widget mapit
+ */
+function mapit_valid_mapit_fields() {
+  $mapit_fields = array();
+  $fields = db_select('field_config_instance', 'fci')
+    ->addTag('mapit_processing')
+    ->fields('fci')
+    ->execute();
+  while ($field = $fields->fetchAssoc()) {
+    $data = unserialize($field['data']);
+    if (($data['widget']['module'] == 'mapit') && !empty($data['widget']['settings']['mapit_setting_geofield'])) {
+      $field += $data;
+      $mapit_fields[$field['id']] = $field;
+    }
+  }
+  return ($mapit_fields);
+}
+
+/**
+ * Get taxonomy id of a particular term.
+ *
+ * @param int $vid
+ *   Vocabulary id
+ * @param string $term_name
+ *   Taxonomy term
+ *
+ * @return array
+ *   Taxonomy term id
+ */
+function _mapit_taxonomy_id_default_term($vid, $term_name) {
+  $vocabulary = current(taxonomy_vocabulary_load_multiple(array($vid), array()));
+  $langcode = $GLOBALS['language_content']->language;
+  $terms = taxonomy_get_term_by_name($term_name, $vocabulary->machine_name);
+  if ($terms) {
+    $term = current($terms);
+    return $term->tid;
+  }
+  else {
+    $term = new stdClass();
+    $term->name = $term_name;
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+    return $term->tid;
+  }
+}
+
+/**
+ * Get Location Metadata.
+ *
+ * @param int $rel
+ *   OSM relation
+ *
+ * @return mixed
+ *   Return location metadata
+ */
+function mapit_get_metadata($rel, $verbose = FALSE) {
+  global $language_content;
+  $langcode = $language_content->language;
+  if($verbose) {
+    drupal_set_message("Getting metadata for relation ($rel) : http://www.openstreetmap.org/api/0.6/relation/$rel");
+  }
+  $url = "http://www.openstreetmap.org/api/0.6/relation/$rel";
+
+  $options = $options = array(
+    'headers' => array('Content-Type' => 'text/xml; charset=UTF-8'),
+  );
+  $json = drupal_http_request($url, $options);
+  if ($json->code != 200) {
+    return FALSE;
+  }
+  // Used a trick to uncompress the always compressed return value
+  // http://www.php.net/manual/en/function.gzuncompress.php#Vu101643
+  // This is a bug in the mapitverver configuration.
+  if ($json->headers['content-encoding'] == 'gzip') {
+    $comp = file_get_contents('compress.zlib://data:who/cares;base64,' . base64_encode($json->data));
+  }
+  else {
+    $comp = $json->data;
+  }
+  $comp = new SimpleXMLElement($comp);
+
+  $metadata = array();
+  $flag = "";
+  $name = "";
+  $wiki = "";
+  $longname = "";
+
+  $xml = $comp->xpath('/osm/relation/tag[@k="flag"]');
+  if (!empty($xml[0])) {
+    $flag_url = (string) $xml[0]['v'];
+    $flag = mapit_get_map_svg($flag_url);
+  }
+
+  $xml = $comp->xpath('/osm/relation/tag[@k="name:' . $langcode . '"]');
+  if (!empty($xml[0])) {
+    $name = (string) $xml[0]['v'];
+  }
+  else {
+    $xml = $comp->xpath('/osm/relation/tag[@k="name"]');
+    if (!empty($xml[0])) {
+      $name = (string) $xml[0]['v'];
+    }
+  }
+
+  $xml = $comp->xpath('/osm/relation/tag[@k="long_name:' . $langcode . '"]');
+  if (!empty($xml[0])) {
+    $longname = (string) $xml[0]['v'];
+  }
+  else {
+    $xml = $comp->xpath('/osm/relation/tag[@k="long_name"]');
+    if (!empty($xml[0])) {
+      $longname = (string) $xml[0]['v'];
+    }
+  }
+
+  $xml = $comp->xpath('/osm/relation/tag[@k="wikipedia"]');
+  if (!empty($xml[0])) {
+    $wiki = (string) $xml[0]['v'];
+  }
+
+  $metadata = array(
+    'flag' => $flag,
+    'name' => $name,
+    'longname' => $longname,
+    'wiki' => $wiki,
+  );
+
+  return $metadata;
+}
+
+function mapit_test() {
+  mapit_point_taxonomy_term(0.2321, 30.2224);
+}
+
+function mapit_entity_presave($entity, $type) {
+  //Check whether a mapit field exists in this entity.
+  if(!isset($entity->type)) {
+    return ;
+  }
+
+  if (isset($entity->mapitsave) && $entity->mapitsave) {
+    return ;
+  }
+  $fields = field_info_instances($type, $entity->type);
+  //Go through all the fields in an entity.
+  foreach($fields as $fieldkey => $field) {
+    //Check whether one of the fields has a mapit widget.
+    if (isset($field['widget']['module']) && $field['widget']['module']=='mapit') {
+      $entity_info = entity_get_info($type);
+      $entity_key = $entity_info['entity keys']['id'];
+      $field_info = field_info_field_by_id($field['field_id']);
+      $vocabulary_name = $field_info['settings']['allowed_values'][0]['vocabulary'];
+      if (!isset($entity->{$field['field_name']}['und'][0]['tid'])) {
+        $entity->{$field['field_name']}['und'][0]['tid'] = mapit_get_undefined_area_tid($vocabulary_name) ;
+      }
+    }
+  }
+}
+
+function _mapit_string_to_integer($idstr) {
+  $tempstr = trim($idstr);
+  if (is_numeric($tempstr)) {
+    $id = (int) $tempstr;
+  }
+  else {
+    $id = 0;
+  }
+
+  return $id;
+}
+
+/**
+ * To sort arrays to respect the tree of admin boundaries.
+ */
+function _mapit_array_cmp($a, $b) {
+  // Check the type.
+  $res = strcmp($a['type'], $b['type']);
+  // If the type is the same...
+  if ($res === 0) {
+    // Then compare by generation_low.
+    $res = $a['generation_low'] > $b['generation_low'] ? 1 : -1;
+  }
+  return $res;
+}

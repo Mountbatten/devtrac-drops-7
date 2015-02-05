@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devtrac7 Solr Search Organisation Feature feature.
+ */
+
+include_once('devtrac7_solr_search_org_feature.features.inc');

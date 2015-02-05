@@ -1,0 +1,534 @@
+
+/*===========================================================================*\
+  Unique Legend list-style-position
+\*===========================================================================*/
+
+/*=========================== Other Legend Icons ============================*/
+
+.olMapViewport .olControlMaptext .item-list a.other-locations {
+  background: url('../../../files/Other%20Locations_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.government-office {
+  background: url('../../../files/Government%20Office_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.faith-based-organisation {
+  background: url('../../../files/Faith-based%20Organisation_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.place-of-worship {
+  background: url('../../../files/Place%20of%20Worship_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.youth-centre {
+  background: url('../../../files/Youth%20Centre_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.household {
+  background: url('../../../files/household.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.police-station {
+  background: url('../../../files/Police%20Station_c.png');
+}
+
+/*=========================== Health Legend Icons ===========================*/
+
+.olMapViewport .olControlMaptext .item-list a.health-facilities {
+  background: url('../../../files/healthfacilities_bw.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.health-centre-iii {
+  background: url('../../../files/Health%20Centre%20III_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.health-centre-ii {
+  background: url('../../../files/Health%20Centre%20II_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.health-centre-iv {
+  background: url('../../../files/Health%20Centre%20IV_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.health-centre {
+  background: url('../../../files/Health%20Centre_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.health {
+  background: url('../../../files/health_oecd_0.png');
+}
+
+/*========================= Education Legend Icons ==========================*/
+
+.olMapViewport .olControlMaptext .item-list a.schools {
+  background: url('../../../files/Schools_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.primary-school {
+  background: url('../../../files/Primary%20School_c.png');
+}
+
+/*=========================== Water Legend Icons ============================*/
+
+.olMapViewport .olControlMaptext .item-list a.water-points {
+  background: url('../../../files/Water%20Points_c.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.deep-borehole {
+  background: url('../../../files/Deep%20Borehole_c.png');
+}
+
+
+
+/*======================= To activate later =================================*/
+
+.olMapViewport .olControlMaptext .item-list a.action-relating-to-debt-category {
+  background: url('../../../files/action-related-to-debt_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.action-relating-to-debt {
+  background: url('../../../files/action-related-to-debt.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.debt-forgiveness {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.forestry {
+  background: url('../../../files/forestry.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.mineral-resources-and-mining {
+  background: url('../../../files/mining.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.industry {
+  background: url('../../../files/industry.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.multisector-cross-cutting {
+  background: url('../../../files/multisector.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.humanitarian-aid {
+  background: url('../../../files/humanitarian_aid.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.government-and-civil-society {
+  background: url('../../../files/government-and-civil-society_oecd.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.administrative-costs-of-donors {
+  background: url('../../../files/adminstrative-cost-of-donors.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agriculture {
+  background: url('../../../files/agriculture.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.other-multisector {
+  background: url('../../../files/other_multisector.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.alive {
+  background: url('../../../files/UNICEF-alive.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.water-and-sanitation {
+  background: url('../../../files/water_and_sanitation_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.water-resources-policy-and-administrative-management {
+  background: url('../../../files/Alive-WS-subcategories.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.water-resources-protection {
+  background: url('../../../files/Alive-WS-subcategories_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.water-supply-and-sanitation-large-systems {
+  background: url('../../../files/Alive-WS-subcategories_1.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.basic-drinking-water-supply-and-basic-sanitation {
+  background: url('../../../files/Alive-WS-subcategories_2.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.river-development {
+  background: url('../../../files/Alive-WS-subcategories_3.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.waste-management-disposal {
+  background: url('../../../files/Alive-WS-subcategories_4.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.education-and-training-in-water-supply-and-sanitation {
+  background: url('../../../files/Alive-WS-subcategories_5.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.basic-nutrition {
+  background: url('../../../files/Alive-BN_12240.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.infectious-disease-control {
+  background: url('../../../files/Alive-undefined.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.population-policy-and-administrative-management {
+  background: url('../../../files/Alive_poppolicy.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.reproductive-health-care {
+  background: url('../../../files/Alive_poppolicy_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.family-planning {
+  background: url('../../../files/Alive_poppolicy-rephelath-famplan.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.std-control-including-hiv/aids {
+  background: url('../../../files/Alive-STDcontrol.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.personnel-development-for-population-and-reproductive-health {
+  background: url('../../../files/Alive_poppolicy-rephelath-famplan_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.banking-and-financial-services {
+  background: url('../../../files/banking-and-finance.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.business-and-other-services {
+  background: url('../../../files/business-and-other-services.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.commodity-aid-and-general-programme-assistance {
+  background: url('../../../files/commodity_aid.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.communications-policy-and-administrative-management {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.communication {
+  background: url('../../../files/communication.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.construction {
+  background: url('../../../files/construction.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.education {
+  background: url('../../../files/education.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.basic-education {
+  background: url('../../../files/basic_education.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.primary-education {
+  background: url('../../../files/Learning_primary_11220.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.basic-life-skills-for-youth-and-adults {
+  background: url('../../../files/Learning-educfacil-basicskills.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.early-childhood-education {
+  background: url('../../../files/Learning-educpol_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.teacher-training {
+  background: url('../../../files/Learning-teacher-highed.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.educational-research {
+  background: url('../../../files/Learning-educres.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.post-secondary-education {
+  background: url('../../../files/post_secondary.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.higher-education {
+  background: url('../../../files/Learning-teacher-highed_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.advanced-technical-and-managerial-training {
+  background: url('../../../files/Learning-teacher-highed_1.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.secondary-education-category {
+  background: url('../../../files/secondary education.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.secondary-education {
+  background: url('../../../files/11320.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.vocational-training {
+  background: url('../../../files/Learning-educfacil-basicskills_0.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.energy-generation-and-supply {
+  background: url('../../../files/energy_generation_and_supply.png');
+}
+
+
+
+/*
+.olMapViewport .olControlMaptext .item-list a.relief-of-multilateral-debt {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.rescheduling-and-refinancing {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.debt-for-development-swap {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.other-debt-swap {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.debt-buy-back {
+  background: url('../../../files/.png');
+}
+.olMapViewport .olControlMaptext .item-list a.administrative-costs {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-policy-and-administrative-management {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-development {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-land-resources {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-water-resources {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-inputs {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.food-crop-production {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.industrial-crops/export-crops {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.livestock {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agrarian-reform {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-alternative-development {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-extension {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-education/training {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-research {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-services {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.plant-and-post-harvest-protection-and-pest-control {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-financial-services {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.agricultural-co-operatives {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.livestock/veterinary-services {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.financial-policy-and-administrative-management {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.monetary-institutions {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.formal-sector-financial-intermediaries {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.informal/semi-formal-financial-intermediaries {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.education/training-in-banking-and-financial-services {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.business-support-services-and-institutions {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.privatisation {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.developmental-food-aid/food-security-assistance {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.food-aid/food-security-programmes {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.other-commodity-assistance {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.import-support-(capital-goods) {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.import-support-(commodities) {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.telecommunications {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.radio/television/print-media {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.information-and-communication-technology-(ict) {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.construction-policy-and-administrative-management {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.education,-level-unspecified {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.education-policy-and-administrative-management {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.education-facilities-and-training {
+  background: url('../../../files/Learning-educfacil.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.energy-policy-and-administrative-management {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.power-generation/non-renewable-sources {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.power-generation/renewable-sources {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.electrical-transmission/-distribution {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.gas-distribution {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.oil-fired-power-plants {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.gas-fired-power-plants {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.coal-fired-power-plants {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.nuclear-power-plants- {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.hydro-electric-power-plants {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.geothermal-energy {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.solar-energy {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.wind-power {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.ocean-power {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.biomass {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.energy-education/training {
+  background: url('../../../files/.png');
+}
+
+.olMapViewport .olControlMaptext .item-list a.energy-researchpages {
+  background: url('../../../files/.png');
+}
+
+
+*/
+
+
+/*===========================================================================*\
+  General Legend list-style-position
+\*===========================================================================*/
+
+.olMapViewport .olControlMaptext .item-list a.facetapi-inactive {
+  padding-left: 18px;
+  padding-bottom: 5px;
+  background-size: auto 15px;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+}

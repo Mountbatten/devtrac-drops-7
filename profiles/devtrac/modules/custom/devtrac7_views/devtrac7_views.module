@@ -1,0 +1,194 @@
+<?php
+
+/**
+ *  Implementents hook_ctools_plugin_api
+ */
+function devtrac7_views_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "feeds" && $api == "feeds_importer_default") {
+    return array("version" => "1");
+  }
+  list($module, $api) = func_get_args();
+  if ($module == "feeds_tamper" && $api == "feeds_tamper_default") {
+    return array("version" => "2");
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Alters the query on the action items (block_12)
+ * so that site reports and other reports can show after filtering by status
+ * TODO Could this be related to the inbox functionality? This is unclear. And please rename block_12 to something more semantic at the same time
+ * TODO also document what happens to the dvtrc_field_trip block_12 query and rename block_12 into something that means something
+ */
+function devtrac7_views_views_query_alter(&$view, &$query) {
+  //Alter the query so that site reports and other reports can show after filtering by status
+  if ($view->name == 'dvtrc_action_items' && $view->current_display == 'block_12') {
+    $account = menu_get_object('user');
+    $query->table_queue['history']['join']->extra[0]['value'] = $account->uid;
+    $query->table_queue['history']['join']->definition['extra'][0]['value'] = $account->uid;
+    if (isset($query->table_queue['field_data_field_actionitem_status']['join'])) {
+      $query->table_queue['field_data_field_actionitem_status']['join']->type = 'LEFT';
+    }
+    if (isset($query->table_queue['field_data_field_fieldtrip_status']['join'])) {
+      $query->table_queue['field_data_field_fieldtrip_status']['join']->type = 'LEFT';
+    }
+//    if (isset($query->table_queue['node_comment_statistics']['join'])) {
+//      $query->table_queue['node_comment_statistics']['join']->type = 'LEFT';
+//    }
+  }
+
+  if ($view->name == 'dvtrc_field_trip' && $view->current_display == 'block_12') {
+
+    $tid = $view->args[0];
+    $parents = taxonomy_get_parents_all($tid );
+
+    $group = 0;
+    foreach($parents as $value) {
+      if($tid!=$value->tid) {
+        $query->add_where(
+            $group,
+            'field_data_taxonomy_vocabulary_1.taxonomy_vocabulary_1_tid',
+            $value->tid,
+            '='
+        );
+      }
+    }
+    $query->set_where_group("OR",$group);
+  }
+
+}
+
+/*  
+ *  Implementents hook_views_pre_view()
+ * 
+ * Provides additional filtering on views that are used in the services api
+ * 
+ *
+ *  @ingroup devtrac_services_api
+ */
+function devtrac7_views_views_pre_view(&$view, &$display_id, &$args){
+  global $user;
+
+  /*
+   *  This is the api_fieldtrips view
+   *  TODO, probably we want this in a function
+  */
+
+
+  /*
+   *  Filter the Action Items for the right field trip
+   */
+  if ($view->name === 'api_fieldtrips' && $view->current_display === 'actionitems') {
+    $activetrip = NULL;
+    /*
+     * First determine if a nid for fieldtrip is given. If not, calculate the current trip
+     */
+    if (!isset($view->args['nid'])) {
+      if ($currenttrip = devtrac7_getcurrentfieldtrip()) {
+        $view->display['actionitems']->handler->options['filters']['nid']['value']['value'] = $currenttrip;
+        $activetrip = $currenttrip;
+      }
+    }
+    elseif (is_numeric($view->args['nid'])) {
+      $activetrip = $view->args['nid'];
+      unset($view->args['nid']);
+    }
+    else {
+      watchdog("devtrac7_views.devtrac7_views_views_pre_view", t("There is no Current Field Trip Found"));
+    }
+    unset($view->display['actionitems']->handler->options['arguments']['nid']);
+    /*
+     * Calculate the places from the active or given field trip so that the list of actionitems can be 
+     * filtered based on these places.
+     * This makes sure only relevant action items are downloaded to the device.
+     */
+    if ($activetrip) {
+      $trip = node_load($activetrip);
+      $tplaces = Array();
+      foreach ($trip->field_fieldtrip_places['und'] as $place) {
+        $tplaces[] = $place['target_id'];
+      }
+      $places = implode('+', $tplaces);
+      if (count($places) == 0) {
+        $places[0] = 0;
+      }
+
+      $view->display['actionitems']->handler->options['arguments']['field_actionitem_resp_place_target_id']['default_argument_options']['argument'] = $places;
+    }
+    /*
+     *  It is optional to filter the list of actionitems on a specific ftritem
+     *  If the ftritem nid is not provided the filter needs to be unset to prevent errors
+     */
+    if (isset($view->args['field_actionitem_ftreportitem_target_id'])) {
+      $view->display['actionitems']->handler->options['arguments']['field_actionitem_ftreportitem_target_id']['default_argument_options']['argument'] = $view->args['field_actionitem_ftreportitem_target_id'];
+    } else {
+      unset($view->display['actionitems']->handler->options['arguments']['field_actionitem_ftreportitem_target_id']);
+    }
+    unset($view->args['field_actionitem_ftrreportitem_target_id']);
+  }
+
+   /*
+    * This seems to make sure you only see your own things in your inbox
+    * TODO make this more clear, and as mentioned in the previous function rename block_12
+    */
+   if ($view->name === 'dvtrc_action_items' && $view->current_display === 'block_12'){
+     $account = menu_get_object('user');
+     //global $user;
+     if(isset($account )) {
+       $view->display['block_12']->handler->options['filters']['uid_raw']['value']['value'] = $account->uid;
+       $view->display['block_12']->handler->options['filters']['field_user_superior_target_id']['value']['value'] = $account->uid;
+       $view->display['block_12']->handler->options['filters']['uid_raw_1']['value']['value']  = $account->uid;
+//       $view->display['block_12']->handler->options['filters']['uid_raw_2']['value']['value'] = $account->uid;
+       $view->display['block_12']->handler->options['filters']['uid_raw_3']['value']['value'] = $account->uid;
+
+     }
+   }
+  /*
+   *  Filter the right (current) Field Trip
+  */
+  if ($view->name === 'api_fieldtrips' && $view->current_display === 'current_trip'){
+    if (isset($view->display['current_trip']->handler->options['filters']['field_fieldtrip_status_value']['value']['In Progress'])) {
+      if ($currenttrip = devtrac7_getcurrentfieldtrip()) {
+        drupal_set_message("Current One is " . $currenttrip);
+        $view->display['current_trip']->handler->options['filters']['nid']['value']['value'] = $currenttrip;
+      }
+      else {
+        unset($view->display['current_trip']->handler->options['filters']['nid']);
+      }
+      // only show current user field trips
+      $view->display['current_trip']->handler->options['filters']['uid']['value']['value'] = $user->uid;
+    }
+    else {
+      unset($view->display['current_trip']->handler->options['filters']['nid']);
+    }
+  }
+
+  /*
+   *  On solr list view for sitereports, remove the User column for anonymous users
+   */
+  if ($view->name === 'devtrac_solr_view_sitevisits' && $view->current_display === 'map'){
+    if ($user->uid == 0) {
+      unset ($view->display['list']->handler->options['fields']['author']);
+      // just to be on the safe side
+      unset ($view->display['default']->handler->options['fields']['author']);
+    }
+  }
+}
+
+/*
+ *  Implementation of hook_views_pre_render
+ */
+function devtrac7_views_views_pre_render(&$view) {
+  /*
+   *  Replace the title in the existing place popups on the findplaces map with a link to a menu that
+   *  adds this place to the selected fieldtrip
+   */
+  if ($view->name == 'findplaces_places' && $view->current_display == 'existing_places') {
+    foreach($view->result as $row) {
+      $row->node_title = t("Add to Fieldtrip");
+    }
+    $view->field['title']->options['alter']['path'] = $view->field['title']->options['alter']['path'] . '/' . $view->args[1] . '/' . $view->args[2];
+  }
+}

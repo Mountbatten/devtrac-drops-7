@@ -1,0 +1,13 @@
+name = "Devtrac to Devtrac Demo Data Module"
+description = "Adds Demo Data when enabled and removes it when disabled."
+core = "7.x"
+package = "Devtrac Apps"
+
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

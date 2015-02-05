@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * A module file is mandatory.
+ */
+
+// Making Devtrac to Devtrac Importer an app.
+
+/**
+ * Implements hook_apps_app_info()
+ */
+function devtrac_to_devtrac_demodata_apps_app_info() {
+  return array(
+    'demo content description' => 'This is the Devtrac to Devtrac Importer app.',
+  );
+}

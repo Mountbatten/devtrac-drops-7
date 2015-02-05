@@ -1,0 +1,120 @@
+most if not all things to do with devtrac are on server one.. mountbatten
+\\Server1\graphics\UNICEF
+
+image bank
+\\Server1\graphics\UNICEF\temp web images\devtrac7
+
+color theming
+---------------
+#000
+#ea0001
+(#FFF)
+#FDB225
+#ECECEC
+#989898
+
+Coloring graphs
+---------------
+#ffccff
+#7d57a3
+#f5cd81
+#ffe8c2
+#ececec
+
+five subtle colors....
+
+
+----------------------------------------------
+----------------------------------------------
+body
+
+font-family:"Lucida Sans Unicode", Arial,"Lucida Grande", sans-serif;
+font-size: 11pt;
+background-color: #FFF, #fafafa
+--------------------
+categories bar, height 100px
+with arrow left and right,
+icons with names(bcoz we are not sure if pepo are familiar with the colors of the various place types now) 
+
+the legend should help too, but its yo decision
+---------------------
+items menu/toolsmenu
+black bar, all together height 22px.
+text color. white, hover bkgd #ea0001
+
+for more information, refer to page designs
+----------------------
+Counters text-color= #fff, text shadow, close option
+title	Fontsize = 26
+
+
+
+Number(digit)	Fontsize = 24
+Category	Fontsize = 12
+-----------------------
+
+Pop up
+
+the mini counter, (1/340) on a background, black, transparent 50% 50px x 20px textcolor +#ececec
+
+-------------------------------------------------------
+The detail pages(a site visit, a field trip etc) have 2rows and 3 columns.  
+
+the first three columns are 315, 320, 315.... consecutively. the -5px on two columns is for the margins
+only on the action items page when the 320 is added to the 315... in other words, there will be only two rows there.
+------------------------
+middle column has a map, so its js a map, and mayb a heading for map, or a link to big map.
+-------------------------
+top right column
+most esp u will find, a list, purpose of field trip or, progress bar.
+
+Has two borders, top and bottom of block. #ea0001.
+background color:
+------------------------
+lists on table
+header_bkgd its 57px high
+and the overall 
+
+
+i think the tables on the inner pages, aka detail pages, need a minimum height
+
+min-height: 200px;
+border: 2px double #989898;
+------------------------ 
+normal text is #989898
+textlinks is #000.. hover gets a border bottom ... color #989898. visited(knock yoself out.. my take is jst to leave it same as a link.
+
+Active link,... main menu.. is #ea0001 capital letters. fontsize(refer to any of the designs- I work with points)
+
+on the grey background links
+
+
+------------------------
+breadcrumb text is smaller(slightly smaller) dont think its shd be all that significant. was also hoping that the last slash shd be greyed out... #ececece, 
+
+to illustrate that its not a link.
+----------------------------------
+
+table 
+border : #989898 (wish it were #ea0001)
+and it has a one white pixel inside... goodluck.
+
+use the same title heading image for all tables,
+and #ececec for the titles background, text color follow.. link or not link colors above.
+
+----------------------
+extra rare text, is ececec, u can try ea0001, (not to draw attention at all) so watch wat yo doing
+
+
+
+
+
+
+
+
+
+
+
+
+
+

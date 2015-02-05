@@ -1,0 +1,1024 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the devtrac installation profile.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ *
+ * @see system_install()
+ */
+function devtrac_install() {
+  // Add text formats.
+  $filtered_html_format = array(
+    'format' => '1',
+    'name' => 'Filtered HTML',
+    'weight' => 0,
+    'filters' => array(
+      // URL filter.
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
+      // HTML filter.
+      'filter_html' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 2,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+// This format is provided by our Mountbatten WYSIWYG feature but its not finished there yet
+// once that feature is done, this needs to be removed
+// $filtered_html_format = (object) $filtered_html_format;
+// filter_format_save($filtered_html_format);
+
+  // This code (the permission bit at least, should be moved to the end of the installer
+  // after the mountbatten web feature stuff is enabled
+  // NOTE: the filter_permission_name function is then not the correct way to find the
+  // permission, as the input array is not available. So we need to find a (hardcoded?)
+  // alternative for it.
+  // filtered_html format is in a feature so we have to set the access rights very late. here
+  // $filtered_html_permission = filter_permission_name($filtered_html_format);
+  // user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array($filtered_html_permission));
+  // user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array($filtered_html_permission));
+
+
+  $full_html_format = array(
+    'format' => '2',
+    'name' => 'Full HTML',
+    'weight' => 1,
+    'filters' => array(
+      // URL filter.
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+// This format is provided by our Mountbatten WYSIWYG feature but its not finished there yet
+// once that feature is done, this needs to be removed
+  $full_html_format = (object) $full_html_format;
+  filter_format_save($full_html_format);
+
+/*
+  // Enable some devtrac blocks.
+  $default_theme = variable_get('theme_default', 'bartik');
+  $admin_theme = 'seven';
+  $blocks = array(
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'search',
+      'delta' => 'form',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -1,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'node',
+      'delta' => 'recent',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 10,
+      'region' => 'dashboard_main',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'navigation',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'powered-by',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 10,
+      'region' => 'footer',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 10,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'new',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'dashboard_sidebar',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'search',
+      'delta' => 'form',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => -10,
+      'region' => 'dashboard_sidebar',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($blocks as $block) {
+    $query->values($block);
+  }
+  $query->execute();
+*/
+  // Insert default pre-defined node types into the database. For a complete
+  // list of available node type attributes, refer to the node type API
+  // documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+  $types = array(
+    array(
+      'type' => 'page',
+      'name' => st('Basic page'),
+      'base' => 'node_content',
+      'description' => st('A <em>page</em>, similar in form to a <em>story</em>, is a simple method for creating and displaying information that rarely changes, such as an "About us" section of a website. By default, a <em>page</em> entry does not allow visitor comments and is not featured on the site\'s initial home page.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'article',
+      'name' => st('Article'),
+      'base' => 'node_content',
+      'description' => st('Use <em>articles</em> for time-sensitive content like news, press releases or blog posts.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+  );
+
+  foreach ($types as $type) {
+    $type = node_type_set_defaults($type);
+    node_type_save($type);
+    node_add_body_field($type);
+  }
+
+  // Default "Basic page" to not be promoted and have comments disabled.
+  variable_set('node_options_page', array('status', 'revision'));
+  variable_set('comment_page', COMMENT_NODE_CLOSED);
+
+  // Don't display date and author information for "Basic page" nodes by default.
+  variable_set('node_submitted_page', 0);
+
+  // Create a Access denied (403) page.
+  // First create a new node object.
+  $node = new stdClass();
+  // Set the bundle type.
+  $node->type = 'page';
+  // Set the title.
+  $node->title = t('Access denied');
+  // Set the language.
+  $node->language = LANGUAGE_NONE;
+   // Set the node path.
+  $node->path = array('alias' => 'content/access-denied');
+  // Set some default values.
+  node_object_prepare($node);
+  // Set the author/owner of the node.
+  $node->uid = 1;
+  // Let's add standard body field
+  $node->body[$node->language][0]['value'] = t('Sorry to say, but this part of the site is off-limits for you.');
+  $node->body[$node->language][0]['summary'] = t('Access denied.');
+  // Define the default plain_text format for the body field.
+  $node->body[$node->language][0]['format'] = 'plain_text';
+  // Prepare node for a submit.
+  $node = node_submit($node);
+  // After the save we'll get a nid.
+  node_save($node);
+  // Set the Access denied (403) page variable to te appropriate value.
+  variable_set('site_403', 'node/' . $node->nid);
+  // Clean up.
+  unset($node);
+  // Create a Page not found (404) page.
+  // First create a new node object.
+  $node = new stdClass();
+  // Set the bundle type.
+  $node->type = 'page';
+  // Set the title.
+  $node->title = t('Page not found');
+  // Set the language.
+  $node->language = LANGUAGE_NONE;
+   // Set the node path.
+  $node->path = array('alias' => 'content/page-not-found');
+  // Set some default values.
+  node_object_prepare($node);
+  // Set the author/owner of the node.
+  $node->uid = 1;
+  // Let's add standard body field
+  $node->body[$node->language][0]['value'] = t('We can not find the page you were looking for.');
+  $node->body[$node->language][0]['summary'] = t('Page not found.');
+  // Define the default plain_text format for the body field.
+  $node->body[$node->language][0]['format'] = 'plain_text';
+  // Prepare node for a submit.
+  $node = node_submit($node);
+   // After the save we'll get a nid.
+  node_save($node);
+  // Set the Page not found (404) page variable to te appropriate value.
+  variable_set('site_404', 'node/' . $node->nid);
+  // Clean up.
+  unset($node);
+
+  // Enable user picture support and set the default to a square thumbnail option.
+  variable_set('user_pictures', '1');
+  variable_set('user_picture_dimensions', '1000x1000');
+  variable_set('user_picture_file_size', '1024');
+  variable_set('user_picture_style', 'user_profile_img');
+
+  // Allow visitor account creation by admin only.
+  variable_set('user_register', USER_REGISTER_ADMINISTRATORS_ONLY);
+
+  // Create a default vocabulary named "Tags", enabled for the 'article' content type.
+  $description = st('Use tags to group articles on similar topics into categories.');
+  $help = st('Enter a comma-separated list of words to describe your content.');
+  $vocabulary = (object) array(
+    'name' => st('Tags'),
+    'description' => $description,
+    'machine_name' => 'tags',
+    'help' => $help,
+
+  );
+  taxonomy_vocabulary_save($vocabulary);
+
+  $field = array(
+    'field_name' => 'field_' . $vocabulary->machine_name,
+    'type' => 'taxonomy_term_reference',
+    // Set cardinality to unlimited for tagging.
+    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    'settings' => array(
+      'allowed_values' => array(
+        array(
+          'vocabulary' => $vocabulary->machine_name,
+          'parent' => 0,
+        ),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'field_' . $vocabulary->machine_name,
+    'entity_type' => 'node',
+    'label' => 'Tags',
+    'bundle' => 'article',
+    'description' => $vocabulary->help,
+    'widget' => array(
+      'type' => 'taxonomy_autocomplete',
+      'weight' => -4,
+    ),
+    'display' => array(
+      'default' => array(
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 10,
+      ),
+      'teaser' => array(
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 10,
+      ),
+    ),
+  );
+  field_create_instance($instance);
+
+  // Create an image field named "Image", enabled for the 'article' content type.
+  // Many of the following values will be defaulted, they're included here as an illustrative examples.
+  // See http://api.drupal.org/api/function/field_create_field/7
+  $field = array(
+    'field_name' => 'field_image',
+    'type' => 'image',
+    'cardinality' => 1,
+    'locked' => FALSE,
+    'indexes' => array('fid' => array('fid')),
+    'settings' => array(
+      'uri_scheme' => 'public',
+      'default_image' => FALSE,
+    ),
+    'storage' => array(
+      'type' => 'field_sql_storage',
+      'settings' => array(),
+    ),
+  );
+  field_create_field($field);
+
+
+  // Many of the following values will be defaulted, they're included here as an illustrative examples.
+  // See http://api.drupal.org/api/function/field_create_instance/7
+  $instance = array(
+    'field_name' => 'field_image',
+    'entity_type' => 'node',
+    'label' => 'Image',
+    'bundle' => 'article',
+    'description' => st('Upload an image to go with this article.'),
+    'required' => FALSE,
+    'settings' => array(
+      'file_directory' => 'field/image',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'alt_field' => TRUE,
+      'title_field' => '',
+    ),
+    'widget' => array(
+      'type' => 'image_image',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+        'preview_image_style' => 'thumbnail',
+      ),
+      'weight' => -1,
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'image',
+        'settings' => array('image_style' => 'large', 'image_link' => ''),
+        'weight' => -1,
+      ),
+      'teaser' => array(
+        'label' => 'hidden',
+        'type' => 'image',
+        'settings' => array('image_style' => 'medium', 'image_link' => 'content'),
+        'weight' => -1,
+      ),
+    ),
+  );
+  field_create_instance($instance);
+
+  // Enable default permissions for system roles.
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'access comments'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval'));
+
+  // Create a default role for site administrators, with all available permissions assigned.
+  $admin_role = new stdClass();
+  $admin_role->name = 'administrator';
+  $admin_role->weight = 2;
+  user_role_save($admin_role);
+  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+  // Set this as the administrator role.
+  variable_set('user_admin_role', $admin_role->rid);
+
+  // Assign user 1 the "administrator" role.
+  db_insert('users_roles')
+    ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
+    ->execute();
+
+  // Enable the administration theme.
+  $admin_theme = 'shiny';
+  theme_enable(array($admin_theme));
+  variable_set('admin_theme', $admin_theme);
+  variable_set('node_admin_theme', '0');
+
+  // Set the default theme.
+  $default_theme = 'devtrac_classic';
+  theme_enable(array($default_theme));
+  variable_set('theme_default', $default_theme);
+}
+
+/**
+ * Implements hook_install_tasks().
+ */
+function devtrac_install_tasks(&$install_state) {
+  // Increase maximum function nesting level to prevent install errors.
+  // $max_nesting_level = ini_get('xdebug.max_nesting_level');
+  // if ($max_nesting_level > 0 && $max_nesting_level <= '200') {
+  //   ini_set('xdebug.max_nesting_level', 200);
+  // }
+
+  // Remove any status messages that might have been set. They are unneeded.
+  drupal_get_messages('status', TRUE);
+
+  $tasks = array();
+  $current_task = variable_get('install_task', 'done');
+
+  $tasks['devtrac_date_format_form'] = array(
+    'display_name' => st('Configure Date Format'),
+    'type' => 'form',
+  );
+  $tasks['devtrac_import_codelists'] = array(
+    'display_name' => st('Import CodeLists'),
+    'type' => 'batch',
+  );  
+  $tasks['devtrac_install_additional_modules'] = array(
+    'display_name' => st('Install additional functionality'),
+    'type' => 'batch',
+  );
+
+  // We're not going to initialize the taxonomy access settings now. Instead we
+  // put a marker in the database to do it after the site install has finished.
+  // (See: devtrac_init() in devtrac.profile.)
+  // We have to do this because we cannot set them when the system is in
+  // maintenance mode, which is the case during site install.
+/*
+  $tasks['devtrac_initialize_taxonomy_access'] = array(
+    'display_name' => st('Initialize taxonomy access'),
+    'display' => FALSE,
+    'type' => 'normal',
+  );
+*/
+  $tasks['devtrac_enable_custom_currentsearch'] = array(
+    'display_name' => st('Enable Custom Current Search Blocks'),
+    'display' => FALSE,
+    'type' => 'normal',
+  );
+  return $tasks;
+}
+
+/**
+ * Implements hook_install_tasks_alter().
+ */
+function devtrac_install_tasks_alter(&$tasks, $install_state) {
+  $tasks['install_finished']['function'] = 'devtrac_install_finished';
+  $tasks['install_select_profile']['display'] = FALSE;
+  $tasks['install_select_locale']['display'] = FALSE;
+  $tasks['install_select_locale']['run'] = INSTALL_TASK_SKIP;
+
+  // The "Welcome" screen needs to come after the first two steps
+  // (profile and language selection), despite the fact that they are disabled.
+  // We will implement language choice when there is something to choose from
+  $new_task['devtrac_install_welcome'] = array(
+    'display' => TRUE,
+    'display_name' => st('Welcome'),
+    'type' => 'form',
+    'run' => isset($install_state['parameters']['welcome']) ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_REACHED,
+  );
+  $old_tasks = $tasks;
+  $tasks = array_slice($old_tasks, 0, 2) + $new_task + array_slice($old_tasks, 2);
+
+  // Set the installation theme.
+  _devtrac_set_theme('devtrac_classic');
+
+  // The Solr congiguration screen needs to come after the database
+  // setup, enabling the system module and after the full bootstrap.
+  $solr_task['devtrac_initialize_search_server'] = array(
+    'display_name' => st('Initialize Search Server'),
+    'display' => FALSE,
+    'type' => 'normal',
+  );
+  $old_tasks = $tasks;
+  $tasks = array_slice($old_tasks, 0, 9) + $solr_task + array_slice($old_tasks, 9);
+}
+
+/**
+ * Force-set a theme at any point during the execution of the request.
+ *
+ * Drupal doesn't give us the option to set the theme during the installation
+ * process and forces enable the maintenance theme too early in the request
+ * for us to modify it in a clean way.
+ * 
+ * Copied from Commerce Kickstart
+ */
+function _devtrac_set_theme($target_theme) {
+  if ($GLOBALS['theme'] != $target_theme) {
+    unset($GLOBALS['theme']);
+
+    drupal_static_reset();
+    $GLOBALS['conf']['maintenance_theme'] = $target_theme;
+    _drupal_maintenance_theme();
+  }
+}
+
+/**
+ * Task callback: shows the welcome screen.
+ */
+function devtrac_install_welcome($form, &$form_state, &$install_state) {
+  drupal_set_title(st('Privacy Policy Summary'));
+  $message = '<p>' . st('Thank you for choosing Devtrac, a product offered by Mountbatten.') . '</p>';
+  $eula = '<p>' . st('While we have a rather long, boring Privacy Policy just like any other technology company, here is a short summary of some key items we feel are important:') . '</p>';
+  $items = array();
+  $dfp_link = l("Google's DoubleClick for Publishers (\"DFP\")", "http://www.google.com/dfp/info/sb/index.html", array('attributes' => array('target' => '_blank')));
+  $items[] = st("The Devtrac Installer collects some data about your progress and sends it to one of our servers.");
+  $items[] = st('We use this to improve the user experience of Devtrac and make it even easier to install.');
+  $items[] = st('The server to which we post the data belongs to Mountbatten and we do not share your data with any corporation.');
+  $items[] = st('Devtrac and Mountbattten do not collect any personally identifiable information.');
+  $items[] = st('During your installation, you can choose to use your own statistics platform alongside Devtrac.');
+  $eula .= theme('item_list', array('items' => $items));
+  $eula_link = l('Privacy Policy and User Agreement', 'http://www.mountbatten.net/privacy/devtrac', array('attributes' => array('target' => '_blank')));
+  $eula .= '<p>' . st('That is it for the main points. The full !policy can be viewed on our website.  Thank you again for choosing Devtrac!', array('!policy' => $eula_link)) . '</p>';
+  $form = array();
+  $form['welcome_message'] = array(
+    '#markup' => $message,
+  );
+  $form['eula'] = array(
+    '#prefix' => '<div id="eula-installation-welcome">',
+    '#markup' => $eula,
+  );
+  $form['eula-accept'] = array(
+    '#title' => st('I agree to the Privacy Policy and User Agreement'),
+    '#type' => 'checkbox',
+    '#suffix' => '</div>',
+  );
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => st("Install Devtrac"),
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="eula-accept"]' => array('checked' => FALSE),
+      ),
+    ),
+    '#weight' => 10,
+  );
+  return $form;
+}
+
+function devtrac_install_welcome_submit($form, &$form_state) {
+  global $install_state;
+
+  $install_state['parameters']['welcome'] = 'done';
+  $install_state['parameters']['locale'] = 'en';
+}
+/**
+ * Task callback: uses Batch API to import modules based on user selection.
+ * Installs a site statistics module if requested, or any modules providing
+ * additional functionality to the base install.
+ */
+function devtrac_install_additional_modules(&$install_state) {
+  // Before enabling the devtrac7_solr_search_answers
+  // feature make sure all field instances are created.
+  $instances = field_info_instances('node', 'place');
+  if (isset($instances['taxonomy_vocabulary_6'])) {
+    $instance = $instances['taxonomy_vocabulary_6'];
+    $instance['entity_type'] = 'questionnaire_answer';
+    $instance['bundle'] = 'questionnaire_answer';
+    field_create_instance($instance);
+  }
+  if (isset($instances['taxonomy_iati_custom_admin_unit'])) {
+    $instance = $instances['taxonomy_iati_custom_admin_unit'];
+    $instance['entity_type'] = 'questionnaire_answer';
+    $instance['bundle'] = 'questionnaire_answer';
+    field_create_instance($instance);
+  }
+
+  // Temporary fix until the location type is available on content type place.
+  $instances = field_info_instances('node', 'questionnaire_question');
+  if(isset($instances['taxonomy_vocabulary_1'])) {
+    $instance = $instances['taxonomy_vocabulary_1'];
+    $instance['entity_type'] = 'questionnaire_answer';
+    $instance['bundle'] = 'questionnaire_answer';
+    field_create_instance($instance);
+  }
+  if(isset($instances['taxonomy_location_type'])) {
+    $instance = $instances['taxonomy_location_type'];
+    $instance['entity_type'] = 'questionnaire_answer';
+    $instance['bundle'] = 'questionnaire_answer';
+    field_create_instance($instance);
+  }
+
+  // Do not enable devtrac7_profile_menu module now. Instead put a marker in
+  // the database to do a menu rebuild later and enable the module later.
+  // Set the marker after the additional modules have been enabled.
+  // Function devtrac_install_finished() is probably the place to do that.
+  // variable_set('devtrac_menu_rebuild_needed', TRUE);
+  $modules = array(
+    // 'devtrac7_profile_menu',
+    'devtrac7_site_configuration_feature',
+    'devtrac7_solr_search_feature',
+    'devtrac7_solr_search_district_feature',
+    'devtrac7_solr_search_location_feature',
+    'devtrac7_solr_search_act_item_feature',
+    'devtrac7_solr_user_feature',
+    'devtrac7_solr_search_fieldtrip_feature',
+    'devtrac7_solr_search_image_feature',
+    'devtrac7_solr_search_questions_feature',
+    'devtrac7_solr_search_answers_feature',
+    'devtrac7_field_permissions_feature',
+    'devtrac7_admin_feature',
+    'devtrac_demo_phase',
+    'hurricane',
+    'hurricane_integration',
+    'hurricane_raphael',
+  );
+  if (isset($install_state['parameters']['stats'])) {
+    $modules[] = $install_state['parameters']['stats'];
+  }
+  
+  // Resolve the dependencies now, so that module_enable() doesn't need
+  // to do it later for each individual module (which kills performance).
+  $files = system_rebuild_module_data();
+  $modules_sorted = array();
+  foreach ($modules as $module) {
+    if ($files[$module]->requires) {
+      // Create a list of dependencies that haven't been installed yet.
+      $dependencies = array_keys($files[$module]->requires);
+      $dependencies = array_filter($dependencies, '_devtrac_filter_dependencies');
+      // Add them to the module list.
+      $modules = array_merge($modules, $dependencies);
+    }
+  }
+  $modules = array_unique($modules);
+  foreach ($modules as $module) {
+    $modules_sorted[$module] = $files[$module]->sort;
+  }
+  arsort($modules_sorted);
+
+  $operations = array();
+  // Enable and set as default the correct theme.
+  $theme = 'devtrac_classic';
+  $operations[] = array('_devtrac_enable_theme', array($theme));
+  // Enable the selected modules.
+  foreach ($modules_sorted as $module => $weight) {
+    $operations[] = array('_devtrac_enable_module', array($module, $files[$module]->info['name']));
+  }
+  $operations[] = array('_devtrac_flush_caches', array(t('Flushed caches.')));
+
+  $batch = array(
+    'operations' => $operations,
+    'file' => drupal_get_path('profile', 'devtrac') . '/devtrac.install_callbacks.inc',
+  );
+
+  return $batch;
+}
+/**
+ * Imports devtrac_search_server.
+ */
+function devtrac_initialize_search_server() {
+  $devtrac_search_server = array(
+    'name' => 'Devtrac Search Server',
+    'machine_name' => 'devtrac_search_server',
+    'description' => 'Devtrac Search Server.',
+    'class' => 'search_api_db_service',
+    'options' => array(
+      'database' => 'default:default',
+      'min_chars' => '1',
+      'partial_matches' => 0,
+      'autocomplete' => array(
+        'suggest_suffix' => 1,
+        'suggest_words' => 1,
+      ),
+    ),
+  'enabled' => '1',
+  );
+  search_api_server_insert($devtrac_search_server);
+}
+
+/**
+ * Import codelists using module devtrac_imports.
+ */
+function devtrac_import_codelists() {
+  $batch = devtrac_imports_batch();
+  // Remove any status messages that might have been set.
+  // Migrate adds its messages under the wrong type, see #1659150.
+  drupal_get_messages('ok', TRUE);
+  return $batch;
+}
+
+/**
+ * array_filter() callback used to filter out already installed dependencies.
+ */
+function _devtrac_filter_dependencies($dependency) {
+  return !module_exists($dependency);
+}
+
+/**
+ * Inplements devtrac_solr_configure_form()
+ */
+function devtrac_solr_configure_form() {
+  drupal_set_title(st('Configure Solr Settings'));
+
+  $form['solr'] = array(
+    '#type' => 'fieldset',
+    '#title' => st('Solr Settings'),
+  );
+  $form['solr']['host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Host'),
+    '#default_value' => 'localhost',
+    '#maxlength' => 64,
+    '#description' => t('Add hostname or IP address of your solr server.'),
+    '#required' => FALSE,
+    '#weight' => -20,
+  );
+  $form['solr']['port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Port'),
+    '#default_value' => '8080',
+    '#maxlength' => 64,
+    '#description' => t('Port number where your solr server can be reached. 8080 is the default for a solr installation in Tomcat.'),
+    '#required' => FALSE,
+    '#weight' => -19,
+  );
+  $form['solr']['path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path'),
+    '#default_value' => '/solr',
+    '#maxlength' => 64,
+    '#description' => t('Path to your solr instance.'),
+    '#required' => FALSE,
+    '#weight' => -18,
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => st('Create and Continue'),
+    '#weight' => 15,
+  );
+  return $form;
+}
+
+function devtrac_solr_configure_form_submit($form, &$form_state) {
+  global $databases, $drupal_hash_salt;
+
+  $settings = array();
+  $settings['databases'] = array(
+    'value' => $databases,
+  );
+  $settings['drupal_hash_salt'] = array(
+    'value' => $drupal_hash_salt,
+  );
+
+  $settings["conf['search_api_override_mode']"] = array(
+    'value' => 'load',
+    'required' => TRUE,
+  );
+  $settings["conf['search_api_override_servers']"] = array(
+    'value' => array(
+      'devtrac_solr_server' => array(
+        'name' => 'Devtrac Solr Server (Overridden)',
+        'options' => array(
+          'host' => $form_state['values']['host'],
+          'port' => $form_state['values']['port'],
+          'path' => $form_state['values']['path'],
+          'http_user' => '',
+          'http_pass' => '',
+          'excerpt' => 0,
+          'retrieve_data' => 0,
+          'highlight_data' => 0,
+          'http_method' => 'POST',
+        ),
+      ),
+    ),
+    'required' => TRUE,
+  );
+
+  //Do the actual write to settings.php.
+  drupal_rewrite_settings($settings);
+}
+
+function devtrac_date_format_form() {
+  module_load_include('inc', 'system', 'system.admin');
+  $date_time_settings = system_date_time_settings();
+  return $date_time_settings;
+}
+/**
+ * Enables custom current search blocks. Unfortunately in code
+ */
+function devtrac_enable_custom_currentsearch() {
+  // One day, far far away, we will be able to remove this code, as we will have fixed the
+  // cause of this issue https://drupal.org/node/1469002
+  $block_searcher = array(
+    'devtrac7_actionitems_standard' => 'search_api@devtrac_solr_action_items_index',
+    'devtrac7_actionitem_activefacets' => 'search_api@devtrac_solr_action_items_index',
+    'devtrac7_activities_activefacets' => 'search_api@devtrac_solr_activity_index',
+    'devtrac7_activities_standard' => 'search_api@devtrac_solr_activity_index',
+    'devtrac7_answers_activefacets' => 'search_api@answers',
+    'devtrac7_answers_mainpage' => 'search_api@answers',
+    'devtrac7_answers_standard' => 'search_api@answers',
+    'devtrac7_districts_activefacets' => 'search_api@devtrac_solr_district_index',
+    'devtrac7_districts_standard' => 'search_api@devtrac_solr_district_index',
+    'devtrac7_fieldtrips_activefacets' => 'search_api@devtrac_solr_field_trip_index',
+    'devtrac7_fieldtrips_standard' => 'search_api@devtrac_solr_field_trip_index',
+    'devtrac7_images_activefacets' => 'search_api@devtrac_solr_image_index',
+    'devtrac7_images_standard' => 'search_api@devtrac_solr_image_index',
+    'devtrac7_locations_activefacets' => 'search_api@devtrac_solr_locations_index',
+    'devtrac7_locations_standard' => 'search_api@devtrac_solr_locations_index',
+    'devtrac7_organisations_standard' => 'search_api@devtrac_solr_organisation_index',
+    'devtrac7_organisati_activefacets' => 'search_api@devtrac_solr_organisation_index',
+    'devtrac7_questions_activefacets' => 'search_api@questions',
+    'devtrac7_questions_standard' => 'search_api@questions',
+    'devtrac7_sitevisits_activefacets' => 'search_api@devtrac_solr_site_visits_index',
+    'devtrac7_sitevisits_standard' => 'search_api@devtrac_solr_site_visits_index',
+    'devtrac7_users_activefacets' => 'search_api@devtrac7_user_index',
+    'devtrac7_users_standard' => 'search_api@devtrac7_user_index',
+  );
+  foreach ($block_searcher as $block => $searcher) {
+    current_search_set_block_searcher($block, $searcher);
+  }
+}
+
+/**
+ * Custom installation task; perform final steps and redirect the user to the new site if there are no errors.
+ *
+ * @param $install_state
+ *   An array of information about the current installation state.
+ *
+ * @return
+ *   A message informing the user about errors if there was some.
+ */
+function devtrac_install_finished(&$install_state) {
+  drupal_set_title(st('@drupal installation complete', array('@drupal' => drupal_install_profile_distribution_name())), PASS_THROUGH);
+  $messages = drupal_set_message();
+
+  // Remember the profile which was used.
+  variable_set('install_profile', drupal_get_profile());
+  variable_set('install_task', 'done');
+
+  // Update the file formatter to version 2 of the File Entity module.
+  // File Entity is not installed or the installed version is not version 2.
+  if (!module_exists('file_entity') || !function_exists('file_type_load_all')) {
+    $updated = FALSE;
+  }
+  // Picture was already updated.
+  if (variable_get('picture_updated_to_file_entity_2', FALSE)) {
+    $updated = TRUE;
+  }
+  // Update all file displays for all view modes of all file types.
+  $entity_info = entity_get_info('file');
+  $types = file_type_load_all();
+  foreach ($types as $file_type) {
+    $view_modes = array('default' => array('label' => t('Default'))) + $entity_info['view modes'];
+    foreach (array_keys($view_modes) as $view_mode) {
+      $current_displays = file_displays_load($file_type->type, $view_mode, TRUE);
+      if (isset($current_displays['file_picture']) && $current_displays['file_picture']->status) {
+        if (!isset($current_displays['file_field_picture']) || !$current_displays['file_field_picture']->status) {
+          $display = file_display_new($file_type->type, $view_mode, 'file_field_picture');//clone $current_displays['file_picture'];
+          $display->settings = $current_displays['file_picture']->settings;
+          unset($display->settings['alt']);
+          unset($display->settings['title']);
+          $display->settings['image_link'] = '';
+          $display->settings['colorbox'] = isset($display->settings['picture_mapping']) ? $display->settings['picture_mapping'] : $display->settings['picture_group'];
+          $display->settings['picture_mapping'] = isset($display->settings['picture_mapping']) ? $display->settings['picture_mapping'] : $display->settings['picture_group'];
+          unset($display->settings['picture_group']);
+          $display->status = 1;
+          file_display_save($display);
+        }
+      }
+      elseif (isset($current_displays['file_field_picture'])) {
+        $display = $current_displays['file_field_picture'];
+        $display->settings['picture_mapping'] = isset($display->settings['picture_mapping']) ? $display->settings['picture_mapping'] : $display->settings['picture_group'];
+        unset($display->settings['picture_group']);
+        file_display_save($display);
+      }
+    }
+  }
+  $updated = TRUE;
+  // Save the new version setting.
+  variable_set('picture_updated_to_file_entity_2', $updated);
+
+  // Rebuild the node access permissions.
+  node_access_rebuild();
+
+  // Flush all caches to ensure that any full bootstraps during the installer
+  // do not leave stale cached data, and that any content types or other items
+  // registered by the install profile are registered correctly.
+  drupal_flush_all_caches();
+
+  // Install profiles are always loaded last
+  db_update('system')
+    ->fields(array('weight' => 1000))
+    ->condition('type', 'module')
+    ->condition('name', drupal_get_profile())
+    ->execute();
+  
+  // Set performance parameters
+  devtrac_performance_settings();
+  
+  // Cache a fully-built schema.
+  drupal_get_schema(NULL, TRUE);
+
+  // Run cron to populate update status tables (if available) so that users
+  // will be warned if they've installed an out of date Drupal version.
+  // Will also trigger indexing of profile-supplied content or feeds.
+//  drupal_cron_run();
+
+  // We did not enable devtrac7_profile_menu module in function
+  // devtac_install_additional_modules(). Instead we decided to put a marker in
+  // the database to do a menu rebuild later and enable the module later.
+  // Setting the marker here and now.
+  variable_set('devtrac_menu_rebuild_needed', TRUE);
+
+  if (isset($messages['error'])) {
+    $output = '<p>' . (isset($messages['error']) ? st('Review the messages above before visiting <a href="@url">your new site</a>.', array('@url' => url(''))) : st('<a href="@url">Visit your new site</a>.', array('@url' => url('')))) . '</p>';
+    return $output;
+  }
+  else {
+    // Since any module can add a drupal_set_message, this can bug the user
+    // when we redirect him to the front page. For a better user experience,
+    // remove all the message that are only "notifications" message.
+    drupal_get_messages('status', TRUE);
+    drupal_get_messages('completed', TRUE);
+    // Migrate adds its messages under the wrong type, see #1659150.
+    drupal_get_messages('ok', TRUE);
+
+    // If we don't install drupal using Drush, redirect the user to the front
+    // page.
+    if (!drupal_is_cli()) {
+      // drupal_goto('');
+      // drupal_set_title(st('@drupal installation complete', array('@drupal' => drupal_install_profile_distribution_name())), PASS_THROUGH);
+      // $messages = drupal_set_message();
+      $output = '<p>' . st('Congratulations, you installed @drupal!', array('@drupal' => drupal_install_profile_distribution_name())) . '</p>';
+      $output .= '<p>' . st('You can visit our documentation site at <a href="@url1">@url2</a>.', array('@url1' => url('http://www.devtrac.org'), '@url2' => 'www.devtrac.org')) . '</p>';
+      $output .= '<p>' . st('Why don\'t you have a look at our <a href="@url">app store</a> and get started by installing the devtrac demo data.', array('@url' => url('admin/apps'))) . '</p>';
+      $output .= '<p>' . (isset($messages['error']) ? st('Review the messages above before visiting <a href="@url">your new site</a>.', array('@url' => url(''))) : st('<a href="@url">Visit your new site</a>.', array('@url' => url('')))) . '</p>';
+
+      return $output;
+    }
+  }
+}
+
+/**
+* Set up base config
+*/
+function devtrac_performance_settings() {
+  // Set default performance variables
+  // Taken from getpantheon
+  variable_set('cache', 1);
+  variable_set('block_cache', 1);
+  variable_set('cache_lifetime', '0');
+  variable_set('page_cache_maximum_age', '900');
+  // Some installs might want to set this to 1 depending on your caching
+  variable_set('page_compression', 0);
+  variable_set('preprocess_css', 1);
+  variable_set('preprocess_js', 1);
+}

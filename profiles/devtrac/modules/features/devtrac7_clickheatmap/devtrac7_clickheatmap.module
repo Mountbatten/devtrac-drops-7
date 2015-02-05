@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the DevTrac7_Clickheatmap feature.
+ */
+
+include_once 'devtrac7_clickheatmap.features.inc';

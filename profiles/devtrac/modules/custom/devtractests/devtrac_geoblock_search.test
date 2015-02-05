@@ -1,0 +1,291 @@
+<?php
+
+module_load_include('test', 'simpletest_clone');
+
+class DevtracSimpleTestCloneCase extends DrupalWebTestCase {
+  protected $profile = 'devtrac';
+	protected $orgUser;
+  public static function getInfo() {
+    return array(
+      'name' => 'Devtrac Organistions user add test',
+      'description' => t('DevTrac organisation user add on action items, site reports'),
+      'group' => 'Devtrac',
+    );
+  }
+
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw
+    );
+    $this->drupalPost('user/login', $edit, t('Log in'));
+    // If a "log out" link appears on the page, it is almost certainly because
+    // the login was successful.
+    $pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+    if ($pass) {
+      $this->loggedInUser = $user;
+  	}
+  }  
+  
+  public function setUp() {
+    parent::setUp();
+    $this->orgUser = $this->drupalCreateUser(array(
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->drupalLogin($this->orgUser);
+    $user['roles[3]'] = 7;
+    $user['taxonomy_vocabulary_5[und]'] = 30;
+    $user['taxonomy_vocabulary_4[und]'] = 26;
+    $user['field_user_firstname[und][0][value]'] = 'ozzx';
+    $user['field_user_aboutme[und][0][value]'] = 'software tests engineer';
+    $user['field_user_surname[und][0][value]'] = 'xozzy';
+    $user['field_user_superior[und][0][target_id]'] = 'admin (1)';
+    $this->drupalPost('user/' . $this->orgUser->uid . '/edit', $user, t('Save'));
+  }
+  /**
+   * An admin creates a user and then, Created user logins.
+   */
+  public function testOrgUserAdd() {
+    $this->drupalGet('admin/people/create');
+    $orguser['name'] = 'kaile';
+    $orguser['mail'] = $orguser['name'] . '@gmail.com';
+    $orguser['pass[pass1]'] = 12345;
+    $orguser['pass[pass2]'] = 12345;
+    $orguser['taxonomy_vocabulary_5[und]'] = 46;
+    $orguser['taxonomy_vocabulary_4[und]'] = 34;
+    $orguser['field_user_firstname[und][0][value]'] = 'john';
+    $orguser['field_user_surname[und][0][value]'] = 'mackain';
+    $orguser['field_user_superior[und][0][target_id]'] = 'Jan van Diepen (3)';
+    $orguser['field_organisation[und]'] = 13172;
+    $orguser['field_user_aboutme[und][0][value]'] = $this->randomString(14);
+    $orguser['taxonomy_vocabulary_4[und]'] = 26;
+    $this->drupalPost('admin/people/create', $orguser, t('Create new account'));
+    $this->drupalLogout($this->orgUser);
+    $this->drupalget('user/login');
+    $created_user['name'] = 'kaile';
+    $created_user['pass'] = 12345;
+    $this->drupalPost(NULL, $created_user, t('Log in'));
+    $this->assertText('Organisation:', 'Responsible Organisation section is found on the user home page', 'Devtrac');
+  }
+  /**
+   * Ensuring that devtrac log is on top of the index page.
+   * 
+   * Please refer to behat tests for more related tests.
+   */
+  public function testdevtracLogTopPage() {
+    $this->drupalGet('activities');
+    $this->assertResponse(200, 'index page loaded ');
+    $this->assertText('Devtrac', t('the Devtrac log replacement is showing'));
+    $this->drupalGet('sites/default/files/devtrac_logo.jpg');
+    $this->assertResponse(200, 'the devtrac log is showing');
+  }
+  /**
+   * Checking for the class collapsible.
+   */
+  public function testdevtracClasscollapsible() {
+    $this->drupalGet('activities');
+    $this->assertNoLink('Administrative Boundaries', 0, 'Administrative Boundaries not showing on the home page');
+    $this->assertLink('Admin Unit', 0, 'Admin Unit not showing on the home page');
+    $this->assertNoRaw('<h2 class="collapsible"' . '>', 'Collapsible class is not showing on the home page and must show');
+    $this->assertResponse(200, 'facet block isb working as intended');
+  }
+  /**
+   * This test was intended to check for a permalink and was moved.
+   * 
+   * To selenium test scripts.
+   */
+  public function testClickPermalink() {
+    $this->drupalGet('activities');
+    $this->assertNoLink('Permalink', 0, 'Permalink is found');
+    $this->assertNoText('Permalink', 'Permalink clicked');
+    $this->drupalGet(NULL . '#zoom=8&lat=1.8097&lon=33.25287&layers=U-Map%20It%20Schools&baseLayers=Uganda%20Basemap%20Streets');
+    $this->assertResponse(404, 'the permalink is valid and performs perfacty well');
+  }
+}
+
+class DevtraBlockTitleChangeCase extends DrupalWebTestCase {
+  protected $profile = 'devtrac';
+  protected $adminUser;
+  public static function getInfo() {
+    return array(
+      'name' => 'Home page test',
+      'description' => t('intended to home page changes test'),
+      'group' => 'Devtrac',
+    );
+  }
+  protected function drupalLogin(stdClass $user) {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+    $edit = array(
+      'name' => $user->name,
+      'pass' => $user->pass_raw,
+    );
+    $this->drupalPost('user', $edit, t('Log in'));
+    // If a "log out" link appears on the page, it is almost certainly because
+    // The login was successful.
+    $pass = $this->assertLink(t('Sign out'), 0, t('User fred successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+    if ($pass) {
+      $this->loggedInUser = $user;
+    }
+  }
+  public function setUp() {
+    parent::setUp();
+    $this->adminUser = $this->drupalCreateUser(array(
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules',
+      'create taxonomy_vocabulary_6',
+      'create taxonomy_vocabulary_8'));
+    $this->drupalLogin($this->adminUser);
+    $this->drupalPost('user/' . $this->adminUser->uid . '/edit', array(
+     "roles[3]" => 7,
+     'taxonomy_vocabulary_5[und]' => 30,
+     'taxonomy_vocabulary_4[und]' => 26,
+     'field_user_firstname[und][0][value]' => 'firstname',
+     'field_user_surname[und][0][value]' => 'lname',
+     'field_user_aboutme[und][0][value]' => 'aboutjan',
+     'name' => 'tester',
+     'field_user_superior[und][0][target_id]' => 'Jan van Diepen (3)'),
+     t('Save'));
+  }
+  /**
+   * This was i itially meant for testing geo-search.
+   *
+   * Now it is implemented with selenium.
+   */
+  public function testGeoSearchTitleLocRename() {
+    $this->drupalGet('node/add/location');
+    $this->assertNoField('openlayers_geosearch_query_block', 'geosearch field is not found');
+    $this->assertNoText('Search Map', 'new geosearch block title is found', 'Devtrac');
+    $this->assertNoText('Search location', 'geosearch old tblock title is no longer showing', 'Devtrac');
+  }
+  /**
+   * This was i itially meant for testing geo-search. 
+   * 
+   * Now it is implemented with selenium.
+   */
+  public function testGeoSearchTitleRename() {
+    $this->drupalGet('node/add/place');
+    $this->assertNoField('openlayers_geosearch_query_block', 'geosearch field is not found');
+    $this->assertNoText('Search Map', 'new geosearch block title is found', 'Devtrac');
+    $this->assertNoText('Search location', 'geosearch old tblock title is no longer showing', 'Devtrac');
+  }
+  /**
+   * Public function testMapBoxAttributionOnOpenLayers() {.
+   * $this->drupalGet('/');
+   * $this->assertLink('Terms & License', 0, 'Terms &amp; License attribution is found');
+   * $this->assertLink('© OpenStreetMap contributors', 0, '&copy; OpenStreetMap contributors attribution is found');
+   * }
+   */
+  public function testNoTitleOnFullTextSearch1() {
+    $this->drupalGet('activities');
+    $this->assertNoText('Full Text Search', 'Full Text Search title is not found', 'Devtrac');
+    $this->assertField('search_api_aggregation_1', 'full text field is found');
+    $this->assertNoField('full-text-search', 'search button is not showing');
+  }
+  /**
+   * Ensuring there is not title on full text search.
+   */
+  public function testNoTitleOnFullTextSearch() {
+    $this->drupalGet('activities');
+    $this->assertNoText('Full Text Search', 'Full Text Search title is not found', 'Devtrac');
+    $this->assertField('search_api_aggregation_1', 'search button is showing');
+  }
+  /**
+   * Ensure Open Layers button is found.
+   */
+  public function testOpenLayersButton() {
+    $this->drupalGet('activities');
+    $this->assertNoField('Layers', 'button layers in the openlayers blockpanel is found');
+    $this->assertLink('Layers', 0, 'Layers found');
+    $this->assertText('Layer', 'Layer text is found on the home page');
+  }
+  /**
+   * Ensure extra layers styles  are removed.
+   */
+  public function tesTextraStyles() {
+    $this->drupalGet('admin/structure/openlayers/styles');
+    $this->assertResponse(200, 'page loaded', 'Devtrac');
+    // Reviewing styles in groups.
+    $this->assertText('default', 'Basic default style is found', 'Devtrac');
+    $this->assertText('default_marker_black', 'Black marker provided by the OpenLayers module', 'Devtrac');
+    $this->assertText('default_marker_black_small', 'Small black marker provided by the OpenLayers module is in use', 'Devtrac');
+    $this->assertText('default_marker_blue', 'mark blue layer is in use', 'Devtrac');
+    $this->assertText('default_marker_gold', 'mark gold layer is in use', 'Devtrac');
+    $this->assertText('default_marker_green', 'mark red layer is in use', 'Devtrac');
+    $this->assertText('default_marker_red', 'mark red layer is in use', 'Devtrac');
+  }
+  /**
+   * Ensure extra layers styles  are removed.
+   */
+  public function testTextraStyleInUse() {
+    $this->drupalGet('admin/structure/openlayers/styles');
+    $this->assertResponse(200, 'page loaded', 'Devtrac');
+    $this->assertText('default_select', '	Default style for selected geometries', 'Devtrac');
+    $this->assertText('devtrac_mapstyle_placetype_active', 'Placetype Black and White', 'Devtrac');
+    $this->assertText('devtrac_mapstyle_placetype_default', 'The style to render placetypes with. Must have a [tid] field to show the taxonomy image is in you', 'Devtrac');
+    $this->assertText('devtrac_mapstyle_placetype_selected', 'Placetype Black and White is in use', 'Devtrac');
+    $this->assertText('devtrac_mapstyle_plain_active', 'Default style for selected locations on the map is in use', 'Devtrac');
+    $this->assertText('devtrac_mapstyle_plain_default', 'Devtrac Plain Default Style is in use', 'Devtrac');
+    $this->assertText('devtrac_mapstyle_plain_selected', 'Default style for selecting locations on the map is in use', 'Devtrac');
+    $this->assertNoText('government office', 'Government Office is removed', 'Devtrac');
+    $this->assertNoText('health', 'Health layer is not found', 'Devtrac');
+  }
+  /**
+   * Ensure Extra styles are removed.
+   */
+  public function testLastTextraStyleInUse() {
+    $this->drupalGet('admin/structure/openlayers/styles');
+    $this->assertResponse(200, 'page loaded', 'Devtrac');
+    $this->assertText('invisible', 'Invisible default style.', 'Devtrac');
+    $this->assertText('placetype', 'The style to render placetypes with. Must have a [tid] field to show the taxonomy image', 'Devtrac');
+    $this->assertNoText('placetype_bw', 'Placetype Black and White is nolonger in use', 'Devtrac');
+    $this->assertNoText('school', 'school layer is in use is nolonger in use');
+    $this->assertNoText('wash', 'Wash layer is nolonger in use', 'Devtrac');
+  }
+  /**
+   * Icon check.
+   */
+  public function testcsvIcon() {
+    $this->drupalGet('activities');
+    $this->assertNoLinkByHref('sites/all/modules/views_data_export/images/csv.png', 0, 'Link to csv is found');
+    $this->drupalGet('sites/all/modules/views_data_export/images/csv.png');
+    $this->assertResponse(200, 'icon link found');
+  }
+}

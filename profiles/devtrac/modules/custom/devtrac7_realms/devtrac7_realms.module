@@ -1,0 +1,90 @@
+<?php
+/**
+ * Implements hook_facetapi_realm_info().
+ */
+function devtrac7_realms_facetapi_realm_info() {
+  $realms = array();
+  $realms['devtrac7_graph_pie'] = array(
+      'label' => t('Devtrac Pies'),
+      'weight' => 10,
+      'sortable' => FALSE,
+      'default widget' => 'facetapi_graphs',
+      'element type' => 'graphs',
+      'settings callback' => '', // not yet implemented sample is: facetapi_block_realm_settings (though that function is not implemented anywhere yet)
+      'description' => t(
+          'The <em>Graphs Data Combo</em> realm is used by the facets of type Graph Combo to get their Y axis data. Facets from this realm are never displayed by themselves.'
+      ),
+  );
+  $realms['devtrac7_graph_bar'] = array(
+      'label' => t('Devtrac Bars'),
+      'weight' => 10,
+      'sortable' => FALSE,
+      'default widget' => 'facetapi_graphs',
+      'element type' => 'graphs',
+      'settings callback' => '', // not yet implemented sample is: facetapi_block_realm_settings (though that function is not implemented anywhere yet)
+      'description' => t(
+          'The <em>Graphs Data Combo</em> realm is used by the facets of type Graph Combo to get their Y axis data. Facets from this realm are never displayed by themselves.'
+      ),
+  );
+  $realms['devtrac7_graph_combo'] = array(
+      'label' => t('Devtrac Combo Graphs'),
+      'weight' => 10,
+      'sortable' => FALSE,
+      'default widget' => 'facetapi_graphs_combo',
+      'element type' => 'links',
+      'settings callback' => '', // not yet implemented sample is: facetapi_block_realm_settings (though that function is not implemented anywhere yet)
+      'description' => t(
+          'The <em>Graphs Data Combo</em> realm is used by the facets of type Graph Combo to get their Y axis data. Facets from this realm are never displayed by themselves.'
+      ),
+  );
+  $realms['devtrac7_graph_combo_2'] = array(
+      'label' => t('Devtrac Combo Action Items'),
+      'weight' => 11,
+      'sortable' => FALSE,
+      'default widget' => 'facetapi_graphs_combo',
+      'element type' => 'links',
+      'settings callback' => '', // not yet implemented sample is: facetapi_block_realm_settings (though that function is not implemented anywhere yet)
+      'description' => t(
+          'The <em>Graphs Data Combo Action Items</em> realm is used for some Data Combos especially for Action Items.'
+      ),
+  );
+  $realms['devtrac7_graph_combo_3'] = array(
+      'label' => t('Numeric Questions Graph Combo'),
+      'weight' => 12,
+      'sortable' => FALSE,
+      'default widget' => 'facetapi_graphs_combo',
+      'element type' => 'links',
+      'settings callback' => '', // not yet implemented sample is: facetapi_block_realm_settings (though that function is not implemented anywhere yet)
+      'description' => t(
+          'Use the normane Graph Combo for Textual Answers, this one is for for Numeric Answers'
+      ),
+  );
+/*  $realms['devtrac7_graph_combo_4'] = array(
+      'label' => t('Devtrac Combo Graphs (4)'),
+      'weight' => 10,
+      'sortable' => FALSE,
+      'default widget' => 'facetapi_graphs_combo',
+      'element type' => 'links',
+      'settings callback' => '', // not yet implemented sample is: facetapi_block_realm_settings (though that function is not implemented anywhere yet)
+      'description' => t(
+          'The <em>Graphs Data Combo (4)</em> realm is used by the facets of type Graph Combo to get their Y axis data. Facets from this realm are never displayed by themselves.'
+      ),
+  );
+*/
+  return $realms;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function devtrac7_realms_block_info() {
+  $realms = (array) devtrac7_realms_facetapi_realm_info();
+  return facetapi_get_block_info(array_keys($realms));
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function devtrac7_realms_block_view($delta = '') {
+  return facetapi_block_view($delta);
+}

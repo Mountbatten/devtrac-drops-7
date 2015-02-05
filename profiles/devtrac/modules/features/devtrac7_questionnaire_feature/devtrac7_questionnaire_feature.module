@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the DevTrac7_Questionnaire_Feature feature.
+ */
+
+include_once 'devtrac7_questionnaire_feature.features.inc';

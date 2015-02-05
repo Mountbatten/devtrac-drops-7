@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Adds basic boundingbox search support to Solr 3.4+.
+ */
+
+/**
+ * Implements hook_search_api_data_type_info().
+ */
+function search_api_solr_boundingbox_search_search_api_data_type_info() {
+  // Define the geohash and location SOLR field types.
+  // See "added Solr 3.4+ types" in schema.xml.
+  return array(
+    'geohash' => array(
+      'name' => t('Geohash'),
+    ),
+    'location' => array(
+      'name' => t('Location'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_search_api_solr_query_alter().
+ */
+function search_api_solr_boundingbox_search_search_api_solr_query_alter(array &$call_args, SearchApiQueryInterface $query) {
+  // Add bbox filter, if present.
+  if (isset($_GET['bbox'])) {
+    // Get the index from the query.
+    $index = $query->getIndex();
+    // Get the server from the index.
+    $server = $index->server();
+    // Query the server for the fieldnames on the index.
+    $fieldnames = $server->getFieldnames($index);
+    // Query the index for field information.
+    $fields = $index->getFields();
+    // Filter out the non-spatial fields.
+    foreach ($fieldnames as $key => $fieldname) {
+      if (isset($fields[$key])) {
+        if (($fields[$key]['type'] != 'string') || !isset($fields[$key]['real_type']) || ($fields[$key]['real_type'] != 'location')) {
+          unset($fieldnames[$key]);
+        }
+      }
+      else {
+        unset($fieldnames[$key]);
+      }
+    }
+    // Is there any spatial field left that can be queried?
+    if (!empty($fieldnames)) {
+      // Select the first spatial field from the remaining list.
+      $fieldnames = array_values($fieldnames);
+      $fieldname = $fieldnames[0];
+      // Escape special characters in the field name.
+      $fieldname = SearchApiSolrConnection::escapeFieldName($fieldname);
+      // Get the left, top, right and bottom from the url.
+      list($left, $bottom, $right, $top) = explode(',', $_GET['bbox']);
+      // Construct the bbox string to be added to the query.
+      $query = $fieldname . ':[' . $bottom . ',' . $left . ' TO ' . $top . ',' . $right . ']';
+      // Add it to the query.
+      $fq = &$call_args['params']['fq'];
+      $fq[] = $query;
+    }
+  }
+}
+

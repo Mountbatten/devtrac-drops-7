@@ -1,0 +1,25 @@
+name = OL_lat_long
+description = OpenLayers : Switch between latitude/longitude and the map
+package = "Custom OpenLayers"
+core = 7.x
+version = 7.x.1.x-dev
+
+dependencies[] = openlayers
+dependencies[] = geofield
+dependencies[] = libraries
+dependencies[] = proj4js
+dependencies[] = geophp
+dependencies[] = entity
+dependencies[] = entity_token
+
+
+ 
+files[] = OL_lat_long.module
+
+stylesheets[all][] = OL_lat_long.css
+
+; Information added by drush on 2015-02-05
+version = "master-dev"
+project = "OL_lat_long"
+datestamp = "1423125160"
+

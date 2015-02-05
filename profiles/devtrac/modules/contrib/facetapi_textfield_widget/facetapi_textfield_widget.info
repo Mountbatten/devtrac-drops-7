@@ -1,0 +1,14 @@
+name = Facetapi Textfield Widget
+description = A Facet API widget that displays facet items as a submitable form with an editable textfield.
+dependencies[] = facetapi
+package = Search Toolkit
+core = 7.x
+
+files[] = plugins/facetapi/widget_textfield.inc
+
+; Information added by Drupal.org packaging script on 2014-09-04
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "facetapi_textfield_widget"
+datestamp = "1409810335"
+

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devtrac7 Users2 feature.
+ */
+
+include_once 'devtrac7_users2.features.inc';

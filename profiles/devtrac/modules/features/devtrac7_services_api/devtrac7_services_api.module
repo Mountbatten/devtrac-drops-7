@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the devtrac7_services_api feature.
+ */
+
+include_once('devtrac7_services_api.features.inc');

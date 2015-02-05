@@ -1,0 +1,14 @@
+name = Devtrac Current Search Blocks
+description = Provides a current search block with the label of the facet in the title attribute of the link
+dependencies[] = current_search
+package = Devtrac
+core = 7.x
+files[] = plugins/current_search/devtrac_item_group.inc
+files[] = tests/devtrac7_current_search.test
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

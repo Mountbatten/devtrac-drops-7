@@ -1,0 +1,75 @@
+<?php
+/**
+ * Implements hook_update().
+ */
+function devtrac_saved_search_update_7001() {
+  drupal_load('module', 'devtrac_saved_search');
+
+  $users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  //print_r($users);
+  foreach ($users as $user) {
+    if($user->uid<2)
+      continue;
+
+    devtrac_saved_search_manager_notify_fieldtrip_submited($user->uid);
+    devtrac_saved_search_user_notify_fieldtrip_rejected($user->uid);
+    devtrac_saved_search_notify_tagged_user_actionitem($user->uid);
+  }
+}
+
+
+/**
+ * Implements hook_update().
+ */
+
+function devtrac_saved_search_update_7002() {
+  drupal_load('module', 'devtrac_saved_search');
+
+  $users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  //print_r($users);
+  foreach ($users as $user) {
+    if($user->uid<2)
+      continue;
+
+    devtrac_saved_search_manager_weekly_reminder_fieldtrip_submited($user->uid);
+    devtrac_saved_search_user_weekly_reminder_fieldtrip_rejected($user->uid);
+    devtrac_saved_search_weekly_reminder_tagged_user_actionitem($user->uid);
+  }
+}
+
+/**
+ * Implements hook_update().
+ *
+ * Adds a filter on  all saved searches
+ */
+function devtrac_saved_search_update_7003() {
+  $rows = db_select('search_api_saved_search', 'ss')
+    ->fields('ss', array('id', 'query', 'options'))
+    ->condition('settings_id', 'devtrac_solr_action_items_index')
+    ->execute();
+  foreach ($rows as $row) {
+    $id = $row->id;
+    $tempquery = unserialize($row->query);
+    $tempoptions = unserialize($row->options);
+    $tempquery['filters'][1] = array(
+      0 => 'field_actionitem_status',
+      1 => '3',
+      2 => '<>',
+    );
+//    $tempquery['options']['search_api_facets']['field_actionitem_status']['operator'] = 'or';
+    $tempoptions['page']['query']['f'][1] = 'field_actionitem_status:1';
+//    $tempoptions['page']['query']['f'][2] = 'field_actionitem_status:2';
+    $query = serialize($tempquery);
+    $options = serialize($tempoptions);
+    $result = db_update('search_api_saved_search')
+      ->fields(array('query' => $query, 'options' => $options))
+      ->condition('id', $id, '=')
+      ->execute();
+  }
+}
+
+?>

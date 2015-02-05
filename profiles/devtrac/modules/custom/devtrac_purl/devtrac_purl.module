@@ -1,0 +1,86 @@
+<?php
+
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function devtrac_purl_ctools_plugin_api($owner, $api) {
+  if ($owner == 'purl' && $api == 'processor') {
+    return array(
+        'version' => 1,
+        'path' => 'includes',
+    );
+  }
+}
+
+
+/**
+ * Implements hook_purl_processor().
+ */
+function devtrac_purl_purl_processor() {
+  $info = array();
+  $info['purl_devtrac'] = array(
+    'title' => t('Purl Devtrac'),
+      'handler' => array(
+      'class' => 'purl_devtrac',
+      'file' => 'devtrac_purl.inc',
+      'path' => drupal_get_path('module', 'devtrac_purl') . '/includes',
+      'parent' => 'purl_search_api',
+      ),
+  );
+  return $info;
+}
+
+
+/**
+ * PURL module integration
+ *
+ * Implements hook_purl_provider().
+ */
+function devtrac_purl_purl_provider() {
+  return array(
+      'devtrac_purl_provider' => array(
+          'name' => t('Purl Devtrac Provider'),
+          'description' => t('Provides Purl.'),
+          'callback' => 'devtrac_purl_purl',
+          'example' => '?f[0]=title:ThankYou',
+      ),
+  );
+}
+
+function devtrac_purl_purl_modifiers() {
+  return array(
+    'devtrac_api' => array(
+      array('value' => 'f', 'id' => 'bingo'),
+    ),
+  );
+}
+
+/**
+ * Purl callback to set the proper mode.
+ */
+function devtrac_purl_purl($value) {
+  return $value;
+  
+  //views_modes_get_active_mode($value);
+}
+
+
+/*
+function purl_menu_link_alter(&$item) {
+ $views = variable_get("purl_method_search_api_key", '');
+ foreach ($views as $option => $name) {
+   if ($name) {
+     $view_display = explode(":", $name);
+     $viewname = $view_display[0];
+     $displayname = isset($view_display[1]) ? $view_display[1] : 'default';
+     $view = views_get_view($viewname);
+     $display = $view->display[$displayname];
+     $mypath = $display->display_options['path'];
+     if ($item['link_path'] == $mypath) {
+       $item['options']['attributes']['class'][] = "purl_search_api_noreset";
+     }
+   }
+ }
+}
+*/

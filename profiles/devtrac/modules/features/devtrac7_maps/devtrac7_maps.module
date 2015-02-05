@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the DevTrac7 Maps feature.
+ */
+
+include_once('devtrac7_maps.features.inc');

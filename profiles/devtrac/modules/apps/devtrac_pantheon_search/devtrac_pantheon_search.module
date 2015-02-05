@@ -1,0 +1,177 @@
+<?php
+/**
+ * @file
+ * 
+ * Connection details for Solr Server
+ */
+
+/**
+ * Implements hook_apps_app_info()
+ */
+function devtrac_pantheon_search_apps_app_info() {
+  return array(
+    'configure form' => 'devtrac_pantheon_search_app_configure_form',
+  );
+}
+
+/**
+ * implements hook_app_configure_form
+ */
+function devtrac_pantheon_search_app_configure_form() {
+  $markup = 'This module provides a Pantheon Solr backend for the Search API ';
+  $markup .= 'module. The backend uses Apache Solr servers for indexing and ';
+  $markup .= 'searching content. It has great performance and is suitable for ';
+  $markup .= 'use on large websites.';
+  $form['pantheon_search_info'] = array(
+    '#title' => t('Information'),
+    '#prefix' => '<div>',
+    '#markup' => $markup,
+    '#suffix' => '</div>',
+  );
+
+  $form['devtrac_pantheon_search_host'] = array(
+//    '#type' => 'item',
+    '#title' => t('Pantheon Solr host'),
+//    '#default_value' => variable_get('pantheon_index_host', 'index.'. variable_get('pantheon_tier', 'live') .'.getpantheon.com'),
+//    '#required' => TRUE,
+//    '#description' => t('The host name or IP of your Pantheon Solr server, e.g. <em>localhost</em> or <em>www.example.com</em>.'),
+    '#prefix' => '<div><div class="apps-config-label"><strong>Pantheon Solr Host:</strong></div>',
+    '#markup' => variable_get('pantheon_index_host', 'index.'. variable_get('pantheon_tier', 'live') .'.getpantheon.com'),
+    '#suffix' => '</div>',
+  );
+
+  $form['devtrac_pantheon_search_port'] = array(
+//    '#type' => 'item',
+    '#title' => t('Pantheon Solr port'),
+//    '#default_value' => variable_get('pantheon_index_port', 449),
+//    '#required' => TRUE,
+//    '#description' => t('The Pantheon Solr server uses port 449 by default.'),
+    '#prefix' => '<div><div class="apps-config-label"><strong>Pantheon Solr Port:</strong></div>',
+    '#markup' => variable_get('pantheon_index_port', 449),
+    '#suffix' => '</div>',
+  );
+
+  $form['devtrac_pantheon_search_path'] = array(
+//    '#type' => 'item',
+    '#title' => t('Pantheon Solr path'),
+//    '#default_value' => 'sites/self/environments/' . variable_get('pantheon_environment', 'dev') . '/index',
+//    '#required' => TRUE,
+//    '#description' => t('The path that identifies the Pantheon Solr instance to use on the server.'),
+    '#prefix' => '<div><div class="apps-config-label"><strong>Pantheon Solr Path:</strong></div>',
+    '#markup' => 'sites/self/environments/' . variable_get('pantheon_environment', 'dev') . '/index',
+    '#suffix' => '</div>',
+  );
+
+  // Add a custom submit handler.
+  $form['#submit'][] = 'devtrac_pantheon_search_app_configure_form_submit';
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_app_configure_form_submit.
+ * 
+ * - Deletes all indexed data for the search_api_db_services class.
+ * - Changes the service class of the server to search_api_solr_service and
+ *   initializes the Solr Search server options.
+ * - Marks all indices for reindexing.
+ * - Removes all obsolete tables from the database.
+ * - Disables the search_api_db_service module.
+ */
+function devtrac_pantheon_search_app_configure_form_submit($form, &$form_state) {
+  // Post Pantheon Apache Solr schema.xml
+  $post_schema_form_state = array(
+    'values' => array(
+      'pantheon_apachesolr_schema' => 'profiles/devtrac/modules/contrib/search_api_solr/solr-conf/3.x/schema.xml',
+      'submit' => t('Post schema'),
+      'op' => t('Post schema'),
+    ),
+  );
+  drupal_form_submit('pantheon_apachesolr_post_schema_form', $post_schema_form_state);
+  $form_errors = form_get_errors();
+  watchdog('Devtrac Pantheon Search', 'Post schema errors = ' . $form_errors);    
+
+  // Enable required modules search_api_solr, search_api_solr_boundingbox_search
+  // and search_api_solr_dynamic_ranges.
+  $modules = array(
+    'search_api_solr',
+    'search_api_solr_boundingbox_search',
+    'search_api_solr_dynamic_ranges',
+  );
+  module_enable($modules, FALSE);
+
+  // Configure the apache solr server.
+
+  // Clear all indexed data for the search_api_db_service.
+  search_api_server_clear('devtrac_search_server');
+
+  // Change the service class of the server to search_api_solr_service and
+  // initialize the Solr Search server options.
+  $options_array = array(
+    'clean_ids' => TRUE,
+    'scheme' => 'https',
+    'host' => 'localhost',
+    'port' => '8983',
+    'path' => '/solr',
+    'http_user' => '',
+    'http_pass' => '',
+    'excerpt' => 0,
+    'retrieve_data' => 0,
+    'highlight_data' => 0,
+    'http_method' => 'POST',
+    'autocorrect_spell' => 1,
+    'autocorrect_suggest_words' => 1,
+    'clean_ids_form' => array(),
+  );
+
+  $class = 'search_api_solr_service';
+  $options_string = serialize($options_array);
+  $fields = array(
+    'class' => $class,
+    'options' => $options_string,
+  );
+
+  db_update('search_api_server')
+    ->fields($fields)
+    ->condition('machine_name', 'devtrac_search_server')
+    ->execute();
+
+  // Query Pantheon Apache Solr
+  $query_form_state = array(
+    'values' => array(
+      'query' => '/admin/ping?q=id:1',
+      'submit' => t('Send query string'),
+      'op' => t('Send query string'),
+    ),
+  );
+  drupal_form_submit('pantheon_apachesolr_query', $query_form_state);
+  $form_errors = form_get_errors();
+  watchdog('Devtrac Pantheon Search', 'Query errors = ' . $form_errors);    
+
+  // Mark all indices for reindexing for the search_api_solr_service.
+  search_api_server_clear('devtrac_search_server');
+
+  // The search_api_db_service created a lot of tables in the database.
+  // Delete all of them, but only the ones that are in our Devtrac server.
+  global $databases;
+  $database = $databases['default']['default']['database'];
+  $tables = db_query("SHOW TABLES");
+  foreach ($tables as $table) {
+    $key = 'Tables_in_' . $database;
+    $tablename = $table->$key;
+    if (substr($tablename, 0, 13) == 'search_api_db') {
+      $indices = db_select('search_api_index', 'sai')
+        ->fields('sai', array('machine_name'))
+        ->condition('server', 'devtrac_search_server')
+        ->execute();
+      foreach ($indices as $index) {
+        if (strpos($tablename, $index->machine_name) == 14) {
+          db_drop_table($tablename);
+        }
+      }
+    }
+  }
+
+  // Disable module search_api_db.
+  module_disable(array('search_api_db'));
+}

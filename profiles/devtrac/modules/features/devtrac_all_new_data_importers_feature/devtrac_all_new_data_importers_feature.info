@@ -1,0 +1,51 @@
+name = Devtrac All Data Importers Feature
+description = Imports all devtrac data into a new instance
+core = 7.x
+package = Devtrac
+version = 7.x-1.0-beta1
+project = devtrac_all_new_data_importers_feature
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = feeds
+dependencies[] = feeds_tamper
+features[ctools][] = feeds:feeds_importer_default:1
+features[features_api][] = api:2
+features[feeds_importer][] = devtrac_action_items_importer
+features[feeds_importer][] = devtrac_districts_importer
+features[feeds_importer][] = devtrac_fieldtrips_importer
+features[feeds_importer][] = devtrac_locations_importer
+features[feeds_importer][] = devtrac_sitereports_importer
+features[feeds_importer][] = devtrac_users_importer
+features[user_permission][] = administer feeds_tamper
+features[user_permission][] = clear devtrac_action_items_importer feeds
+features[user_permission][] = clear devtrac_districts_importer feeds
+features[user_permission][] = clear devtrac_fieldtrips_importer feeds
+features[user_permission][] = clear devtrac_locations_importer feeds
+features[user_permission][] = clear devtrac_sitereports_importer feeds
+features[user_permission][] = clear devtrac_users_importer feeds
+features[user_permission][] = import devtrac_action_items_importer feeds
+features[user_permission][] = import devtrac_districts_importer feeds
+features[user_permission][] = import devtrac_fieldtrips_importer feeds
+features[user_permission][] = import devtrac_locations_importer feeds
+features[user_permission][] = import devtrac_sitereports_importer feeds
+features[user_permission][] = import devtrac_users_importer feeds
+features[user_permission][] = tamper devtrac_action_items_importer
+features[user_permission][] = tamper devtrac_districts_importer
+features[user_permission][] = tamper devtrac_fieldtrips_importer
+features[user_permission][] = tamper devtrac_locations_importer
+features[user_permission][] = tamper devtrac_sitereports_importer
+features[user_permission][] = tamper devtrac_users_importer
+features[user_permission][] = unlock devtrac_action_items_importer feeds
+features[user_permission][] = unlock devtrac_districts_importer feeds
+features[user_permission][] = unlock devtrac_fieldtrips_importer feeds
+features[user_permission][] = unlock devtrac_locations_importer feeds
+features[user_permission][] = unlock devtrac_sitereports_importer feeds
+features[user_permission][] = unlock devtrac_users_importer feeds
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

@@ -1,0 +1,43 @@
+<?php
+/**
+ * @file includes an image style that works outside the site /files folder
+ * 
+ * @deprecated deprecated in Devtrac 3.0 Should be removed
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function devtrac7_custom_image_style_theme($existing, $type, $theme, $path) {
+  return array(
+    'image_style_outside_files' => array(
+      'variables' => array(
+        'style_name' => NULL,
+        'path' => NULL,
+        'alt' => '',
+        'title' => NULL,
+        'attributes' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * 
+ * Implements hook_theme().
+ * 
+ * This theme function is designed to deal with the limitation that
+ * theme_image_style does not work with images outside the files directory.
+ * 
+ * Usage is the same as theme_image_style.
+ * src; http://www.pepperpotdesign.co.uk/blog/rendering-drupal-7-image-styles-outside-of-the-fil/
+ */
+function theme_image_style_outside_files($variables) {
+  $styled_path = image_style_path($variables['style_name'], $variables['path']);
+  if (!file_exists($styled_path)) {
+    $style = image_style_load($variables['style_name']);
+    image_style_create_derivative($style, $variables['path'], $styled_path);
+  }
+  $variables['path'] = $styled_path;
+  return theme('image', $variables);
+}

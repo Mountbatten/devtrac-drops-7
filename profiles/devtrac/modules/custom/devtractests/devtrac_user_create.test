@@ -1,0 +1,415 @@
+<?php
+module_load_include('test', 'simpletest_clone');
+class CreatePermittedUserCreateUserWithSameDetailTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $admin_user;
+  public static function getInfo() {
+  return array(
+     'name' => 'User with all permissions of role "administrator" registers a user.',
+     'description' => 'An authenticated user with all permissions of role "administrator" registers a user.',
+     'group' => 'Devtrac',
+  );
+  }
+
+  /**
+    * Log in a user with the internal browser.
+    *
+    * If a user is already logged in, then the current user is logged out before
+    * logging in the specified user.
+    *
+    * Please note that neither the global $user nor the passed in user object is
+    * populated with data of the logged in user. If you need full access to the
+    * user object after logging in, it must be updated manually. If you also need
+    * access to the plain-text password of the user (set by drupalCreateUser()),
+    * e.g. to login the same user again, then it must be re-assigned manually.
+    * For example:
+    * @code
+    *    // Create a user.
+    *    $account = $this->drupalCreateUser(array());
+    *    $this->drupalLogin($account);
+    *    // Load real user object.
+    *    $pass_raw = $account->pass_raw;
+    *    $account = user_load($account->uid);
+    *    $account->pass_raw = $pass_raw;
+    * @endcode
+    *
+    * @param $user
+    *    User object representing the user to login.
+    *
+    * @see drupalCreateUser()
+    */
+  protected function drupalLogin(stdClass $user) {
+  if ($this->loggedInUser) {
+     $this->drupalLogout();
+  }
+
+  $edit = array(
+     'name' => $user->name,
+     'pass' => $user->pass_raw
+  );
+  $this->drupalPost('user', $edit, t('Log in'));
+
+  // If a "log out" link appears on the page, it is almost certainly because
+  // the login was successful.
+  $pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+
+  if ($pass) {
+     $this->loggedInUser = $user;
+  }
+  }
+
+  /**
+    * (non-PHPdoc)
+    * @see DrupalWebTestCase::setUp()
+    */
+  public function setUp() {
+  parent::setUp('devtractests');
+  $this->public_files_directory = variable_get('file_public_path');
+  // Create and log in a permitted user.
+  $this->admin_user = $this->drupalCreateUser(array(
+    'access content',
+    'create fieldtrip content',
+    'administer nodes',
+    'administer permissions',
+    'access user profiles',
+    'administer site configuration',
+    'administer modules',
+    'edit taxonomy_vocabulary_1',));
+  $this->admin_user->roles[] = 'administration';
+  user_save($this->admin_user);
+  //$authenticated_user = $this->drupalCreateUser('access user profiles', 'administer site configuration');
+  $this->drupalLogin($this->admin_user);
+  }
+  
+  /**
+    * 
+    * Functional tests for authenticated (User) creating a user with aready existing user details
+    */
+  public function testDevtrac7UserRegistration() {
+    $this->drupalPost('user/' . $this->admin_user->uid . '/edit', array(
+    "roles[3]" => 3,
+    'taxonomy_vocabulary_5[und]' => 5,
+    'taxonomy_vocabulary_4[und]' => 7,
+    'field_user_firstname[und][0][value]' => 'admin',
+    'field_user_surname[und][0][value]' => 'Adminol',
+    'field_user_aboutme[und][0][value]' => 'aboutAdmin',
+    'field_user_superior[und][0][target_id]' => 'admin (1)'), t('Save'));
+    // $this->drupalPost('user/login', $permissions, t('Log in'));
+    $newUser['field_user_firstname[und][0][value]'] = 'Obote';
+    $newUser['field_user_surname[und][0][value]'] = 'obote';
+    $newUser['field_user_aboutme[und][0][value]'] = 'Filed worker manager for kampala district';
+    $newUser['name'] = 'osman';
+    $newUser['mail'] = 'osmanbuyondo@yahoo.com';
+    $newUser['pass[pass1]'] = 1234;
+    $newUser['pass[pass2]'] = 1234;
+    $newUser['status'] = 1;
+    $newUser['roles[5]'] = 'unicef user';
+    $newUser['field_user_title[und][0][value]'] = 5;
+    //$newUser['taxonomy_vocabulary_5[und]'] = 30;
+    $newUser['field_user_degree[und][0][value]'] = 'Information Technology';
+    // These fields are not showing/not seen by the testing engine!!
+    $newUser['field_user_superior[und][0][target_id]'] = 'Joshua something';
+    $this->drupalPost('admin/people/create', $newUser, t('Create new account'));
+    $this->assertNoText(t('already taken.'), t('The name chosen is already in use'), 'DevTrac');
+    $this->assertText('There are no entities matching', 'There are no entities matching text found');
+    $this->assertText('Department field is required', 'Department field is required lrft empty');
+    $this->assertText(t('The e-mail address'), t('The email chosen is already in use'), 'DevTrac');
+    $this->assertText(t('Department field is required.'), t('Department field was left blank durring registration'), 'DevTrac7');
+    //$this->assertText(t('Created a new user account for'), t('User not added successfully, used existing user credentials'), 'Devtrac7');  
+    $this->drupalLogout($this->admin_user);
+  }
+}
+/**
+ * 
+ * This time arround the authenticted user who permitted to add users, 
+ * 
+ * Creates a user successifuly.
+ */
+class FieldtripCreatePermittedUserCreateUserTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $administrator;
+  // This time arround permitted user successifuly creates. 
+  public static function getInfo() {
+  return array(
+     'name' => 'User registration',
+     'description' => 'An authenticated user with all permissions of role "Unicef" registers a user successfully',
+     'group' => 'Devtrac',
+  );
+  }
+  /**
+    * Log in a user with the internal browser.
+    *
+    * If a user is already logged in, then the current user is logged out before
+    * logging in the specified user.
+    *
+    * Please note that neither the global $user nor the passed in user object is
+    * populated with data of the logged in user. If you need full access to the
+    * user object after logging in, it must be updated manually. If you also need
+    * access to the plain-text password of the user (set by drupalCreateUser()),
+    * e.g. to login the same user again, then it must be re-assigned manually.
+    * For example:
+    * @code
+    *    // Create a user.
+    *    $account = $this->drupalCreateUser(array());
+    *    $this->drupalLogin($account);
+    *    // Load real user object.
+    *    $pass_raw = $account->pass_raw;
+    *    $account = user_load($account->uid);
+    *    $account->pass_raw = $pass_raw;
+    * @endcode
+    *
+    * @param $user
+    *    User object representing the user to login.
+    *
+    * @see drupalCreateUser()
+    */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+  public function setUp() {
+    parent::setUp();
+    $this->public_files_directory = variable_get('file_public_path');
+    // Create and log in a permitted user.
+    $this->administrator = $this->drupalCreateUser(array(
+     'create fieldtrip content',
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->fieldWorker = $this->drupalCreateUser(array('administer users', 'administer permissions', 'access user profiles', 'administer site configuration', 'administer modules', 'create taxonomy_vocabulary_6', 'create taxonomy_vocabulary_8'));
+    $this->administrator->roles[] = 'administrator';
+    user_save($this->administrator);
+    $this->drupalLogin($this->administrator);
+    $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+    $this->drupalPost('user/' . $this->fieldWorker->uid . '/edit', array(
+    "roles[5]" => 5,
+    'field_user_firstname[und][0][value]' => 'firstname',
+    'field_user_surname[und][0][value]' => 'lname',
+    'field_user_aboutme[und][0][value]' => 'aboutjan', 'name' =>'tester',
+    'field_user_superior[und][0][target_id]' => 'admin (1)'),
+    t('Save'));
+  }
+  /**
+   * Attempting to create a user and manager field is left empty.
+   * 
+   */
+  public function testDevtrac7UserRegistrationNotSuccessifulCase() {
+    $newUser1['field_user_firstname[und][0][value]'] = 'Moses';
+    $newUser1['field_user_surname[und][0][value]'] = 'guide';
+    $newUser1['field_user_aboutme[und][0][value]'] = 'cordinator for kampala district';
+    $newUser1['name'] = 'Remmy';
+    $newUser1['mail'] = 'osmanbuyond@gmail.com';
+    $newUser1['pass[pass1]'] = 1234;
+    $newUser1['pass[pass2]'] = 1234;
+    $newUser1['status'] = 1;
+    $newUser1['roles[5]'] = '1';
+    $newUser1['field_user_title[und][0][value]'] = 5;
+    // $newUser1['taxonomy_vocabulary_5[und]'] = 30;//this field is not mandatory.
+    $newUser1['field_user_degree[und][0][value]'] = 'Information Technology';
+    $newUser1['field_user_superior[und][0][target_id]'] = '';
+    $this->drupalPost('admin/people/create', $newUser1, t('Create new account'));
+    $this->assertNoText(t('Created a new user account for'), t('User user Not added successfully, used existing user credentials'), 'Devtrac');    
+    $this->assertNoText(t('No e-mail has been sent.'), t('No e-mail was sent to the created user'), 'DevTrac');
+    // Loging out the admin user. 
+    $this->drupalLogout($this->administrator);
+ }
+ /**
+  * Now trying to finish the user create rutines.
+  *
+  */
+  public function testDevtrac7UserRegistrationSuccessifulCase() {
+    $newUserx['field_user_firstname[und][0][value]'] = 'Moses';
+    $newUserx['field_user_surname[und][0][value]'] = 'guide';
+    $newUserx['field_user_aboutme[und][0][value]'] = 'Unicef cordinator for kampala district';
+    $newUserx['name'] = 'Remmy';
+    $newUserx['mail'] = 'osmanbuyond@gmail.com';
+    $newUserx['pass[pass1]'] = 1234;
+    $newUserx['pass[pass2]'] = 1234;
+    $newUserx['status'] = 1;
+    $newUserx['field_user_superior[und][0][target_id]'] = 'Jan van Diepen (3)';
+    $newUserx['roles[5]'] = 5;
+    $newUserx['field_user_title[und][0][value]'] = 5;
+    //$newUserx['taxonomy_vocabulary_5[und]'] = 30;//this field is not mandatory.
+    $newUserx['field_user_degree[und][0][value]'] = 'Information Technology';
+    $newUserx['field_user_superior[und][0][target_id]'] = '';
+    $this->drupalPost('admin/people/create', $newUserx, 'Create new account');
+    $this->assertNoText('Created a new user account for', 'User user Not added successfully, used existing user credentials', 'Devtrac');
+    $this->assertNoText('No e-mail has been sent.', 'No e-mail was sent to the created user', 'DevTrac');
+    // Loging out the admin user.
+  }
+  /**
+   * Trying to login a registered user above.
+   * 
+   */
+  public function testLogiNotValidtest() {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+      
+    }
+    $this->drupalGet('user/login');
+    $this->assertNoLink('Contact Us', 0 ,'Link to site reports found');
+    $this->assertNoLink('FAQs', 0 ,'Link to FAQs not found');
+    $this->assertNoLink('Contact Us', 0 ,'Link to contact us not found');
+    $this->assertNoLink('FAQs', 0 ,'Link to FAQs not found');
+    $reguseraccess['name'] = 'guide';
+    $reguseraccess['pass'] = '1234';
+    $this->drupalPost(NULL, $reguseraccess, t('Log in'));
+    $this->assertResponse(200, 'Server responded positively');
+    $this->assertNoLink('Contact Us', 0 ,'Link to site reports found');
+    $this->assertNoLink('FAQs', 0 ,'Link to FAQs found');
+    $this->assertNoLink('Contact Us', 0 ,'Link to site reports found');
+    $this->assertNoLink('FAQs', 0 ,'Link to FAQs found');
+    $this->assertNoLink('Field trip', 0 ,'Link to field trips is not found');
+    $this->assertText('Sorry, unrecognized username or password.', t('User is not yet recognised.on his home page'), 'Devtrac');
+    $this->assertNoText('Current FieldTrip', 'Current FieldTrip provision is showing', 'Devtrac');
+  }
+}
+class FieldtripUserAutoManagerTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $fieldWorkerx;
+  public static function getInfo() {
+  return array(
+     'name' => 'Testing automated user role',
+     'description' => "Unicef automated manager role testing",
+     'group' => 'Devtrac',
+  );
+  }
+	/**
+	 * Log in a user with the internal browser.
+	 *
+	 * If a user is already logged in, then the current user is logged out before
+	 * logging in the specified user.
+	 *
+	 * Please note that neither the global $user nor the passed in user object is
+	 * populated with data of the logged in user. If you need full access to the
+	 * user object after logging in, it must be updated manually. If you also need
+	 * access to the plain-text password of the user (set by drupalCreateUser()),
+	 * e.g. to login the same user again, then it must be re-assigned manually.
+	 * For example:
+	 * @code
+	 *    // Create a user.
+	 *    $account = $this->drupalCreateUser(array());
+	 *    $this->drupalLogin($account);
+	 *    // Load real user object.
+	 *    $pass_raw = $account->pass_raw;
+	 *    $account = user_load($account->uid);
+	 *    $account->pass_raw = $pass_raw;
+	 * @endcode
+	 *
+	 * @param $user
+	 * User object representing the user to login.
+	 *
+	 * @see drupalCreateUser()
+	 */
+	protected function drupalLogin(stdClass $user) {
+		if ($this->loggedInUser) {
+			$this->drupalLogout();
+		}
+	
+		$edit = array(
+				'name' => $user->name,
+				'pass' => $user->pass_raw
+		);
+		$this->drupalPost('user', $edit, t('Log in'));
+	
+		// If a "log out" link appears on the page, it is almost certainly because
+		// the login was successful.
+		$pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+	
+		if ($pass) {
+			$this->loggedInUser = $user;
+		}
+	}
+  public function setUp() {
+    parent::setUp();
+    $this->public_files_directory = variable_get('file_public_path');
+    $this->fieldWorkerx = $this->drupalCreateUser(array(
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules',
+      'create taxonomy_vocabulary_6', 'create taxonomy_vocabulary_8'));
+    $this->drupalLogin($this->fieldWorkerx);
+    $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+    $this->drupalPost('user/' . $this->fieldWorkerx->uid . '/edit', array(
+    "roles[5]" => 5, 'field_user_firstname[und][0][value]' => 'firstname', 'field_user_surname[und][0][value]' => 'lname', 'field_user_aboutme[und][0][value]' => 'aboutjan', 'name' =>'tester', 'field_user_superior[und][0][target_id]' => 'Jan van Diepen (3)'), t('Save'));
+  }
+  /**
+   * Finally login in authenticated user to create a devtrac user.
+   * 
+   */
+  public function testLoginUnicefUserToAppointManagertest() {
+    $newUserx['field_user_firstname[und][0][value]'] = 'Moses';
+    $newUserx['field_user_surname[und][0][value]'] = 'guide';
+    $newUserx['field_user_aboutme[und][0][value]'] = 'Unicef cordinator for kampala district';
+    $newUserx['name'] = 'Jenkins';
+    $newUserx['mail'] = 'osm@gmail.com';
+    $newUserx['pass[pass1]'] = '1234';
+    $newUserx['pass[pass2]'] = '1234';
+    $newUserx['status'] = 1;
+    // New findings(now required).
+    $newUserx['taxonomy_vocabulary_4[und]'] = 7;
+    $newUserx['field_user_superior[und][0][target_id]'] = 'admin (1)';
+    $newUserx['roles[5]'] = 5;
+    $newUserx['field_user_title[und][0][value]'] = 5;
+    $newUserx['taxonomy_vocabulary_5[und]'] = 5;
+    $newUserx['field_user_degree[und][0][value]'] = 'Information Technology';
+    $newUserx['field_user_superior[und][0][target_id]'] = 'firstname' . ' ' . 'lname' . ' (' . $this->fieldWorkerx->uid . ')';
+    $this->drupalPost('admin/people/create', $newUserx, t('Create new account'));
+    $this->assertText(t('Created a new user account for'), t('User added was not added successfully'), 'Devtrac');
+    $this->assertText(t('No e-mail has been sent.'), t('E-mail was  not sent to the created user'), 'DevTrac');
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+  }
+  /**
+   * Finally login in authenticated user to create a devtrac user.
+   * 
+   * And then a created user log in.
+   */
+  public function testLoginCreatedUsertest(){
+    $newUserx['field_user_firstname[und][0][value]'] = 'Moses';
+    $newUserx['field_user_surname[und][0][value]'] = 'guide';
+    $newUserx['field_user_aboutme[und][0][value]'] = 'Unicef cordinator for kampala district';
+    $newUserx['name'] = 'Jenkins';
+    $newUserx['mail'] = 'osm@gmail.com';
+    $newUserx['pass[pass1]'] = '1234';
+    $newUserx['pass[pass2]'] = '1234';
+    $newUserx['status'] = 1;
+    // New findings(now required).
+    $newUserx['taxonomy_vocabulary_5[und]'] = 4;
+    $newUserx['taxonomy_vocabulary_4[und]'] = 7;
+    // $newUserx['field_user_superior[und][0][target_id]'] = 'firstname lname (307)';
+    $newUserx['roles[5]'] = 5;
+    $newUserx['field_user_title[und][0][value]'] = 5;
+    // $newUserx['taxonomy_vocabulary_5[und]'] = 30;//this field is not mandatory.
+    $newUserx['field_user_degree[und][0][value]'] = 'Information Technology';
+    $newUserx['field_user_superior[und][0][target_id]'] = 'firstname' . ' ' . 'lname' . ' (' . $this->fieldWorkerx->uid . ')';
+    $this->drupalPost('admin/people/create', $newUserx, t('Create new account'));
+    $this->assertText(t('Created a new user account for'), t('User user added successfully'), 'Devtrac');
+    $this->assertText(t('No e-mail has been sent.'), t('E-mail was not sent to the created user'), 'DevTrac');
+    $this->drupalLogout($this->fieldWorkerx);
+    $this->drupalGet('user/login');
+    $log['name'] = 'jenkins';
+    $log['pass'] = '1234';
+    $this->drupalPost(NULL, $log, t('Log in'));
+  }
+}

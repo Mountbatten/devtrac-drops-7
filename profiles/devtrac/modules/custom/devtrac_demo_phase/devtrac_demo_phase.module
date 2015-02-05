@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Alters pager settings for view displays when using the db indexing service.
+ */
+
+/*  
+ * Implements hook_views_pre_view().
+ * 
+ * Alters the pager settings for view displays that set the number of rows to
+ * display to -1 when using the database service index.
+ */
+function devtrac_demo_phase_views_pre_view(&$view, &$display_id, &$args) {
+  $view_names = array('devtrac_solr_view_actionitems','devtrac_solr_view_answers', 'devtrac_solr_view_districts', 'devtrac_solr_view_fieldtrips', 'devtrac_solr_view_images',
+    'devtrac_solr_view_locations', 'devtrac_solr_view_questions', 'devtrac_solr_view_sitevisits', 'devtrac7_solr_user_view');
+
+  if (in_array($view->name, $view_names)) {
+    $view_mode = views_modes_get_active_mode_display($view);
+    if ($view_mode && isset($view_mode->handler->options['pager']['options']['items_per_page'])) {
+      $items_per_page = $view_mode->handler->options['pager']['options']['items_per_page'];
+      $items_per_page = ($items_per_page == -1 ) ? 1 : $items_per_page;
+      $view_mode->handler->options['pager']['options']['items_per_page'] = $items_per_page;
+    }
+    else {
+      switch ($view->current_display) {
+        case 'dummy' :
+        case 'graphs' :
+        case 'map' :
+        case 'mapdata' :
+        case 'openlayers_1' :
+        case 'overlay' :
+          if (isset($view->display[$view->current_display]->handler->options['pager']['options']['items_per_page'])) {
+            $items_per_page = $view->display[$view->current_display]->handler->options['pager']['options']['items_per_page'];
+            $items_per_page = ($items_per_page == -1) ? 1 : $items_per_page;
+            $view->display[$view->current_display]->handler->options['pager']['options']['items_per_page'] = $items_per_page;
+          }
+          break;
+        default :
+          break;
+      }
+    }
+  }
+}

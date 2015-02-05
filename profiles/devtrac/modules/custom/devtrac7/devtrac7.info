@@ -1,0 +1,24 @@
+name = "Main Devtrac Module"
+description = "Implements all generic Devtrac things."
+core = "7.x"
+package = "Devtrac"
+
+files[] = devtrac7.module
+files[] = devtrac7.install
+files[] = devtrac7_fieldtrip.inc
+files[] = devtrac7_ftritem.inc
+files[] = devtrac7_place.inc
+files[] = devtrac7_actionitem.inc
+files[] = devtrac7_activity.inc
+files[] = devtrac7_organisation.inc
+files[] = devtrac7_user.inc
+
+scripts[] = js/devtrac7.js
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

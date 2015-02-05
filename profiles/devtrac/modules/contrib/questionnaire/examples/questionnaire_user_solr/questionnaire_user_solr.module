@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the questionnaire_user_solr feature.
+ */
+
+include_once 'questionnaire_user_solr.features.inc';

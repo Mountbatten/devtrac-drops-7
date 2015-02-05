@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the questionnaire_autolearn
+ * module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function questionnaire_autolearn_schema() {
+  $schema = array();
+
+  $schema['questionnaire_autolearn'] = array(
+    'title' => 'Answer Pairs',
+    'description' => 'Contains key-value pairs of fuzzy text and structured answers.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'Id.',
+      ),
+      'fuzzy_answer' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The fuzzy answer.',
+      ),
+      'structured_answer' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The structured answer.',
+      ),
+      'question' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => 'The nid of the question.',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function questionnaire_autolearn_uninstall() {
+  db_drop_table('questionnaire_autolearn');
+}

@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * A Facet API widget that displays facet items as an editable textfield.
+ */
+
+/**
+ * Implements hook_facetapi_widgets().
+ */
+function facetapi_textfield_widget_facetapi_widgets() {
+  return array(
+    'facetapi_textfield_widget' => array(
+      'handler' => array(
+        'label' => t('Textfield'),
+        'class' => 'FacetapiWidgetTextfield',
+        'query types' => array('term'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function facetapi_textfield_widget_theme() {
+  return array(
+    'facetapi_textfield_widget_form' => array(
+      'arguments' => array('text' => NULL, 'submit' => NULL, 'options' => array()),
+      'render element' => 'element',
+    ),
+    'facetapi_textfield_widget_link_active' => array(
+      'arguments' => array('text' => NULL, 'path' => NULL, 'options' => array()),
+    ),
+  );
+}
+
+/**
+ * Themes a full text search facet for a value that is currently being searched.
+ */
+function theme_facetapi_textfield_widget_form($variables) {
+
+  drupal_add_js(drupal_get_path('module', 'facetapi_textfield_widget') . '/js/facetapi_textfield_widget.js');
+
+  $variables = array_values($variables);
+  $class = $variables[0]['#attributes']['class'][1];
+  $fieldname = str_replace('-', '_', substr($class, strpos($class, 'search-api-aggregation-') - strlen($class)));
+  $output = '<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="' . $_GET['q'] . '" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(' . $fieldname . ')">' . "\n";
+
+  // Add the full text search input field if it is missing (empty input)
+  $variables = array_values($variables);
+  $class = $variables[0]['#attributes']['class'][1];
+  $fieldname = str_replace('-', '_', substr($class, strpos($class, 'search-api-aggregation-') - strlen($class)));
+  if (!isset($_GET[$fieldname])) {
+    $output .= '  <input type="textfield" name="' . $fieldname . '" value="" />' . "\n";
+  }
+
+  // Add all query parameters as hidden fields
+  $count = 0;
+  foreach ($_GET as $key => $value) {
+    if ($key != 'q') {
+      if (is_array($value)) { // $value is an array
+        foreach ($value as $index => $array_value) {
+          if (strpos($array_value, $fieldname) === FALSE) {
+            $output .= '  <input type="hidden" name="f[' . $count . ']" value="' . $array_value . '" />' . "\n";
+            $count++;
+          }
+        }
+      }
+      else { // $value is a string
+        if ($key == $fieldname) {
+          $output .= '  <input type="textfield" name="' . $key . '" value="' . $value . '" />' . "\n";
+        }
+        else {
+          $output .= '  <input type="hidden" name="' . $key . '" value="' . $value . '" />' . "\n";
+        }
+      }
+    }
+  }
+
+  $output .= '  <div id="edit-actions" class="form-actions form-wrapper">' . "\n";
+  $output .= '    <input type="submit" class="form-submit" value="Search" />' . "\n";
+  $output .= '  </div>' . "\n";
+  $output .= '</form>';
+
+  return $output;
+}
+
+/**
+ * Themes a facet link for a value that is currently being searched.
+ */
+function theme_facetapi_textfield_widget_link_active($variables) {
+  $link_text = '';
+  if (isset($variables['text'])) {
+    if (empty($variables['options']['html'])) {
+      $link_text = check_plain($variables['text']);
+    }
+    else {
+      $link_text = $variables['text'];
+    }
+  }
+  $accessible_link_text = '<span class="element-invisible">' . t('Remove @text filter', array('@text' => $variables['text'])) . '</span>';
+  $variables['options']['html'] = TRUE;
+  $variables['text'] = '(-) ' . $link_text . $accessible_link_text;
+  return theme_link($variables);
+}

@@ -1,0 +1,123 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations and the function that saves a
+ * new fuzzytext-structuredanswer pair to the database.
+ */
+
+/**
+ * Implements hook_fuzzymatch().
+ */
+function questionnaire_autolearn_fuzzymatch($answer) {
+  watchdog(WATCHDOG_INFO, "Checking for learned answers....");
+
+  // Query questionnaire_autolearn table for this fuzzytext-structuredanswer
+  // pair, if it exists, update the entity and save.
+  $result = db_query('SELECT qa.id, qa.structured_answer FROM {questionnaire_autolearn} qa WHERE qa.fuzzy_answer = :fa AND qa.question = :question', array(':fa' => $answer->fuzzy, ':question' => $answer->question))->fetchAssoc();
+  if ($result) {
+    $question_node = node_load($answer->question);
+    $question = entity_metadata_wrapper('node', $question_node);
+    watchdog(WATCHDOG_INFO, "Saving previously learned answer : " . $answer->fuzzy);
+
+    switch ($question->questionnaire_question_type->value()) {
+      case 'select':
+      case 'radios':
+      case 'checkboxes':
+        $answer->answertext = $result['structured_answer'];
+        break;
+      case 'taxonomy':
+        $answer->answertext = $result['structured_answer'];
+        if (isset($node->qq_options_vocabulary)) {
+          $vocabulary = $question->qq_options_vocabulary->value();
+
+          $term = taxonomy_get_term_by_name($result['structured_answer'], $vocabulary);
+          $term = reset($term);
+
+          if (!empty($term)){
+            // Save the taxonomy term id in the corresponding field of
+            // answer object.
+            $field = 'field_' . $vocabulary;
+            $answer->{$field}['und'][]['tid'] = $term->tid;
+          }
+        }
+        break;
+      case 'number':
+        $answer->answernumber = $result['structured_answer'];
+        break;
+      case 'open':
+        break;
+    }
+
+    $answer->answer = $result['structured_answer'];
+    $answer->eid = 1;
+    $answer->score = 100;
+    $answer->fuzzy = NULL;
+    watchdog(WATCHDOG_INFO, "Done saving learned answer : " . $answer->answer);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function questionnaire_autolearn_form_questionnaire_fuzzy_editanswer_form_alter(&$form, $form_state, $form_id) {
+  // Using array_unshift to add this function so it takes precedence.
+  array_unshift($form['#submit'], 'questionnaire_autolearn_save_pair');
+}
+
+/**
+ * Custom submit handler that saves a new fuzzytext-structuredanswer pair.
+ */
+function questionnaire_autolearn_save_pair($form, &$form_state) {
+  $tmp = entity_load('questionnaire_answer', array($form_state['values']['id']));
+  $answer = reset($tmp);
+
+  $question_node = node_load($answer->question);
+  $question = entity_metadata_wrapper('node', $question_node);
+
+  // Check if this fuzzy answer has been paired already.
+  $result = db_query('SELECT qa.id, qa.structured_answer FROM {questionnaire_autolearn} qa WHERE qa.fuzzy_answer = :fa AND qa.question = :question', array(':fa' => $answer->fuzzy, ':question' => $answer->question))->fetchField();
+
+  // If not and if the question was not an open ended one, pair it.
+  if (!$result) {
+    switch ($question->questionnaire_question_type->value()) {
+      case 'select':
+      case 'radios':
+      case "number" :
+      case 'taxonomy':
+        $qaid = db_insert('questionnaire_autolearn')
+          ->fields(array(
+            'fuzzy_answer' => $answer->fuzzy,
+            'structured_answer' => $form_state['values']['answer'],
+            'question' => $answer->question,
+            ))->execute();
+        watchdog("Questionnaire Autolearn", "New autolearn pair stored: " . $qaid);
+        break;
+      case 'checkboxes':
+        foreach ($form_state['values']['answer'] as $checkedoption) {
+          if (isset($checkedoption) && ($checkedoption != '0')) {
+            $qaid = db_insert('questionnaire_autolearn')
+              ->fields(array(
+                'fuzzy_answer' => $answer->fuzzy,
+                'structured_answer' => $form_state['values']['answer'][$checkedoption],
+                'question' => $answer->question,
+                ))->execute();
+            watchdog("Questionnaire Autolearn", "New autolearn pair stored: " . $qaid);
+          }
+        }
+        break;
+      case 'open':
+      case 'message';
+        break;
+      default:
+        $qaid = db_insert('questionnaire_autolearn')
+          ->fields(array(
+            'fuzzy_answer' => $answer->fuzzy,
+            'structured_answer' => $form_state['values']['answer'],
+            'question' => $answer->question,
+            ))->execute();
+        watchdog("Questionnaire Autolearn", "New autolearn pair stored: " . $qaid);
+        break;
+    }
+  }
+}

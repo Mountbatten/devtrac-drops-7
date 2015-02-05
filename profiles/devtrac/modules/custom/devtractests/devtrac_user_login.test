@@ -1,0 +1,322 @@
+
+<?php
+/**
+* @file
+* Testing the behaviors of a user login into devtrac.
+**/
+
+class CustomloginTestCase extends DrupalWebTestCase {
+  protected $profile = 'devtrac';
+  protected $adminUser;
+  protected $authenticated;
+  public static function getInfo() {
+    return array(
+      'name' => 'DevTrac7 User Login Test',
+      'description' => t('Testing the login process for the user.'),
+      'group' => 'Devtrac',
+    
+    );
+  }
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+
+  public function setUp() {
+    parent::setUp();
+    $this->adminUser = $this->drupalCreateUser(array(
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->authenticated_user = $this->drupalCreateUser();
+  }
+    /**
+     * Confirming that the username field is showing on login page(form).
+     * 
+     */
+  public function testLoginFieldsNameExisttest() {
+    $this->drupalGet('user/login');
+    $this->assertField(t('name'), t('Field Name does exist'), 'DevTrac');
+    $this->assertText(t('Username'), t('Username label is showing'), 'DevTrac');
+    $this->assertText(t('Enter the password that accompanies your username.'), t('Enter the password that accompanies your username form exists'), 'DevTrac');
+  }
+  /**
+   * User accesses the user/password enters.
+   * 
+   * Valid user name(admin).
+   * 
+   */
+  public function testUserClickLinktest() {
+    $this->drupalGet('user/password');
+    $name['name'] = 'admin';
+    $this->assertField('name', t('Button to email a new password is found'), 'Devtrac');
+    $this->assertText(t('Username or e-mail address'), t('user password is found'), 'Devtrac');
+    $this->drupalPost(NULL, $name, t('E-mail new password'));
+    $this->assertText(t('Username'), t('User redirected to user/login page'),'Devtrac');
+  }
+  /**
+   * Testing invalid username or e-mail.
+   */
+  public function testUserClickLinkinvalidUserNametest() {
+    $this->drupalGet('user/password');
+    $nameinv['name'] = $this->randomName(15);
+    $this->assertText('Request new password', 0, t('button replaced a link on the user/password'));
+    // Changed now button.
+    $this->assertText(t('Username or e-mail address'), t('user password is found'), 'Devtrac');
+    $this->drupalPost(NULL, $nameinv, t('E-mail new password'));
+    $this->assertNoText(t('Further instructions have been sent to your e-mail address.'), t('email sent to admin'),'Devtrac');
+    $this->assertText(t('is not recognized as a user name or an e-mail address.'), t('user entired unrecognised user name or password'), 'Devtrac');
+  }
+  /**
+   * Testing the availability of form field (button submit).
+   */
+  public function testLoginFieldsLoginExisttest() {
+    $this->drupalGet('user/login');
+    $this->assertField(t('edit-submit'), t('Login button does exist'), 'DevTrac');
+    $this->assertText(t('Enter the password that accompanies your username.'), t('Enter the password that accompanies your username test exists'), 'DevTrac'); 
+  } 
+  /**
+   * User Login with.
+   */
+  public function testLoginEmptyField() {
+    $this->drupalGet('user/login');
+    $this->assertNoLink('Create new account', 0, 'Create new account link not removed found');
+    $this->assertLink('Request new password', 0, 'Request new password link found');
+    $Emptylogin['name'] = '';
+    $Emptylogin['pass'] = '';
+    $this->drupalPost(NULL, $Emptylogin, t('Log in'));
+    $this->assertText('Password field is required.', 'Password field is required left empty');
+    $this->assertText('Password field is required.', 'Password field is required left empty');
+    $this->assertNoText('Sorry, unrecognized username or password.', 'empty username or password.');
+    $this->assertNoLink('Have you forgotten your password?', 'Link to change password is found');
+  }
+   /**
+    * This time arround, the user tries to login with all username.
+    * 
+    * And password being invalid. 
+    */
+  public function testAnonymousUserTriesToLogintest() {
+    // Anonymous user prompts to login(with wrong details).
+    $anonlogin['name'] = $this->randomName(32);
+    $anonlogin['pass'] = $this->randomName(32);
+    $this->drupalPost('user/login', $anonlogin, t('Log in'));
+    $this->assertText(t('Sorry, unrecognized username or password.'), t('User is bared from logging with wrong password and username'), 'Devtrac');
+    $this->assertLink(t('Have you forgotten your password?'), 0 ,t('Link to enable user to change his/her login credentials found'));
+  }
+   /**
+    * Anonymous tries to login with a correct user name and wrong password.
+    * 
+    * Registered user tries to login with a wrong password.
+    */
+  public function testUserFailsLogintest() {
+    $knownlogin['name'] = 'adminjan';
+    $knownlogin['pass'] = $this->randomName(32);  
+    $this->drupalPost('user/login', $knownlogin, t('Log in'));
+    $this->assertText(t('Sorry, unrecognized username or password.'), t('User is bared from logging with wrong password and username'), 'Devtrac');
+    $this->assertLink(t('Have you forgotten your password?'), 0 ,t('Link to enable user to change his/her login credentials found'));
+  } 
+  /**
+   * After failling to login, the user prompts to request for the new.
+   *  
+   * Password and provides a wrong email address.
+   * 
+   * After failling to login, user follows the link to request for.
+   * 
+   * A new password and provides a wrong email address.
+   */
+  public function testUserRequestNewPassWordtest() {
+    $userRequestPass['name'] = $this->randomName(32);  
+    $this->drupalPost('user/password', $userRequestPass, t('E-mail new password'));
+    $this->assertText(t('is not recognized as a user name or an e-mail address.'), t('user is notified about wrong email provided'), 'Devtrac');
+  }
+  /**
+   * Checking the all links on the login page.
+   */
+  public function testLoginLinkstest() {
+    $this->drupalGet('user/login');
+    $this->assertNoTitle(t('Home | DevTrac'), t('User login title was changed found'), 'Devtrac');
+    $this->assertNoLink(t('FAQs'), 0 ,t('Link to FAQs was not found')); 
+    $this->assertNoLink(t('Home'), 0 ,t('Link to Home index page was removed found')); 
+    $this->assertNoLink(t('About'), 0 ,t('Link to About devtrac page was moved found')); 
+    $this->assertNoLink(t('Contact Us'), 0 ,t('Link to contact page was moved found')); 
+    $this->assertLink(t('Sign in'), 0 ,t('Sign in link is found')); 
+    $this->assertLink(t('Site Reports'), 0 ,t('Link to site reports found'));
+    $this->assertLink(t('Statistics'), 0 ,t('Link to Statistics page Found')); 
+  }
+  /**
+   * Fianlly create and log in permited user
+   * 
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   *
+   * 1. Create a new User with all permissions of role "Unicef" (rid = 5).
+   * 2. Log the user into the system.
+   */
+  public function testAdminLoginThenCreateAuthUsertest() {
+    // Finally Create and log in a permitted user
+    $this->drupalLogin($this->adminUser);
+  }
+  
+  public function testCreateAuthUsertest() {
+  	$this->drupalLogin($this->authenticated_user);
+  }
+  
+}
+ /**
+  * @file
+  * Testing the user role and access rights.
+  **/
+class CustomUserRoleTestsCase extends DrupalWebTestCase {
+  protected $profile = 'devtrac';
+  protected $editorUser;
+  protected $adminUser;
+  protected $fieldWorker;
+  protected $anonymous;
+  public static function getInfo() {
+    return array(
+      'name' => 'DevTrac User role test',
+      'description' => t('Testing different user roles and access.'),
+      'group' => 'Devtrac',
+    );
+  }
+ 	/**
+ 	 * (non-PHPdoc)
+ 	 * @see DrupalWebTestCase::setUp()
+ 	 *
+ 	 * 1. Create a new User with all permissions of role "Unicef" (rid = 5).
+ 	 * 2. Log the user into the system.
+ 	 */
+ 	/**
+ 	 * Log in a user with the internal browser.
+ 	 *
+ 	 * If a user is already logged in, then the current user is logged out before
+ 	 * logging in the specified user.
+ 	 *
+ 	 * Please note that neither the global $user nor the passed in user object is
+ 	 * populated with data of the logged in user. If you need full access to the
+ 	 * user object after logging in, it must be updated manually. If you also need
+ 	 * access to the plain-text password of the user (set by drupalCreateUser()),
+ 	 * e.g. to login the same user again, then it must be re-assigned manually.
+ 	 * For example:
+ 	 * @code
+ 	 *   // Create a user.
+ 	 *   $account = $this->drupalCreateUser(array());
+ 	 *   $this->drupalLogin($account);
+ 	 *   // Load real user object.
+ 	 *   $pass_raw = $account->pass_raw;
+ 	 *   $account = user_load($account->uid);
+ 	 *   $account->pass_raw = $pass_raw;
+ 	 * @endcode
+ 	 *
+ 	 * @param $user
+ 	 *   User object representing the user to login.
+ 	 *
+ 	 * @see drupalCreateUser()
+ 	 */
+ 	protected function drupalLogin(stdClass $user) {
+ 		if ($this->loggedInUser) {
+ 			$this->drupalLogout();
+ 		}
+ 	
+ 		$edit = array(
+ 				'name' => $user->name,
+ 				'pass' => $user->pass_raw
+ 		);
+ 		$this->drupalPost('user', $edit, t('Log in'));
+ 	
+ 		// If a "log out" link appears on the page, it is almost certainly because
+ 		// the login was successful.
+ 		$pass = $this->assertLink(t('Sign out'), 0, t('User name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+ 	
+ 		if ($pass) {
+ 			$this->loggedInUser = $user;
+ 		}
+ 	}
+ 
+  public function setUp() {
+    parent::setUp('devtrac7', 'devtractests');
+    $this->adminUser = $this->drupalCreateUser(array('administer users', 'administer permissions', 'access user profiles', 'administer site configuration', 'administer modules'));
+    $this->editorUser = $this->drupalCreateUser(array('administer users', 'administer permissions', 'access user profiles', 'administer site configuration', 'administer modules'));
+    //$this->fieldWorker = $this->drupalCreateUser(array('administer users', 'administer permissions', 'access user profiles', 'administer site configuration', 'administer modules'));
+    //$this->anonymous_user = $this->drupalCreateUser();
+    $this->fieldWorker = $this->drupalCreateUser(array(
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->drupalLogin($this->fieldWorker);
+    $this->drupalPost('user/' . $this->fieldWorker->uid . '/edit', array(
+    "roles[3]" => 3,
+    'field_user_firstname[und][0][value]' => 'ozzx',
+    'field_user_surname[und][0][value]' => 'xzzo',
+    'field_user_aboutme[und][0][value]' => 'aboutjan',
+    'field_user_superior[und][0][target_id]' => 'admin (1)'),
+    t('Save'));
+  }
+  public function testAnonymousroletest() {
+    $this->drupalGet('user/'.$this->fieldWorker->uid); 
+  }
+  public function testUserloginIntegration() {
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+    $this->drupalGet('user/password');
+    $nameinv['name'] = $this->randomName(15);
+    $this->assertText('Request new password', 'button replaced a link on the user/password');
+    $this->assertNoText('You must log out to use the password reset link in the e-mail.', t('button replaced a link on the user/password'));
+    $this->assertNoField('Yo', 0, t('button replaced a link on the user/password'));
+    $this->drupalLogout();
+    // Changed Now button.
+    $this->assertNoText(t('Username or e-mail address'), t('user password is found'), 'Devtrac');
+    $this->assertNoField('Request new password', 'Request new password is not found');
+    $this->assertLink('Request new password', 0, 'Request new password link is found');
+    $this->assertNoText(t('Further instructions have been sent to your e-mail address.'), t('email sent to admin'),'Devtrac');
+    $this->assertNoText(t('is not recognized as a user name or an e-mail address.'), t('user entired unrecognised user name or password'), 'Devtrac');
+  }
+}
+ 

@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Test for hidden_comment module.
+ */
+
+class HiddenCommentTestCase extends DrupalWebTestCase {
+  protected $admin_user;
+  protected $user;
+  protected $node;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Testing the hidden_comment module functionality',
+      'description' => t('Tests whether the hide button is showing on the comment form.'),
+      'group' => 'hidden_comment',
+    );
+  }
+
+  public function setUp() {
+    // Enabling the hidden_comment module for testing.
+    parent::setUp('comment', 'hidden_comment');
+
+    // Creates users and test node.
+    $this->admin_user = $this->drupalCreateUser(array('post comments', 'hide comments', 'create article content'));
+    $this->web_user = $this->drupalCreateUser(array('post comments', 'hide comments', 'administer hidden comments', 'create article content'));
+    $this->node = $this->drupalCreateNode(array('type' => 'article', 'uid' => $this->web_user->uid));
+  }
+
+  public function testCommentHiddenTestCase() {
+    $this->drupalLogin($this->admin_user);
+    $comment = $this->drupalPost('comment/reply/1', array('comment_body[und][0][value]' => $this->randomName(32)), t('Save'));
+    $this->assertLink(t('hide'), 0, t('Admin can hide comment.'));
+
+    $this->drupalLogin($this->web_user);
+    $this->drupalGet('node/1');
+    $this->assertLink(t('hide'), 0, t('Node author can hide comment.'));
+
+    //Pressed the hide button, now i see the hidden_comment form
+    $rname1 = $this->randomName();
+    $rn1 = array('reason' => $rname1);
+    $this->drupalPost('comment/hide/1', $rn1, t('Hide'));
+    $this->assertText(t('Comment was hidden'), t('Comment has been correctly hidden.'));
+    $this->assertLink(t('show'), 0, t('The "show" link appears.'));
+
+    // Show the comment
+    $this->drupalPost('comment/unhide/1', array(), t('Unhide'));
+    $this->assertLink(t('hide'), 0, t('The "hide" links reappears.'));
+
+    // Hide comment without giving any reason
+    $this->drupalPost('comment/hide/1', '', t('Hide'));
+    $this->assertText(t('show'), t('The "show" link appears.'));
+  }
+}
+

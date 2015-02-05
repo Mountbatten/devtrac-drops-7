@@ -1,0 +1,569 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the questionnaire_question module.
+ */
+
+/**
+ * Returns a structured array defining the fields created by this content type.
+ *
+ * This is factored into this function so it can be used in both
+ * node_example_install() and node_example_uninstall().
+ *
+ * @return
+ *  An associative array specifying the fields we wish to add to our
+ *  new node type.
+ *
+ * @ingroup node_example
+ */
+function _questionnaire_question_installed_fields() {
+  $t = get_t();
+  return array(
+    'questionnaire_question_type' => array(
+      'field_name' => 'questionnaire_question_type',
+      'cardinality' => 1,
+      'module' => 'list',
+      'type' => 'list_text',
+      'locked' => TRUE,
+      'settings' => array(
+        'max_length' => 32,
+        'allowed_values_function' => 'questionnaire_question_getquestiontypes',
+        'no_ui' => TRUE,
+      ),
+    ),
+    'questionnaire_question_options' => array(
+      'field_name' => 'questionnaire_question_options',
+      'cardinality' => -1,
+      'module' => 'text',
+      'type' => 'text',
+      'locked' => TRUE,
+      'settings' => array(
+        'max_length' => 255,
+        'size' => 60,
+        'no_ui' => TRUE,
+      ),
+    ),
+    'qq_options_vocabulary' => array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'qq_options_vocabulary',
+      'field_permissions' => array(
+        'type' => 0,
+      ),
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values_function' => 'questionnaire_question_getoptionsvocabulary',
+      ),
+      'translatable' => 0,
+      'type' => 'list_text',
+      'no_ui' => TRUE,
+    ),
+    'qq_responsecount' => array(
+        'field_name' => 'qq_responsecount',
+        'cardinality' => 1,
+        'module' => 'questionnaire_question',
+        'type' => 'questionnaire_question_responsecount',
+        'locked' => TRUE,
+        'settings' => array(),
+    ),
+    'field_related_questions' => array(
+      'active' => 1,
+      'cardinality' => -1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'field_related_questions',
+      'foreign keys' => array(
+        'node' => array(
+          'columns' => array(
+            'target_id' => 'nid',
+          ),
+          'table' => 'node',
+        ),
+      ),
+      'indexes' => array(
+        'target_id' => array(
+          0 => 'target_id',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'base',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+          'sort' => array(
+            'type' => 'none',
+          ),
+          'target_bundles' => array(
+            'questionnaire_question' => 'questionnaire_question',
+          ),
+        ),
+        'target_type' => 'node',
+      ),
+      'translatable' => 0,
+      'type' => 'entityreference',
+    ),
+  );
+}
+
+/**
+ * Implements hook_install().
+ */
+function questionnaire_question_install() {
+  // During installation, the t() function is unavailable, so we use get_t()
+  // to store the name of the translation function.
+  $t = get_t();
+
+  // We define the node type as an associative array.
+  $question = array(
+    'type' => 'questionnaire_question',
+    'name' => $t('Question'),
+    // 'base' tells Drupal the base string for hook functions.
+    // This is often the module name; if base is set to 'mymodule', Drupal
+    // would call mymodule_insert() or similar for node hooks.
+    // In this case, we set base equal to 'node_content' so Drupal will handle
+    // our node as if we had designed it in the UI.
+    'base' => 'node_content',
+    'description' => $t('This is a Question to be asked in a Questionnaire.'),
+    'title_label' => $t('Question'),
+    'custom' => TRUE,
+  );
+
+  // Complete the node type definition by setting any defaults not explicitly
+  // declared above.
+  // http://api.drupal.org/api/function/node_type_set_defaults/7
+  $content_type = node_type_set_defaults($question);
+
+  // there is no body field
+
+  // Save the content type
+  node_type_save($content_type);
+
+  // Create all the fields we are adding to our content type.
+  // http://api.drupal.org/api/function/field_create_field/7
+  foreach (_questionnaire_question_installed_fields() as $field) {
+    watchdog('questionnaire_question', 'create field ' . $field['field_name']);
+    field_create_field($field);
+  }
+
+  // Create all the instances for our fields.
+  // http://api.drupal.org/api/function/field_create_instance/7
+  foreach (_questionnaire_question_installed_instances() as $instance) {
+    watchdog('questionnaire_question', 'create field ' . $instance['field_name']);
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = $question['type'];
+    field_create_instance($instance);
+  }
+}
+
+
+/**
+ * Returns a structured array defining the instances for this content type.
+ *
+ * The instance lets Drupal know which widget to use to allow the user to enter
+ * data and how to react in different view modes.  We are going to display a
+ * page that uses a custom "node_example_list" view mode.  We will set a
+ * cardinality of three allowing our content type to give the user three color
+ * fields.
+ *
+ * This is factored into this function so it can be used in both
+ * node_example_install() and node_example_uninstall().
+ *
+ * @return
+ *  An associative array specifying the instances we wish to add to our new
+ *  node type.
+ *
+ * @ingroup node_example
+ */
+function _questionnaire_question_installed_instances() {
+  $t = get_t();
+  return array(
+    'questionnaire_question_type' => array(
+      'field_name' => 'questionnaire_question_type',
+      'label' => $t('The type of question.'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'options_select',
+        'weight' => -4,
+      ),
+    ),
+    'questionnaire_question_options' => array(
+      'field_name' => 'questionnaire_question_options',
+      'label' => $t('Options'),
+      'type' => 'text',
+      'widget' => array(
+        'type' => 'text_default',
+        'weight' => -3,
+      ),
+    ),
+    'qq_options_vocabulary' => array(
+      'default_value' => NULL,
+      'deleted' => 0,
+      'description' => t('The vocabulary from which answers can be chosen.'),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 2,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'field_name' => 'qq_options_vocabulary',
+      'label' => t('Options Vocabulary'),
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => -2,
+      ),
+    ),
+    'qq_responsecount' => array(
+      'field_name' => 'qq_responsecount',
+      'label' => $t('Response Count'),
+      'required' => FALSE,
+      'widget' => array(
+        'module' => 'field_extrawidgets',
+        'settings' => array(),
+        'type' => 'field_extrawidgets_hidden',
+      ),
+    ),
+    'field_related_questions' => array(
+      'default_value' => NULL,
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'entityreference',
+          'settings' => array(
+            'link' => 1,
+          ),
+          'type' => 'entityreference_label',
+          'weight' => 4,
+        ),
+        'full' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 4,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'field_name' => 'field_related_questions',
+      'label' => 'Related Questions',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'entityreference',
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'path' => '',
+          'size' => 60,
+        ),
+        'type' => 'entityreference_autocomplete',
+        'weight' => -1,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function questionnaire_question_uninstall() {
+  // Gather all the example content that might have been created while this
+  // module was enabled.  Simple selects still use db_query().
+  // http://api.drupal.org/api/function/db_query/7
+  $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+  $result = db_query($sql, array(':type' => 'questionnare_question'));
+  $nids = array();
+  foreach ($result as $row) {
+    $nids[] = $row->nid;
+  }
+
+  // Delete all the nodes at once
+  // http://api.drupal.org/api/function/node_delete_multiple/7
+  node_delete_multiple($nids);
+
+  // Loop over each of the fields defined by this module and delete
+  // all instances of the field, their data, and the field itself.
+  // http://api.drupal.org/api/function/field_delete_field/7
+  foreach (array_keys(_questionnaire_question_installed_fields()) as $field) {
+    field_delete_field($field);
+  }
+
+  // Loop over any remaining field instances attached to the node_example
+  // content type (such as the body field) and delete them individually.
+  // http://api.drupal.org/api/function/field_delete_field/7
+  $instances = field_info_instances('node', 'questionnare_question');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  // Delete our content type
+  // http://api.drupal.org/api/function/node_type_delete/7
+  node_type_delete('questionnare_question');
+
+  // Purge all field infromation
+  // http://api.drupal.org/api/function/field_purge_batch/7
+  field_purge_batch(1000);
+
+}
+
+/**
+ * Implements hook_update_N().
+ * 
+ * Update function to add Question Response Count.
+ */
+function questionnaire_question_update_7001() {
+  $t = get_t();
+  $field = array(
+      'field_name' => 'qq_responsecount',
+      'cardinality' => 1,
+      'module' => 'questionnaire_question',
+      'type' => 'questionnaire_question_responsecount',
+      'locked' => TRUE,
+      'settings' => array(),
+    );
+    watchdog('questionnaire_question', 'create field ' . $field['field_name']);
+    field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'qq_responsecount',
+    'label' => $t('Response Count'),
+    'required' => FALSE,
+    'entity_type' => 'node',
+    'bundle' => 'questionnaire_question',
+    'widget' => array(
+      'module' => 'field_extrawidgets',
+      'settings' => array(),
+      'type' => 'field_extrawidgets_hidden',
+    ),
+  );
+  watchdog('questionnaire_question', 'create field ' . $instance['field_name']);
+  field_create_instance($instance);
+  return t('Create field %s', array($instance['field_name']));
+}
+
+/**
+ * Implements hook_update_N().
+ * 
+ * Update function to add Related Questions Field.
+ */
+function questionnaire_question_update_7008() {
+  $t = get_t();
+  $field_bases = array();
+  // Exported field_base: 'field_related_questions'
+  $field = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_related_questions',
+    'foreign keys' => array(
+      'node' => array(
+        'columns' => array(
+          'target_id' => 'nid',
+        ),
+        'table' => 'node',
+      ),
+    ),
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(
+          'questionnaire_question' => 'questionnaire_question',
+        ),
+      ),
+      'target_type' => 'node',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
+  );
+  watchdog('questionnaire_question', 'create field ' . $field['field_name']);
+  field_create_field($field);
+  
+  $instance = array();
+
+  // Exported field_instance: 'node-questionnaire_question-field_related_questions'
+  $instance = array(
+    'bundle' => 'questionnaire_question',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 4,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_related_questions',
+    'label' => 'Related Questions',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => -1,
+    ),
+  );
+
+  watchdog('questionnaire_question', 'create field ' . $instance['field_name']);
+  field_create_instance($instance);
+  return t('Created field %s', array($instance['field_name']));
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Update function to add Options Vocabulary Field.
+ */
+function questionnaire_question_update_7009() {
+  $t = get_t();
+  $field = array();
+  // Exported field_base: 'qq_options_vocabulary'
+  $field = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'qq_options_vocabulary',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'foreign keys' => array(),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values_function' => 'questionnaire_question_getoptionsvocabulary',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+    'no_ui' => TRUE,
+  );
+
+  watchdog('questionnaire_question', 'create field ' . $field['field_name']);
+  field_create_field($field);
+
+  $instance = array();
+
+  // Exported field_instance: 'node-questionnaire_question-qq_options_vocabulary'
+  $instance = array(
+    'bundle' => 'questionnaire_question',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => t('The vocabulary from which answers can be chosen.'),
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 2,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'qq_options_vocabulary',
+    'label' => t('Options Vocabulary'),
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => -2,
+    ),
+  );
+
+  watchdog('questionnaire_question', 'create field ' . $instance['field_name']);
+  field_create_instance($instance);
+  return t('Created field %s', array($instance['field_name']));
+}

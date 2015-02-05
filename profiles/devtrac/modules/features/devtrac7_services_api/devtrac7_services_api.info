@@ -1,0 +1,25 @@
+name = devtrac7_services_api
+description = devtrac7_services_api
+core = 7.x
+package = Devtrac
+version = 7.x-1.0-beta
+project = devtrac7_services_api
+dependencies[] = ctools
+dependencies[] = services
+dependencies[] = views
+features[ctools][] = services:services:3
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[services_endpoint][] = api
+features[views_view][] = api_fieldtrips
+features[views_view][] = api_questions
+features[views_view][] = api_user
+features[views_view][] = api_vocabularies
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

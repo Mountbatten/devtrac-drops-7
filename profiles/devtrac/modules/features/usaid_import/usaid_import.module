@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the USAID Import feature.
+ */
+
+include_once('usaid_import.features.inc');

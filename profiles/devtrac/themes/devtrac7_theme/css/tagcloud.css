@@ -1,0 +1,86 @@
+/*
+ This page contains a secret table view of 1 row as a placeholder.
+ We need to remove this in the devtrac7_views module
+ but not now
+ 
+ Most of this is copied from
+ http://onwebdev.blogspot.com/2011/02/jquery-creating-tag-cloud.html
+ 
+ */
+ 
+.view-modes-tagcloud .view-devtrac-solr-view-sitevisits .view-content table {
+  display:none
+}
+
+
+
+.facetapi-facetapi-tagcloud {
+    padding: 0.5em 0;
+    margin: 0.5em;
+    width: 100%;
+    list-style: none;
+    border: 1px solid gray;
+    border-width: 1px 0 1px 0;
+    line-height: 1.5;
+    
+    
+}
+
+.facetapi-facetapi-tagcloud li {
+/*  display: inline;*/
+  text-transform: lowercase;
+  padding: 0 1em;
+  float: left;
+  display: block;
+  font-size: 40px;
+}
+
+.facetapi-facetapi-tagcloud li a {
+   text-decoration: none;
+   position: relative;
+ 
+}
+
+
+.facetapi-tagcloud-level1 {
+  font-size: 1em;
+}
+
+.facetapi-tagcloud-level2 {
+  font-size: 1.2em;
+}
+
+.facetapi-tagcloud-level3 {
+  font-size: 1.4em;
+}
+
+.facetapi-tagcloud-level4 {
+  font-size: 1.6em;
+}
+
+.facetapi-tagcloud-level5 {
+  font-size: 1.8em;
+}
+
+.facetapi-tagcloud-level6 {
+  font-size: 2em;
+}
+
+.facetapi-tagcloud-level7 {
+  font-size: 2.2em;
+}
+
+.facetapi-tagcloud-level8 {
+  font-size: 2.4em;
+}
+
+.facetapi-tagcloud-level9 {
+  font-size: 2.6em;
+}
+
+.facetapi-tagcloud-level10 {
+  font-size: 5.0em;
+}
+
+
+

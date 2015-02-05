@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * Implements hook_translated_menu_link_alter().
+ */
+function devtrac7_profile_menu_translated_menu_link_alter(&$item, $map) {
+  if ($item['menu_name'] == 'menu-my-profile') {
+    if (($item['link_path'] == '<nolink>')) {
+      if (in_array($_GET['q'], array('sitereports', 'actionitems', 'fieldtrips', 'organisations', 'activities', 'images', 'statistics/analyse', 'statistics', 'adminunits', 'locations'))) {
+        $item['hidden'] = 0;
+      }
+      else {
+        $item['hidden'] = 1;
+      }
+    }
+    else {
+      if (($item['link_path'] != 'user') && ($item['link_path'] != 'user/%/edit') && ($item['link_path'] != 'node/add/fieldtrip')) {
+        if ($item['link_path'] == $_GET['q']) {
+          $item['hidden'] = 0;
+        }
+        else {
+          if (strpos($item['link_path'], 'analyse') && (strpos($item['link_path'], $_GET['q']) !== FALSE ) && ($_GET['q'] != 'statistics')) { // File exports.
+            $item['hidden'] = 0;
+          }
+          else {
+            if (strpos($item['link_path'], 'questions') && ($_GET['q'] == 'statistics')) { // Questions csv file exports.
+              $item['hidden'] = 0;
+            }
+            else {
+              $item['hidden'] = 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function devtrac7_profile_menu_menu_alter(&$items) {
+  $items['<nolink>']['access callback'] = 'devtrac7_profile_menu_export_access_callback';
+}
+
+/**
+ * Implements custom access callback function.
+ */
+function devtrac7_profile_menu_export_access_callback() {
+  // Check if site is offline.
+  $page_callback_result = _menu_site_is_offline() ? MENU_SITE_OFFLINE : MENU_SITE_ONLINE;
+  if ($page_callback_result == MENU_SITE_ONLINE) {
+    if ($router_item = menu_get_item($_GET['q'])) {
+      if ($router_item['access']) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<placetypes>
+	<placetype>
+		<name>Schools</name>
+		<placetype>
+			<name>Primary School</name>
+			<placetype>
+				<name>Primary Private School</name>
+			</placetype>
+			<placetype>
+				<name>Public Government School</name>
+			</placetype>
+			     <placetype>
+        <name>Public Community School</name>
+      </placetype>
+		</placetype>
+		<placetype>
+			<name>Secondary School</name>
+			<placetype>
+				<name>Secondary Private School</name>
+			</placetype>
+			<placetype>
+				<name>Secondary Community School</name>
+			</placetype>
+			<placetype>
+				<name>Secondary Government School</name>
+			</placetype>
+		</placetype>
+
+		<placetype>
+			<name>Vocational School</name>
+			<placetype>
+				<name>Technical School</name>
+			</placetype>
+		</placetype>
+            <placetype>
+                <name>Other School</name>
+            </placetype>
+	</placetype>
+        <placetype>
+            <name>Water Points</name>
+             <placetype>
+                <name>Borehole</name>
+            </placetype>
+            <placetype>
+                <name>Deep Borehole</name>
+            </placetype>
+            <placetype>
+                <name>Gfs or Tap</name>
+            </placetype>
+            <placetype>
+                <name>Protected Spring</name>
+            </placetype> 
+            <placetype>
+                <name>Tap</name>
+            </placetype>
+            <placetype>
+                <name>Well</name>
+            </placetype>
+            <placetype>
+                <name>Shallow Well</name>
+            </placetype> 
+            <placetype>
+                <name>Unknown Waterpoint</name>
+            </placetype>                                                        
+        </placetype>
+        <placetype>
+            <name>Health Facilities</name>
+            <placetype>
+                <name>Health Centre</name>
+            </placetype> 
+            <placetype>
+                <name>Health Centre II</name>
+            </placetype> 
+            <placetype>
+                <name>Health Centre III</name>
+            </placetype> 
+            <placetype>
+                <name>Health Centre IV</name>
+            </placetype> 
+            <placetype>
+                <name>Health Unit</name>
+            </placetype> 
+            <placetype>
+                <name>Hospital</name>
+            </placetype>
+            <placetype>
+                <name>Other Health Centre</name>
+            </placetype>                                                                                    
+        </placetype>
+        <placetype>
+            <name>Other Locations</name>
+            <placetype>
+                <name>Government Office</name>
+            </placetype>
+            <placetype>
+                <name>NGO</name>
+            </placetype>
+            <placetype>
+                <name>Faith-based Organisation</name>
+            </placetype>
+            <placetype>
+                <name>Place of Worship</name>
+            </placetype>
+            <placetype>
+                <name>Youth Centre</name>
+            </placetype>
+            <placetype>
+                <name>Office</name>
+            </placetype>
+            <placetype>
+                <name>Child Protection Committee</name>
+            </placetype>
+            <placetype>
+                <name>Refugee Camp</name>
+            </placetype>
+            <placetype>
+                <name>Household</name>
+            </placetype>
+            <placetype>
+                <name>Shop or Market</name>
+            </placetype>
+            <placetype>
+                <name>Police Station</name>
+            </placetype>
+        </placetype>
+</placetypes>

@@ -1,0 +1,138 @@
+<?php
+
+function devtrac7_wms_menu() {
+  $items['devtrac/wms/wmsgetfeatureinfo_process'] = array(
+    'page callback' => 'devtrac7_wms_ajax_wmsgetfeatureinfo_process',
+    'type' => MENU_CALLBACK,
+    'access callback' => 'wms_check_perm_getfeatureinfo',
+  );
+
+  return $items;
+}
+
+function devtrac7_wms_preprocess_wms_getfeatureinfo(&$variables) {
+  /* Add the add link*/
+  foreach ($variables['result'] as $layer => $data) {
+    global $base_root, $base_url, $base_path;
+    $i = 0;
+    $variables['tables'][$layer]['header'][] = t('Add');
+    foreach ($data as $row) {
+      foreach ($row as $headername => $field) {
+        if ($headername == 'the_geom') {  // this is an ugly rename of the geo column other code expects it to be called 'geometry'
+          $the_geom = $field;
+        } else {
+          $params[$headername] = $field;
+        }
+      }
+
+      $params['layer'] = $layer;
+      $params['geometry'] = $the_geom;
+      $referrer = $_SERVER['HTTP_REFERER'];
+      $q = substr($referrer, strlen($base_url . '/node/add/place/'));
+      if (strpos($q, '?') !== FALSE) {
+        $q = substr($q ,0, strpos($q, '?'));
+      }
+      $params['arg'] = $q; // i need this, the args of the original page request, and this seems the most generic way to implement.
+
+      $attribs = Array (
+         'attributes' => Array(
+           'class' => 'getfeatureaddlink'
+         ),
+         'query' => $params
+      );
+
+      $link = l(t('Add'), 'devtrac/wms/wmsgetfeatureinfo_process', $attribs);
+      $variables['tables'][$layer]['rows'][$i][] = Array('data' => $link, 'class' => 'add');
+      $i++;
+      unset($params);
+      unset($attribs);
+    }
+  }
+}
+
+function devtrac7_wms_ajax_wmsgetfeatureinfo_process() {
+  $result = FALSE;
+  $geometry = $_GET['geometry'];
+  $layer = $_GET['layer'];
+  /*
+   *  these are the arg of the original page request
+   */
+  $arg = $_GET['arg'];
+  /*
+   * 0 is the fieldtrip (or could be ftritem)
+   * 1 is the type of ftritem
+   */
+  $args = explode('/', $arg);
+
+  $params = $_GET;
+  unset($params['geometry']);
+  unset($params['layer']);
+  unset($params['arg']);
+  $messages = "";
+  $result =  devtrac7_wms_add_place_to_fieldtrip($layer, $geometry, $params, $args[0], $args[1]);
+  $messages .= $result;
+  // make sure sensible headers etc are sent
+  drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
+  $object = new stdClass();
+  $object->content = $messages;
+  $object->redirect = 'node/' . $args[0];
+  print drupal_json_encode($object);
+  exit();
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function devtrac7_wms_add_place_to_fieldtrip($layer, $geometry, $params, $targetnodenid, $reporttype) {
+  global $user, $base_path; // this is needed to set the uid on the nodes we are about to create.
+  $message = '';
+  /*
+   * The target node can either be a field trip or a site report.
+   */
+  if ($targetnode = node_load($targetnodenid)) {
+
+    $name = $params['name'];
+    $id = $params['id'];
+    $placetype = $params['placetype'];
+    $district = drupal_ucfirst(drupal_strtolower($params['district']));
+
+    unset($params['name']);
+    unset($params['id']);
+    unset($params['placetype']);
+    unset($params['district']);
+    module_load_include('inc', 'devtrac7', 'devtrac7_place');
+    $placenid = devtrac7_place_createnew($name, $id, $layer, $placetype, $district, $params, $geometry);
+    // Abort when devtrac7_place_createnew() fails
+    if ($placenid === FALSE) {
+      return t("Locationtype and/or District is not known. Aborting! Please contact your administrator.");
+    }
+
+    switch ($targetnode->type) {
+      case 'place' :
+        if ($targetnode->nid == $placenid) {
+          return (t("You can not merge yourself."));
+        }
+        else {
+          return (t("This is a Location. We need to merge it."));
+        }
+        break;
+      case 'ftritem' :
+        $targetnode->place[LANGUAGE_NONE][0]['target_id'] = $placenid;
+        node_save($targetnode);
+        return (t("Added the location to the Site Visit."));
+        break;
+      case 'fieldtrip' :
+        module_load_include('inc', 'devtrac7', 'devtrac7_ftritem');
+        $message .= devtrac7_ftritem_create($placenid, $targetnodenid, $reporttype);
+        return $message;
+        break;
+      default :
+        return t("This is not a fieldtrip, site visit or location that you are linking the location to.");
+    }
+  }
+  else {
+    $message .= t("oh that is not good we did a getfeatureinfo request and had no outcome.");
+    return $message;
+  }
+}

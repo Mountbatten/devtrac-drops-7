@@ -1,0 +1,415 @@
+<?php
+
+
+/**
+ * @file
+ * Handles hook implementation.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function questionnaire_permission() {
+  return array(
+    'view questionnaire' => array(
+      'title' => t('View questionnaires'),
+      'description' => t('View Questionnaires'),
+    ),
+    'administer questionnaire' => array(
+      'title' => t('Administer questionnaire'),
+      'description' => t('Create, edit or delete questionnaires'),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_node_access().
+ */
+function questionnaire_node_access($node, $op, $account = NULL) {
+  global $user;
+  if (empty($account)) {
+    $account = $user;
+  }
+  // Ignore non-Questionnaire node.
+  if ((is_object($node) ? $node->type : $node) !== 'questionnaire') {
+    return NODE_ACCESS_IGNORE;
+  }
+  if ($op == 'view') {
+    if (user_access('view questionnaire', $account)) {
+      return NODE_ACCESS_ALLOW;
+    }
+  }
+  elseif ($op == 'create' || $op == 'update' || $op == 'delete') {
+    if (user_access('administer questionnaire')) {
+      return NODE_ACCESS_ALLOW;
+    }
+  }
+  return NODE_ACCESS_DENY;
+}
+
+
+
+/**
+ * Implements hook_node_info().
+ */
+function questionnaire_node_info() {
+  return array(
+    'questionnaire' => array(
+      'name' => t('Questionnaire'),
+      'base' => 'questionnaire',
+      'description' => t('Container for Questions'),
+      'has_title' => TRUE,
+      'title_label' => t('Name'),
+      'has_body' => FALSE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_form().
+ */
+function questionnaire_form($node) {
+  $type = node_type_get_type($node);
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5,
+    '#maxlength' => 255,
+  );
+  $options = array('In Preparation' => t('In Preparation'), 'Active' => t('Active'), 'Closed' => t('Closed'));
+  $form['qstatus'] = array(
+    '#type' => 'select',
+    '#title' => t('Status'),
+    '#required' => TRUE,
+    // Check whether the questionnaire status has been set, if so use the saved 
+    // status as the default, otherwise use 'In Preparation' as the default.
+    '#default_value' => isset($node->qstatus) ? $node->qstatus: t('In Preparation'),
+    '#weight' => -4,
+    '#options' => $options,
+  );
+  return $form;
+}
+
+/**
+ * Implements hook_insert().
+ */
+function questionnaire_insert($node) {
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("INSERT INTO {questionnaire} (nid, vid, qstatus) VALUES (%d, %d, '%s')", $node->nid, $node->vid, $node->qstatus) */
+  $id = db_insert('questionnaire')
+  ->fields(array(
+    'nid' => $node->nid,
+    'vid' => $node->vid,
+    'qstatus' => $node->qstatus,
+  ))
+  ->execute();
+}
+
+/**
+ * Implements hook_update().
+ */
+function questionnaire_update($node) {
+  if (!empty($node->revision)) {
+    questionnaire_insert($node);
+  }
+  else {
+    // TODO Please review the conversion of this statement to the D7 database API syntax.
+    /* db_query("UPDATE {questionnaire} SET qstatus = '%s' WHERE vid = %d", $node->qstatus, $node->vid) */
+    db_update('questionnaire')
+  ->fields(array(
+      'qstatus' => $node->qstatus,
+    ))
+  ->condition('vid', $node->vid)
+  ->execute();
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() to conditionally prevent node deletion
+ * if there are any campaigns attached to the questionnaire.
+ */
+function questionnaire_form_node_delete_confirm_alter(&$form, $form_state) {
+  // If there is atleast one campaign attached to this questionnaire,
+  // notify the user that this campaign can not be deleted .
+  if (module_exists('questionnaire_campaign')) {
+    $campaign_count = 0;
+    //Check if we have a node id and stop if not.
+    if(empty($form['nid']['#value'])) {
+        return;
+    }
+    $node = node_load($form['nid']['#value']);
+    if(empty($node->nid)) {
+        return;
+    }
+    if ($node->type == 'questionnaire') {
+      $result = db_query('SELECT id FROM {questionnaire_campaign} WHERE nid = :questionnaire', array(':questionnaire' => $node->nid));
+      foreach ($result as $campaign_id) {
+        $campaign_count++;
+      }
+      if ($result) {
+        $msg = t('<p>%title will not be deleted because it has %count campaign%plural attached to it</p>',
+            array('%title' => $node->title, '%count' => $campaign_count, '%plural' => (($campaign_count>1)? 's' : '')));
+        //Set explanatory message
+        $form['campaigns_exist_warning'] = array(
+            '#markup' => $msg,
+            '#weight' => -10,
+        );
+        //Remove the delete button and the 'action cannot be undone message'.
+        unset($form['actions']['submit']);
+        unset($form['description']['#markup']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ */
+function questionnaire_node_revision_delete($node) {
+  db_delete('questionnaire')
+  ->condition('nid', $node->nid)
+  ->condition('vid', $node->vid)
+  ->execute();
+}
+
+
+/**
+ * Implements hook_delete().
+ */
+function questionnaire_delete(&$node) {
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {questionnaire} WHERE nid = %d", $node->nid) */
+  db_delete('questionnaire')
+  ->condition('nid', $node->nid)
+  ->execute();
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function questionnaire_field_extra_fields() {
+  $extra['node']['questionnaire'] = array(
+    'form' => array(
+      'qstatus' => array(
+         'label' => t('Status'),
+         'description' => t('Status of the Questionnaire'),
+         'weight' => -5,
+      ),
+    ),
+  );
+  return $extra;
+}
+
+/**
+ * Implements hook_load().
+ */
+function questionnaire_load($nodes) {
+  foreach ($nodes as $nid => &$node) {
+//    $node_additions = db_select('SELECT qstatus from {questionnaire} WHERE vid = :vid', array(':vid' => $node->vid))->execute();
+//    foreach ($node_additions as $property => &$value) {
+//      $node->$property = $value;
+//    }
+//  }
+
+  /* If there is no hook implemented then just return all existing questions */
+  $query = db_select('questionnaire', 'q')
+  ->fields('q', array('vid', 'qstatus'))
+  ->condition('vid', $node->vid);
+  $result = $query->execute()->fetchAssoc();
+//  foreach ($result as $qstatus) {
+    $node->qstatus = $result['qstatus'];
+//  }
+  }
+}
+
+/**
+ * Implements hook_view()
+ */
+function questionnaire_view($node, $teaser = FALSE, $page = FALSE) {
+  //$node = node_prepare($node, FALSE);
+  $options = array('In Preparation', 'Active', 'Closed');
+  $node->content['qstatus'] = array(
+    '#markup' => '<div class="qlabel"><label>Status</label><span class="description">The questionnaire will become Read Only if this value has been changed to Active.</span><div>' . check_plain($node->qstatus) . '</div>',
+
+    '#weight' => -3,
+  );
+
+
+  return $node;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ *
+ * On top of book module.
+ * @todo Review.
+ *
+ * @see entity_entity_property_info_alter()
+ */
+function questionnaire_entity_property_info_alter(&$info) {
+  // Add meta-data about the added node properties.
+  $properties = &$info['node']['properties'];
+
+
+  $properties['mystatus'] = array(
+           'label' => t("Status"),
+           'description' => t("The questionnaire will become Read Only if this value has been changed to Active."),
+           'type' => 'text',
+           'getter callback' => 'entity_property_questionnaire_get_property',
+           'computed' => TRUE,
+           'required' => FALSE,
+       );
+}
+
+/**
+ * @todo What was this for? Keep or delete?
+ *
+ * Helper function that gets properties for the sms_user_entity_property_info_alter() function
+ * @param unknown_type $data
+ * @param array $options
+ * @param unknown_type $name
+ *
+function entity_property_questionnaire_get_property($data, array $options, $name, $type, $info) {
+    drupal_set_message("here we are");
+    if ($data->type == 'questionnaire') {
+      switch ($name) {
+        case "qstatus" :
+           return $data->qstatus;
+      }
+      return NULL;
+    }
+  }
+*/
+
+/**
+ * Implements hook_questionnaire_getcontext().
+ */
+function questionnaire_questionnaire_getcontext($entity_type, $entity, $recipient) {
+  // Case for a questionnaire created from a node
+  if (isset($entity) && variable_get('questionnaire_question_isquestionnaire_' . $entity->type, FALSE)) {
+    $context_field_name = variable_get('questionnaire_question_context_' . $entity->type, '');
+    // When the questionnaire node is not the context
+    if ($context_field_name != '') {
+      $entity_context_field_element = $entity->$context_field_name;
+      // If an entity reference was saved in this field, return the appropriate 
+      // entity.
+      if (!empty($entity_context_field_element)) {
+        $context_id = $entity_context_field_element[$entity->language][0]['target_id'];
+        $referenced_entity = entity_load("node", array($context_id));
+        return array('node' => array($referenced_entity[$context_id]));       
+      }
+    }
+    // When the questionnaire node is the context
+    else {
+      return array('node' => array($entity));
+    }
+  }
+}
+
+/**
+ * Implements hook_questionnaire_getquestions().
+ */
+function questionnaire_questionnaire_getquestions($contexts, $recipient, $questionnaire = NULL) {
+  $questions = array();
+  if (isset($contexts['node'])) {
+    foreach ($contexts['node'] as $node) {
+      // Case for native questionnaires
+      if ($node->type == 'questionnaire') {
+        $question_references = field_get_items('node', $node, 'field_questionnaire_questions');
+        foreach ($question_references as $delta => $item) {
+          $collection = field_collection_item_load($item['value']);
+          $question_id = $collection->field_questionnaire_qq['und'][0]['target_id'];
+          // @todo should use an API function here?
+          $questions[$item['value']] = array(
+            'node' => node_load($question_id),
+            'weight' => $delta,
+            'context_type' => 'node',
+            'context_id' => $node->nid,
+            'questionnaire_id' => $node->nid,
+          );
+        }
+      }
+      // Case for Questionnaires created from nodes.
+      else {
+        $questionnaire_node = node_load($node->nid);
+        $vocabulary_name = variable_get('questionnaire_question_vocabulary_' . $questionnaire->type, 0);
+        $vocabulary_id = taxonomy_vocabulary_machine_name_load($vocabulary_name)->vid;
+        $field_id = questionnaire_question_get_field($questionnaire_node, $vocabulary_id);
+        if ($field_id != 0) {
+          $qfield = field_info_field_by_id($field_id);
+          $field_name = $qfield['field_name'] ;
+          $field_element = $questionnaire_node->$field_name;
+          if (isset($field_element[$questionnaire_node->language][0]['tid']) && (!is_null($field_element[$questionnaire_node->language][0]['tid']))) {
+            $field_term = $field_element[$questionnaire_node->language][0]['tid'];
+            $field_terms = taxonomy_get_parents_all($field_term);
+            foreach ($field_terms as $field_term) {
+              $query = db_select('node', 'n');
+              $query->join('field_data_' . $field_name, 'p', 'n.nid = p.entity_id');
+              $query->fields('n', array('nid'));
+              $query->condition('p.' . $field_name . '_tid', $field_term->tid)
+                  ->condition('p.bundle', 'questionnaire_question')
+                  ->condition('n.status', 1);
+              $qresult = $query->execute();
+              foreach ($qresult as $question) {
+                $questions[$question->nid] = array(
+                  'node' => node_load($question->nid),
+                  'context_type' => 'node',
+                  'context_id' => $node->nid,
+                  'questionnaire_id' => $node->nid,
+                );
+              }
+            }
+          }
+        }
+        else {
+          if (variable_get('questionnaire_question_isquestionnaire_' . $node->type, FALSE)) {
+            drupal_set_message(t('The vocabulary that connects questions to this node is not set. Please go to admin/structure/types/manage/' . check_plain($node->type) . ' and set it.' ), 'error');
+          }
+        }
+      }
+    }
+  }
+  return $questions;
+}
+
+/**
+ * Returns the field id of the required term reference field.
+ * 
+ * @param object $node
+ *    The fields of the $node shall be looped through to find the term reference
+ *    field that has terms belonging to the vocabulary with the supplied id.
+ * @param string $vid
+ *    The vocabulary id that shall be used to identify the correct field.
+ * 
+ * @return string $term_reference_field_id
+ *    The field id of the field that has terms from the vocabulary that has the 
+ *    supplied vocabulary id.
+ */
+function questionnaire_question_get_field($node, $vid) {
+    $term_reference_field_id = '';
+    $term_reference_fields = array();
+    $fields = field_info_instances("node", $node->type);
+    foreach ($fields as $field_name => $field) {      
+      $field_info = field_info_field($field_name);
+      $type = $field_info['type'];
+      if ($type == 'taxonomy_term_reference') {     
+        $term_reference_fields[$field_info['id']] = $field_name;
+      }
+    }
+    // For each term reference field, check if the vid stored in it 
+    // is the same as the vid passed into the function
+    foreach ($term_reference_fields as $field_id => $field_name) {
+      $field_element = $node->$field_name;
+      if (isset($field_element[$node->language][0]['tid']) && (!is_null($field_element[$node->language][0]['tid']))) {
+        $tid = $field_element[$node->language][0]['tid'];
+        $term = taxonomy_term_load($tid);
+        if ($term->vid == $vid) {
+          $term_reference_field_id = $field_id;
+        }
+      }
+    }
+  return $term_reference_field_id;
+}

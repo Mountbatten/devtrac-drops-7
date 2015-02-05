@@ -1,0 +1,23 @@
+diff --git a/devtrac.profile b/devtrac.profile
+index 182cab7..5934dd1 100644
+--- a/devtrac.profile
++++ b/devtrac.profile
+@@ -15,7 +15,7 @@ function devtrac_form_install_configure_form_alter(&$form, $form_state, $form_id
+     $form['site_information']['site_name']['#default_value'] = $_SERVER['SERVER_NAME'];
+ 
+     // Alter country install_settings_form.
+-   $form['server_settings']['site_default_country']['#required'] = TRUE;
++  // $form['server_settings']['site_default_country']['#required'] = TRUE;
+    $form['#submit'][] = 'devtrac_install_configure_form_submit_country';
+   }
+ }
+@@ -30,7 +30,8 @@ function devtrac_install_configure_form_submit_country(&$form, $form_state) {
+   $country_code = $form_state['values']['site_default_country'];
+   if(empty($countries[$country_code])) {
+     drupal_set_message("Country code provided in default country can not be identified.", 'error');
+-    return;
++   // return;
++    $country_code = 'UG';
+   }
+ 
+   if(!module_exists("mapit")) {

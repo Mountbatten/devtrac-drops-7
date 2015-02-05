@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the DevTrac7_theme_feature feature.
+ */
+
+include_once('devtrac7_theme_feature.features.inc');

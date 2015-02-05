@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Implements ctools plugin for CKAN Packages.
+ */
+
+/**
+ * Implements hook_ckan_packages_packages().
+ */
+function devtrac_question_packages_ckan_packages_packages() {
+  $path = drupal_get_path('module', 'devtrac_question_packages') . '/plugins/packages';
+
+  // Base userlist_provider class.
+  $plugins['devtrac_question'] = array(
+    'handler' => array(
+      'class' => 'DevtracQuestionPackages',
+      'file' => 'DevtracQuestionPackages.inc',
+      'path' => $path,
+    ),
+  );
+
+  return $plugins;
+}

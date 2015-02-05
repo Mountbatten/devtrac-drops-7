@@ -1,0 +1,191 @@
+<?php
+
+/**
+* @file
+* Test Devtrac project fieldtrips fields availability and accessibility.
+**/
+module_load_include('test', 'simpletest_clone');
+class FieldTripFormElementTestCase extends SimpleTestCloneTestCase {
+  protected $fieldWorker;
+  protected $profile = 'devtrac';
+  public static function getInfo() {
+    return array(
+      'name' => 'Devtrac fieldtrip create form elements test',
+      'description' => t('Testing the availability and accessibility of devtrac fieldtrip form elements.'),
+      'group' => 'Devtrac',
+    );
+  }
+
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+  
+  public function setUp() {
+     parent::setUp();
+     $this->public_files_directory = variable_get('file_public_path');
+     $this->fieldWorker = $this->drupalCreateUser(array(
+       'create fieldtrip content',
+       'administer nodes',
+       'administer users',
+       'administer permissions',
+       'access user profiles',
+       'administer site configuration',
+       'administer modules'
+       ));
+     $this->drupalLogin($this->fieldWorker);
+     $this->assertNoText(t('Overview'), t('User is successifuly logged in'), 'Devtrac');
+     $this->drupalPost('user/' . $this->fieldWorker->uid . '/edit', array(
+       "roles[5]" => 5,
+       'field_user_firstname[und][0][value]' => 'firstname',
+       'field_user_surname[und][0][value]' => 'lname',
+       'field_user_aboutme[und][0][value]' => 'aboutjan',
+       'name' =>'tester',
+       'field_user_superior[und][0][target_id]' => 'admin (1)'),
+       t('Save'));
+      }
+  /**
+   * Presence of the proms TA number field.
+   */
+  public function testTaNumberExisttest() {
+      $this->drupalGet('node/add/fieldtrip', array('query' => array('field_fieldtrip_user' => $this->fieldWorker->uid, 'field_fieldtrip_places' => '')));
+      $this->assertNoField('field_fieldtrip_proms_ta_id[und][0][value]', t('TA Number field does exist'), 'DevTrac');
+      $this->assertNoText('TA Number', 'Fill in the TA Number', 'DevTrac');
+      $this->assertText('Create Field Trip', 'Create Filed Trip form exists', 'DevTrac');
+ }
+  /**
+   * Marking the presence of the Title field.
+   */
+  public function testTitleFieldExisttest() {
+     $this->drupalGet('node/add/fieldtrip', array('query' => array('field_fieldtrip_user' => $this->fieldWorker->uid, 'field_fieldtrip_places' => '')));
+     $this->assertField(t('title'), t('TA Number field does exist'), 'DevTrac');
+     $this->assertNoText(t('TA Number'), t('Fill in the TA Number'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');
+  }
+  /**
+   * Making sure that the purpose field is showing.
+   */
+  public function testPurposeFieldExisttest() {
+    $this->drupalGet('node/add/fieldtrip', array('query' => array('field_fieldtrip_user' => $this->fieldWorker->uid, 'field_fieldtrip_places' => '')));
+    $this->assertResponse(200, 'resquest is positively responded to');
+    $this->assertField(t('field_fieldtrip_fc_purpose[und][0][field_fieldtrip_fc_purpose_purps][und]'), t('Field trip purpose field does exist'), 'DevTrac');
+    $this->assertText(t('Purpose'), t('Purpose label is showing'), 'DevTrac');
+    $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');
+    $title['title'] = $this->randomName(20);
+    $this->drupalPost(NULL, $title, t('Save'));
+  }
+  /**
+   * Checking the presence of the internal Id field on the page.
+   */
+  public function testInternalIDFieldExisttest() {
+    $this->drupalGet('node/add/fieldtrip');
+    $this->assertField(t('field_fieldtrip_internal_id[und][0][value]'), t('Field Internal ID is found'), 'DevTrac');
+    $this->assertText(t('Internal ID'), t('Internal ID is showing'), 'DevTrac');
+    $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');  
+  }
+  /**
+   * Checking the presence of the remove field on the page.
+   */
+ public function testPurposeRemoveFieldExisttest() {
+    $this->drupalGet('node/add/fieldtrip');
+    $this->assertField(t('field_fieldtrip_fc_purpose_und_0_remove_button'), t('Field purpose remove is found'), 'DevTrac');
+     $this->assertText(t('Internal ID'), t('Internal ID is showing'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');  
+  }
+
+  /**
+   * Checking the presence of the percentage field on the page.
+   */
+  public function testPercentageFieldExisttest() {
+     $this->drupalGet('node/add/fieldtrip');
+     $this->assertField(t('field_fieldtrip_fc_purpose[und][0][field_fieldtrip_purpose_percent][und][0][value]'), t('Field trip purpose parcent field does exist'), 'DevTrac');
+     $this->assertText(t('Percentage'), t('Purpose label is showing'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');  
+  }
+  /**
+   * Ensuring that the date field is showing and active.
+   */
+  public function testPurposeDateFieldExisttest() {
+     $this->drupalGet('node/add/fieldtrip');
+     $this->assertField(t('field_fieldtrip_start_end_date[und][0][value][date]'), t('Field start end date does exist'), 'DevTrac');
+     $this->assertText(t('Start and End Date'), t('Start and End Date label is showing'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');
+     
+  }
+ /**
+  * Asserting the removal of district field on the add field trip page.
+  */
+ public function testPurposeDistrictFieldExisttest() {
+     $this->drupalGet('node/add/fieldtrip');
+     $this->assertNoField(t('taxonomy_vocabulary_6[und][]'), t('District start end date does exist'), 'DevTrac');
+     $this->assertNoText(t('District'), t('District label is not showing'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');  
+  }
+  /**
+   * Asserting the presence of Add purpose field button.
+   */
+  public function testPurposeAddMoreFieldExisttest() {
+     $this->drupalGet('node/add/fieldtrip');
+     $this->assertField(t('edit-field-fieldtrip-fc-purpose-und-add-more'), t('Field add more fieldtrip does exist'), 'DevTrac');
+     $this->assertNoText(t('key on your keyboard to select multiple districts.'), t('key on your keyboard to select multiple districts.label is not showing'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');
+  }
+  /**
+   * Checking the presence of purpose remove button.
+   */
+  public function testPurposeRemoveFieldExisttest1() {
+     $this->drupalGet('node/add/fieldtrip');
+     $this->assertField(t('edit-field-fieldtrip-fc-purpose-und-0-remove-button'), t('Field remove purpose does exist'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');  
+  }
+  /**
+   * Testing the presence of save button on the add fieldtrip page.
+   */  
+  public function testPurposeSaveButtonFieldExisttest() {
+     $this->drupalGet('node/add/fieldtrip');
+     $this->assertField(t('edit-submit'), t('Button save does exist'), 'DevTrac');
+     $this->assertText(t('Create Field Trip'), t('Create Filed Trip form exists'), 'DevTrac');    
+  }
+   }  

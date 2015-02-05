@@ -1,0 +1,37 @@
+name = Questionnaire user update
+description = Example feature: Update a field on user based on the answer given to a question
+core = 7.x
+package = Questionnaire
+version = 7.x-1.0
+project = questionnaire_user_update
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = field_collection
+dependencies[] = list
+dependencies[] = node_export_features
+dependencies[] = node
+dependencies[] = node_export_dependency
+dependencies[] = node_export_features
+dependencies[] = options
+dependencies[] = questionnaire
+dependencies[] = questionnaire_answer
+dependencies[] = questionnaire_question
+dependencies[] = rules
+dependencies[] = strongarm
+dependencies[] = text
+dependencies[] = uuid
+features[features_api][] = api:2
+features[field_base][] = field_favourite_colour
+features[field_instance][] = user-user-field_favourite_colour
+features[node_export_features][] = 00b9e759-5852-4903-b144-16fa26daed46
+features[node_export_features][] = f1c32475-a221-453e-9582-192fcbc00012
+features[node_export_features][] = feaf634b-0da5-4703-8533-c3996b503ae9
+features_exclude[node][questionnaire_question] = questionnaire_question
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "questionnaire"
+datestamp = "1421407215"
+

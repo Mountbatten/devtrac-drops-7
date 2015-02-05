@@ -1,0 +1,16 @@
+name = PURL for Devtrac
+description = "Renames Responsible to Author and vice-versa"
+package = Devtrac
+core = 7.x
+dependencies[] = purl_search_api
+
+files[] = devtrac_purl.module
+files[] = includes/devtrac_purl.inc
+
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

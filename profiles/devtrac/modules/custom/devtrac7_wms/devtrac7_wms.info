@@ -1,0 +1,16 @@
+;$Id$
+name = "Devtrac WMS"
+description = "Provides a WMS Getfeatureinfo Result Processing for Devtrac"
+package = Devtrac
+dependencies[] = wms
+core = "7.x"
+
+files[] = devtrac7_wms.module
+scripts[]=devtrac7_wms.js
+
+; Information added by drush on 2015-02-05
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1423125024"
+

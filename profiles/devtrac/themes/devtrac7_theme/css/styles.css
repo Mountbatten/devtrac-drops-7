@@ -1,0 +1,894 @@
+/*===========================================================================*\
+  General Styles
+\*===========================================================================*/
+
+@font-face {
+  font-family: Gen;
+  src: url(Gen-Light.ttf);
+}
+
+html body {
+  font-family: Gen, Arial, Helvetica, sans-serif !important;
+  color: #222222;
+  font-size: 14px;
+}
+
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6 {
+  font-family: inherit;
+  font-weight: 500;
+}
+
+html body p {
+  font-family: inherit;
+}
+
+html body a:link,
+html body a:visited {
+  color: #A52A2A;
+  text-decoration: none;
+}
+
+html body a:hover {
+  color: #222222;
+  text-decoration: underline;
+}
+
+html table {
+  font-size: 0.9em;
+  border: none;
+}
+
+span.drop-arrow {
+  background-image: url(../images/icon-collapsible-close.png);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 10px 10px;
+  width: 10px;
+  height: 10px;
+  margin-left: 7px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+html pre {
+  font-family: Courier New;
+  background: #DDDDDD;
+  padding: 10px;
+  border: thin solid #AAAAAA;
+  border-left: 10px solid #AAAAAA;
+  white-space: normal;
+}
+
+html pre a:link ,
+html pre a:visited {
+  color: inherit;
+}
+
+html q ,
+html cite ,
+html blockquote {
+  background: #EEEEEE;
+  border-left: 10px solid #EA0001;
+  margin: 1.5em 10px;
+  padding: 20px;
+  quotes: "\201C""\201D""\2018""\2019";
+  display: block;
+  font-size: 1.3em;
+  font-style: italic;
+}
+
+html q:before ,
+html cite:before ,
+html blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+
+html em {
+  font-style: italic;
+}
+
+html strong {
+  font-weight: bold;
+}
+
+/*===========================================================================*\
+  Forms Styles
+\*===========================================================================*/
+
+form textarea, 
+form select, 
+form input[type="date"], 
+form input[type="datetime"], 
+form input[type="datetime-local"], 
+form input[type="email"], 
+form input[type="month"], 
+form input[type="number"], 
+form input[type="password"], 
+form input[type="search"], 
+form input[type="tel"], 
+form input[type="text"], 
+form input[type="time"], 
+form input[type="url"], 
+form input[type="week"] {
+  border: 2px solid #999999;
+  border-radius: 2px;
+  padding: 5px 5px;
+  height: auto;
+}
+
+form input:focus, 
+form input:active, 
+form select:focus, 
+form select:active, 
+form textarea:focus, 
+form textarea:active {
+  border: 2px solid #555555;
+  outline: transparent;
+  box-shadow: none;
+}
+
+.button:link ,
+.button:visited ,
+tr:hover .button  ,
+form input[type="reset"] , 
+form input[type="submit"] , 
+form input[type="button"] ,
+#edit-actions #edit-submit ,
+#edit-actions #edit-delete ,
+#edit-actions #edit-cancel {
+  padding: 5px 10px;
+  margin: 10px 5px;
+  background: #777777;
+  border: none;
+  border-radius: 3px;
+  font-size: 1.2em;
+  font-weight: normal;
+  color: #FFFFFF !important;
+  text-shadow: none;
+  box-shadow: none;
+  float: initial;
+  transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+}
+
+tr:hover .button {
+  text-decoration: none !important;
+}
+
+tr:hover .button:hover ,
+.button:hover ,
+form input[type="reset"]:hover , 
+form input[type="submit"]:hover , 
+form input[type="button"]:hover ,
+#edit-actions #edit-submit:hover ,
+#edit-actions #edit-delete:hover ,
+#edit-actions #edit-cancel:hover {
+  background: #333333;
+  padding: 5px 10px;
+  color: #FFFFFF;
+  text-decoration: none !important;
+}
+
+.page-node-add .zone-content .region-inner ,
+.page-node-edit .zone-content .region-inner {
+  padding: 20px;
+  background: #DDDDDD;
+  border: thin solid #CCCCCC; 
+}
+
+.page-node-add form ,
+.page-node-edit form {
+  border: thin solid #CCCCCC;
+  padding: 50px;
+  background: #FFFFFF;  
+}
+
+.form-item .description {
+  clear: both;
+}
+
+/*============================ Button Styles ==============================*/
+
+html .action-links ul li a ,
+html .node-links ul li a ,
+html .comment-links ul li a {
+  padding: 5px 10px;
+  margin: 10px 5px;
+  background: #777777;
+  border: none;
+  border-radius: 3px;
+  font-size: 1.1em;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-shadow: none;
+  box-shadow: none;
+  font-family: inherit;
+  transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+}
+
+html .action-links ul li a:hover ,
+html .node-links ul li a:hover ,
+html .comment-links ul li a:hover {
+  padding: 5px 10px;
+  margin: 10px 5px;
+  background: #333333;
+  border: none;
+  border-radius: 3px;
+  font-size: 1.2em;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-shadow: none;
+}
+
+html ul.action-links li {
+  list-style: none;
+}
+
+html .app-action a ,
+html ul.action-links li a {
+  padding: 5px 10px;
+  margin: 10px 5px;
+  background: #777777;
+  border: none;
+  border-radius: 3px;
+  font-size: 1.0em;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-shadow: none;
+  font-family: inherit;
+  display: inline-block;
+  transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+}
+
+html .app-action a:hover ,
+html ul.action-links li a:hover {
+  background: #333333;
+  text-decoration: none;
+}
+
+/*============================ Input File Styles ==============================*/
+
+.NFI-wrapper {
+  border: 2px solid #999999;
+  border-radius: 3px;
+  margin-right: 10px !important;
+  float: left;
+}
+
+.NFI-button {
+  padding: 3px 10px;
+  margin: 0px 5px 0px 0px;
+  background: #777777;
+  border: none;
+  border-radius: 0px;
+  font-size: 1.1em;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-shadow: none;
+  font-family: inherit;
+  transition: background-color 0.3s;
+  -webkit-transition: background-color 0.3s;
+}
+
+.NFI-button:hover {
+  background: #333333;
+}
+
+form input.NFI-filename {
+  border: none !important;
+  padding: 6px 5px !important;
+}
+
+/*===========================================================================*\
+  Header Section Styles
+\*===========================================================================*/
+
+/*======================= Branding Wrapper Styles ===========================*/
+
+.zone-branding-wrapper {
+  background-color: #FFFFFF;
+  border-bottom: 5px solid #EA0001;
+  padding-bottom: 5px;
+  padding-top: 0px;
+}
+
+/*============================ Branding Styles ==============================*/
+
+.region-branding-inner {
+  /*width: inherit;*/
+}
+
+.logo-img  {
+  margin-top: 5px;
+}
+
+.site-name-slogan {
+  clear: both;
+}
+
+.site-slogan {
+  color: #989898;
+  font-size: 0.9em;
+}
+
+/*=============================== Nav Styles ================================*/
+
+.region-menu .block-nice-menus .nice-menu {
+  text-transform: uppercase;   
+  display: block;
+  float: right;
+  position: relative;
+  z-index: 10;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.region-menu .block-nice-menus .nice-menu li {
+  background: transparent;
+  border-style: none;
+}
+
+.region-menu .block-nice-menus .nice-menu a {
+  color: #333333;
+  text-decoration: none;
+  padding: 5px 10px;
+}
+
+ul.nice-menu-down li.menuparent ,
+ul.nice-menu-down li.menuparent:hover {
+  background: none;
+}
+
+.region-menu .block-nice-menus .nice-menu a.active {
+  color: #A52A2A;
+  background: none;
+}
+
+.region-menu .block-nice-menus .nice-menu a:hover {
+  color: #A52A2A;
+  text-decoration: none;
+  -webkit-transition: color 0.5s ease-in;
+  -moz-transition: color 0.5s ease-in;
+  -o-transition: color 0.5s ease-in;
+  transition: color 0.5s ease-in;
+}
+
+ul.nice-menu-down li.menuparent > a ,
+ul.nice-menu-down li.menuparent.over > a:hover {
+/*  background-image: url(../images/icon-collapsible-close.png);
+  background-repeat: no-repeat;
+  background-position: 95% 65%;
+  background-size: 10px 10px;
+  padding-right: 35px;*/
+}
+
+.region-menu .block-nice-menus .nice-menu li ul.morelinks li {
+  padding: 0px;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu {
+  position: relative;
+  z-index: 5000;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu:hover {
+  border: thin solid #CCC;
+  border-bottom: thin solid #FFFFFF;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu:hover > a {
+    padding: 4px 9px;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu ul {
+  position: absolute;
+  width: auto;
+  top: auto;
+  left: auto;
+  right: -1px;
+  background: #FFFFFF;
+  border: thin solid #CCC;
+  display: none;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu ul li {
+  padding: 0;
+  width: 100%;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu ul li a {
+  padding: 10px 15px;
+  white-space: nowrap;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu ul li:hover {
+  background-color: #EEEEEE;
+}
+
+.region-menu .block-nice-menus .nice-menu li.submenu:hover ul {
+  display: block;
+}
+
+.zone-branding ul.nice-menu-down li.menuparent {
+  position: relative;
+}
+
+.zone-branding ul.nice-menu-down li.menuparent > ul {
+  background: #FFFFFF;
+  top: 100%;
+  right: 0px;
+  left: auto;
+  position: absolute;
+}
+
+.zone-branding ul.nice-menu-down li.menuparent > ul li {
+  padding: 3px 0px;
+  width: auto;
+  white-space: nowrap;
+}
+
+.zone-branding ul.nice-menu-down li.menuparent > ul li a {
+  background: #FFFFFF;
+}
+
+.region-menu li.menuparent span.drop-arrow {
+  background-image: url(../images/icon-collapsible-close-dark.png);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: 15px auto;
+  width: 15px;
+  height: 10px;
+  margin-left: 7px;
+  margin-right: 0px;
+  display: inline-block;
+}
+
+/*===========================================================================*\
+  Content Section Styles
+\*===========================================================================*/
+
+.page-title ,
+#page-title {
+  margin: 10px 0px 0px 0px;
+  padding: 0px 10px;
+}
+
+/*================================Side Bar Styles ===========================*/
+
+.region-sidebar-first {
+  background: #333333;
+  color: #FFFFFF;
+}
+
+.region-sidebar-first li a {
+  display: block;
+  padding: 5px 10px;
+}
+
+.region-sidebar-first a:link ,
+.region-sidebar-first a:visited ,
+.region-sidebar-first li a:link ,
+.region-sidebar-first li a:visited {
+  color: #FFFFFF;
+}
+
+.region-sidebar-first a:hover ,
+.region-sidebar-first li a:hover {
+  text-decoration: none;
+}
+
+.region-sidebar-first li a:hover {
+  background-color: #111111;
+}
+
+.region-sidebar-first ul {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.region-sidebar-first ul li {
+  list-style: none;
+  border-bottom: thin solid #FFFFFF;
+  margin: 0;
+  padding: 0;
+}
+
+.region-sidebar-first ul li.expanded {
+  border-bottom: none;
+}
+
+.region-sidebar-first ul li.expanded li.first {
+  border-top: thin solid #FFFFFF;
+}
+
+.region-sidebar-first ul li a {
+  padding-left: 20px;
+}
+
+.region-sidebar-first ul li li a {
+  padding-left: 40px;
+}
+
+.region-sidebar-first ul li li li a {
+  padding-left: 60px;
+}
+
+.region-sidebar-first ul li li li li a {
+  padding-left: 80px;
+}
+
+.region-sidebar-first ul li li li li li a {
+  padding-left: 100px;
+}
+
+.region-sidebar-first ul li li li li li li a {
+  padding-left: 120px;
+}
+
+/*===========================================================================*\
+  Footer Section Styles
+\*===========================================================================*/
+
+.zone-footer-wrapper {
+  background-image: url("../images/footer_bkgd.gif");
+  border-top: 5px solid #EA0001;
+  font-size: 0.65em;
+  line-height: 12px;
+  padding-top: 2px;
+}
+
+.zone-footer-wrapper p {
+  margin-bottom: 2px;
+}
+
+.section-footer .zone-footer .menu {
+  padding-top: 5px;
+}
+
+.section-footer .zone-footer .menu li {
+  padding: 0px;
+  margin: 0px;
+}
+
+.section-footer .zone-footer .menu a {
+  text-transform: uppercase;
+  border-right: thin solid #CCCCCC;
+  padding: 0px 10px;
+}
+
+.section-footer .zone-footer .menu li.first a {
+  border-right: none;
+}
+
+.zone-footer .region-footer-first ,
+.zone-footer .region-footer-second {
+  margin: 0;
+  width: 50%;
+  display: inline-block;
+  float: left;
+}
+
+.zone-footer .region-inner {
+  padding: 0px 10px;
+}
+
+
+/*=====================================================================================
+ * Table Styles
+ * ==================================================================================*/
+
+table {
+  color: #333333;
+}
+
+table thead {
+  border: thin solid #CCCCCC;
+  border-bottom: none;
+}
+
+table thead tr {
+  background-color: #555555;
+}
+
+table thead tr th {
+  background: transparent;
+  vertical-align: baseline;
+  padding: 10px;
+  color: #FFFFFF;
+}
+
+table thead tr th.active {
+  background: transparent;
+}
+
+table thead tr th a:link {
+  color: #FFFFFF;
+}
+
+table tbody {
+  border: thin solid #CCCCCC;
+  border-top: none;
+}
+
+table tbody tr ,
+table tbody tr.odd {
+  background-color: transparent;
+  border-bottom: none;
+}
+
+table tbody tr.even {
+  background-color: #DDDDDD;
+  border-bottom: none;
+}
+
+table tbody tr:hover {
+  background: #777777;
+  color: #FFFFFF;
+}
+
+table tbody tr.odd:hover td.active ,
+table tbody tr.even:hover td.active {
+  background: transparent;
+}
+
+table tbody tr td ,
+table tbody tr td ,
+table tbody tr.odd td ,
+table tbody tr.even td ,
+table tbody tr.odd td.active ,
+table tbody tr.even td.active {
+  background: transparent;
+  vertical-align: baseline;
+  padding: 10px;
+}
+
+/*=====================================================================================
+ * Tabs Styles
+ * ==================================================================================*/
+
+.quicktabs-wrapper {
+
+}
+
+.quicktabs-wrapper > .item-list {
+  height: 32px;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs {
+  margin: 0;
+  float: right;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li {
+  margin: 0 5px;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li a {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #777777;
+  border-radius: 3px 3px 0 0;
+  color: #FFFFFF;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li a:hover {
+  text-decoration: none;
+  background-color: #555555;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li.active a {
+  background-color: #FAFAFA;
+  border: thin solid #CCCCCC;
+  border-bottom: thin solid #FAFAFA;
+  color: #333333;
+  position: relative;
+  /*z-index: 10;*/
+  margin-bottom: -1px;
+}
+
+.quicktabs-wrapper ul.quicktabs-tabs li.active a:hover {
+  background-color: #FAFAFA;
+  color: #333333;
+}
+
+.quicktabs-wrapper .quicktabs_main {
+  border: thin solid #CCCCCC;
+  border-radius: 3px;
+  min-height: 100px;
+  padding: 20px 10px 20px 10px;
+}
+
+.quicktabs-wrapper .quicktabs_main .quicktabs-tabpage {
+  margin: 20px;
+}
+
+/*====================== Form Page Tab Styles ===============================*/
+
+.tabs {
+  padding: 0 20px;
+}
+
+.tabs ul.tabs.primary.clearfix {
+  margin: 0;
+  float: right;
+  margin-right: 10px;
+  border: none;
+}
+
+.tabs ul.tabs.primary.clearfix li {
+  margin: 0 5px;
+}
+
+.tabs ul.tabs.primary.clearfix li a {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #777777;
+  border: none;
+  border-radius: 3px 3px 0 0;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.tabs ul.tabs.primary.clearfix li a:hover {
+  text-decoration: none;
+  background-color: #555555;
+}
+
+.tabs ul.tabs.primary.clearfix li.active a {
+  background-color: #FAFAFA;
+  border: thin solid #CCCCCC;
+  border-bottom: thin solid #FAFAFA;
+  color: #777777;
+  position: relative;
+  z-index: 10;
+  margin-bottom: -1px;
+}
+
+.tabs ul.tabs.primary.clearfix li.active a:hover {
+  background-color: #FAFAFA;
+  color: #777777;
+}
+
+
+/*===================================================================================*\
+ * Better Messages Styles
+\*===================================================================================*/
+
+#better-messages-default {}
+
+#better-messages-default td.body {
+  /*background: url(../images/alpha-black-bg.png);*/
+  background-color: rgba(0,0,0,0.8);
+  width: 780px;
+}
+
+#better-messages-default td.body .content h2.messages-label.status {
+  background: #0FA707;
+}
+
+#better-messages-default td.body .content h2.messages-label.error {
+  background: #EA0001;
+}
+
+#better-messages-default td.body .content .messages {
+  color: #FFFFFF;
+  border: none;
+  line-height: 20px;
+  padding-left: 60px;
+  width: 690px;
+}
+
+#better-messages-default td.body .content .messages.status {
+  background: url(../images/status-icon.png) no-repeat 10px 50%;
+}
+
+#better-messages-default td.body .content .messages.error {
+  background: url(../images/error-icon.png) no-repeat 10px 50%;
+}
+
+#better-messages-default td.body .content .messages a {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+#better-messages-default td.body .footer a.message-close {
+  margin: 5px;
+  background: transparent;
+  color: #FFFFFF;
+}
+
+#better-messages-default td.body .footer a.message-close:before {
+  content: 'Close';
+  font-size: 0.9em;
+  background: none;
+}
+
+#better-messages-default span.message-timer {
+  color: #FFFFFF;
+}
+
+/*===================================================================================*\
+ * User Login Styles
+\*===================================================================================*/
+
+html .not-logged-in.page-user.context-user {}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner {
+  width: 450px;
+  margin: 20px auto !important;
+  border: thin solid #CCCCCC;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #DDDDDD;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner h1#page-title {
+  /*color: #989898;*/
+  color: #555555;
+  font-size: 2.0em;
+  font-weight: normal;
+  text-transform: capitalize;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner .tabs.primary {
+  margin: 0;
+  border-bottom: none;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner #block-system-main {
+  padding: 10px;
+  background-color: #FAFAFA;
+  border-radius: 3px;
+  border: thin solid #CCCCCC;
+}
+
+html .not-logged-in.page-user.context-user .zone-content .region-content-inner #block-system-main input.form-text {
+  width: 100%;
+}
+
+/*====================================================================
+ *  Form Page Styles
+ * The .pageborder class is added by the devtrac_theme_page_border_context
+ ====================================================================*/
+
+.pageborder .container-12 {
+  width: 92%;
+  margin-left: 4%;
+  margin-right: 4%;
+}
+
+.pageborder .zone-content .region-inner {
+  padding: 20px;
+  background: #DDDDDD;
+  border: thin solid #CCCCCC;
+}
+
+.pageborder .block-system-main {
+  border: thin solid #CCCCCC;
+  padding: 50px;
+  background: #FFFFFF;
+}
+
+
+/* =====================article node =======================================*/
+
+.node-type-article .field-name-field-image {
+  float: left;
+  margin-right: 30px;
+  margin-bottom: 30px;
+  display: inline-block;
+}

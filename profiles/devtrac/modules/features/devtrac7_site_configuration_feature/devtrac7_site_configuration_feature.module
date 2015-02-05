@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Devtrac7 Site Configuration Feature feature.
+ */
+
+include_once 'devtrac7_site_configuration_feature.features.inc';

@@ -1,0 +1,287 @@
+<?php
+/**
+ * this test is meant to test the availability.
+ * 
+ * of form field elements for the create user page.
+ */
+module_load_include('test', 'simpletest_clone');
+class CreatePermittedUserCreateUserFormTestCase extends SimpleTestCloneTestCase {
+  protected $profile = 'devtrac';
+  protected $administrator;
+  public static function getInfo() {
+    return array(
+      'name' => 'User with all permissions registers a user form fields exist.',
+      'description' => 'An authenticated user with all permissions of role "Unicef" registers a user form elements exits.',
+      'group' => 'Devtrac',
+    );
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   *
+   * 1. Create a new User with all permissions of role "Unicef" (rid = 5).
+   * 2. Log the user into the system.
+   */
+  /**
+   * Log in a user with the internal browser.
+   *
+   * If a user is already logged in, then the current user is logged out before
+   * logging in the specified user.
+   *
+   * Please note that neither the global $user nor the passed in user object is
+   * populated with data of the logged in user. If you need full access to the
+   * user object after logging in, it must be updated manually. If you also need
+   * access to the plain-text password of the user (set by drupalCreateUser()),
+   * e.g. to login the same user again, then it must be re-assigned manually.
+   * For example:
+   * @code
+   *   // Create a user.
+   *   $account = $this->drupalCreateUser(array());
+   *   $this->drupalLogin($account);
+   *   // Load real user object.
+   *   $pass_raw = $account->pass_raw;
+   *   $account = user_load($account->uid);
+   *   $account->pass_raw = $pass_raw;
+   * @endcode
+   *
+   * @param $user
+   *   User object representing the user to login.
+   *
+   * @see drupalCreateUser()
+   */
+  protected function drupalLogin(stdClass $user) {
+  	if ($this->loggedInUser) {
+  		$this->drupalLogout();
+  	}
+  
+  	$edit = array(
+  			'name' => $user->name,
+  			'pass' => $user->pass_raw
+  	);
+  	$this->drupalPost('user', $edit, t('Log in'));
+  
+  	// If a "log out" link appears on the page, it is almost certainly because
+  	// the login was successful.
+  	$pass = $this->assertLink(t('Sign out'), 0, t('User %name successfully logged in.', array('%name' => $edit['name'])), t('User login'));
+  
+  	if ($pass) {
+  		$this->loggedInUser = $user;
+  	}
+  }
+  /**
+   * (non-PHPdoc)
+   * @see DrupalWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp('devtractests');
+    $this->public_files_directory = variable_get('file_public_path');
+    $this->administrator = $this->drupalCreateUser(array(
+      'create fieldtrip content',
+      'administer nodes',
+      'administer users',
+      'administer permissions',
+      'access user profiles',
+      'administer site configuration',
+      'administer modules'));
+    $this->administrator->roles[] = 'administrator';
+    user_save($this->administrator);
+    $this->drupalLogin($this->administrator);
+  }
+  public function testProfileFnameFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('field_user_firstname[und][0][value]'), t('Field firstname does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('First Name'), t('First Name label is showing'), 'DevTrac');
+  }
+  /**
+   * Testing field surname existance on the form.
+   */
+  public function testProfileSurnameFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('field_user_surname[und][0][value]'), t('Field surname does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Surname'), t('Surname label is showing'), 'DevTrac');
+    }
+  /**
+   * Testing the about field on the form. 
+   */
+  public function testProfileAboutFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('field_user_aboutme[und][0][value]'), t('Field About Me does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('About Me'), t('About Me label is showing'), 'DevTrac');
+    }
+  /**
+   * testing user name field on the create user form.
+   */  
+  public function testProfileUsernameFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('name'), t('Field name Me does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Username '), t('Username label is showing'), 'DevTrac');
+    }
+  /**
+   * Testing email form element on the form.
+   */
+  public function testProfileEmailFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('mail'), t('Field mail Me does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('E-mail address'), t('E-mail address label is showing'), 'DevTrac');
+     }
+  /**
+   * Testing the availability of the pass word field on the form.
+   */
+  public function testProfilePassFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('pass[pass1]'), t('Field password Me does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Password'), t('Password address label is showing'), 'DevTrac');
+     }
+  /**
+   * testing  the status form field on the create  user form.
+   */
+   public function testProfileStatusFieldExisttest() {
+     $this->drupalGet('admin/people/create');
+     $this->assertResponse(200, 'request responded to');
+     $this->assertField(t('edit-status-1'), t('edit-status-1 does exist'), 'DevTrac');
+     $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+     $this->assertText(t('Status'), t('Status label is showing'), 'DevTrac');
+     }
+   /**
+    * Testing the password2 field that is visible on the form.
+    */
+   public function testProfileRoleFieldExisttest() {
+     $this->drupalGet('admin/people/create');
+     $this->assertResponse(200, 'request responded to');
+     $this->assertField(t('roles[3]'), t('Field Administrator in the role provision does exist'), 'DevTrac');
+     $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+     $this->assertText(t('Roles'), t('Roles label is showing'), 'DevTrac');
+    }
+  /**
+   * Field for Editor test.
+   */
+  public function testProfileEditorRoleFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('roles[4]'), t('Field editor  in the role provision does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Roles'), t('Roles label is showing'), 'DevTrac');
+  
+  }
+  /**
+   * Testing the unicef user role field.
+   */
+  public function testProfileUnicefUserRoleFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('edit-roles-5'), t('Field Unicef user in the role provision does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Roles'), t('Roles label is showing'), 'DevTrac');
+  }  
+  /**
+   * Testing field Unicef user (mobile).
+   */
+  public function testProfileUnicefMobileRoleFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('roles[6]'), t('Field Unicef mobile user in the role provision does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Roles'), t('Roles label is showing'), 'DevTrac');
+    $this->assertNoText(t('unicef user (Mobile)'), t('unicef user (Mobile) Roles label is not showing'), 'DevTrac');
+    $this->assertText(t('iati manager'), 'iati manager Roles label is showing', 'DevTrac');
+  }
+  /**
+   * Testing the title field in the work information provision.
+   */
+  public function testWorkInfoFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('field_user_title[und][0][value]'), t('work information field does exist'), 'DevTrac');
+    $this->assertText(t('Work Information'), t('Work Information label is showing'), 'DevTrac');
+    $this->assertText(t('Title'), t('Title label is showing'), 'DevTrac');
+    $this->assertText(t('Notify user of new account'), t('Notify user of new account field label is showing'), 'DevTrac');
+  }
+  /**
+   * Field taxonomy_vocabulary_5[und] must be showing(issue to be discussed).
+   * Testing the function field.
+   */
+  public function testWorkInfoFunctionFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('taxonomy_vocabulary_5[und]'), t('function field does exist'), 'DevTrac');
+    $this->assertText(t('Work Information'), t('Work Information label is showing'), 'DevTrac');
+    $this->assertText(t('Function'), t('Function label is showing'), 'DevTrac');
+    $this->assertText(t('Notify user of new account'), t('Notify user of new account field label is showing'), 'DevTrac');
+  }
+  /**
+   * Field Academic degrees must be showing on the add user form.
+   * 
+   * The label must be also showing. 
+   */
+  public function testWorkInfoDegreeFieldExisttest() {
+    //testing the degree field in work function section.
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('edit-field-user-degree-und-0-value'), t(' field does exist'), 'DevTrac');
+    $this->assertText(t('Work Information'), t('Work Information label is showing'), 'DevTrac');
+    $this->assertText(t('Academic Degree(s)'), t('Academic Degree(s) label is showing'), 'DevTrac');
+    $this->assertText(t('Notify user of new account'), t('Notify user of new account field label is showing'), 'DevTrac');
+    }
+    /**
+     * Field Manager should be showing and it's label text.
+     */
+  public function testWorkInfoManagerFieldExisttest() {
+    // Testing the manager field.
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('field_user_superior[und][0][target_id]'), t('manager does exist'), 'DevTrac');
+    $this->assertText(t('Work Information'), t('Work Information label is showing'), 'DevTrac');
+    $this->assertText(t('Manager'), t('Manager label is showing'), 'DevTrac');
+    $this->assertText(t('Notify user of new account'), t('Notify user of new account field label is showing'), 'DevTrac');
+  }
+  /**
+   * Field department is not mandatory so it cant be seen(issue to looked into).
+   */ 
+  public function testWorkInfoDepartmentFieldExisttest() {
+  	// Testing the department field on the work information section of the create user node.
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('taxonomy_vocabulary_4[und]'), t('department field does exist'), 'DevTrac');
+    $this->assertText(t('Work Information'), t('Work Information label is showing'), 'DevTrac');
+    $this->assertText(t('Department'), t('Department label is showing'), 'DevTrac');
+    $this->assertText(t('Notify user of new account'), t('Notify user of new account field label is showing'), 'DevTrac');
+  } 
+  /**
+   * Field Districts in the .
+   * 
+   * Filters section should not show.
+   * 
+   * With it's equivalent text label.
+   */
+  public function testWorkInfoDistrictExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertNoField(t('taxonomy_vocabulary_6[und][]'), t('district field does not  exist'), 'DevTrac');
+    $this->assertText(t('Filters'), t('Filters label is showing'), 'DevTrac');
+    $this->assertText(t('Districts'), t('Districts field filter is showing'), 'DevTrac');
+    $this->assertText(t('Select all the districts you are interested in. To select more than 1 district, press the CTRL key and click them 1 by 1.'), 'Select all the districts you are interested in. To select more than 1 district, press the CTRL key and click them 1 by 1.field label is showing', 'DevTrac');
+  }
+ /**
+  * Field Edit-submit with it's equivalent text label is showing. 
+  */
+  public function testProfileSubmitFieldExisttest() {
+    $this->drupalGet('admin/people/create');
+    $this->assertResponse(200, 'request responded to');
+    $this->assertField(t('edit-submit'), t('Field edit submit does exist'), 'DevTrac');
+    $this->assertText(t('My Profile'), t('My Profile label is showing'), 'DevTrac');
+    $this->assertText(t('Filters'), t('Filters label is showing'), 'DevTrac');
+  }
+}

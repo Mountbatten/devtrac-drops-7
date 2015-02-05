@@ -1,0 +1,4 @@
+
+CSS Browser Selector 7.x-1.x-dev, 2010-01-11
+--------------------------------------
+Initial release of css_browser_selector-7.x-1.x-dev module.

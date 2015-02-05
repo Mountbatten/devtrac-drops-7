@@ -1,0 +1,976 @@
+<?php
+
+
+/**
+*  Function checks if the current user has a given role
+*/
+function devtrac_saved_search_has_roles(array $roles) {
+  global $user;
+  $check = array_intersect($roles, array_values($user->roles));
+  return empty($check) ? FALSE : TRUE;
+}
+
+/**
+ *
+ * @return string
+ */
+function devtrac_saved_search_save_all() {
+  $users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+  $users = user_load_multiple(FALSE, array( 'name' => 'dan'));
+
+
+
+  //$query['filters'][0] = new SearchApiQueryFilter();
+  //print_r($users);
+  foreach ($users as $user) {
+    devtrac_saved_search_manager_notify_fieldtrip_submited($user->uid);
+    devtrac_saved_search_user_notify_fieldtrip_rejected($user->uid);
+    devtrac_saved_search_notify_tagged_user_actionitem($user->uid);
+  }
+  return "Saved search done";
+}
+
+
+
+/**
+ *
+ * @param type $uid
+ * @return string
+ */
+function devtrac_saved_search_manager_weekly_reminder_fieldtrip_submited($uid) {
+  $search_user = user_load($uid);
+  $query = Array(
+      'keys' => '',
+      'fields' => Array(
+          'search_api_aggregation_1',
+          'field_fieldtrip_narrative:value',
+          'field_fieldtrip_public_summary:value',
+      ),
+      'filters' => Array(
+          Array(
+              'author:field_user_superior',
+              $search_user->uid,
+              '=',
+          ),
+          Array(
+              'field_fieldtrip_status',
+              'Submitted',
+              '=',
+          ),
+      ),
+      'options' => Array(
+          'parse mode' => 'terms',
+          'conjunction' => 'AND',
+          'filter class' => 'SearchApiQueryFilter',
+          'search id' => 'devtrac_solr_field_trip_index:saved-search',
+          'search_api_facets' => Array(
+              'author:field_user_superior' => Array(
+                  'field' => 'author:field_user_superior',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'search_api_aggregation_1' => Array(
+                  'field' => 'search_api_aggregation_1',
+                  'limit' => '5',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6:field_district_category' => Array(
+                  'field' => 'taxonomy_vocabulary_6:field_district_category',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '1',
+              ),
+              'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps' => Array(
+                  'field' => 'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps',
+                  'limit' => '10',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtriptags' => Array(
+                  'field' => 'field_fieldtriptags',
+                  'limit' => '20',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'author' => Array(
+                  'field' => 'author',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'created' => Array(
+                  'field' => 'created',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '0',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6' => Array(
+                  'field' => 'taxonomy_vocabulary_6',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtrip_status' => Array(
+                  'field' => 'field_fieldtrip_status',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+          )
+      )
+  );
+
+  $options = Array(
+      'path' => 'fieldtrips',
+      'query' => Array(
+          'f' => Array( 'author%3Afield_user_superior:'.$search_user->uid, 'field_fieldtrip_status:Submitted',),
+      ),
+  );
+
+  //$users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  $search = entity_create('search_api_saved_search', array(
+      'uid' => $search_user->uid,
+      'settings_id' => 'devtrac_solr_field_trip_index',
+      'enabled' => $enabled,
+      'name' => "All Field Trip reports submitted for your approval",
+      'mail' => $search_user->mail,
+      'created' => REQUEST_TIME,
+      'last_execute' => REQUEST_TIME,
+      'notify_interval' => 604800,
+      'query' => $query,
+      'options' => array(),
+  ));
+  
+  $search->options['mode_filter'] = '1';
+  $search->options['page']=$options;
+  $ret = $search->save();
+  if (!$ret) {
+    drupal_set_message(t('An error occurred while trying to save the search. Please contact the site administrator.'), 'error');
+  } else {
+    drupal_set_message(t('Saved search for a managers weekly reminder that fieldtrip is submited was successfully created.'));
+
+  }
+
+  return "Saved search done";
+
+}
+
+/**
+ * 
+ * @param type $uid
+ * @return string
+ */
+function devtrac_saved_search_manager_notify_fieldtrip_submited($uid) {
+   $search_user = user_load($uid);
+  $query = Array(
+      'keys' => '',
+      'fields' => Array(
+          'search_api_aggregation_1',
+          'field_fieldtrip_narrative:value',
+          'field_fieldtrip_public_summary:value',
+      ),
+      'filters' => Array(
+          Array(
+              'author:field_user_superior',
+              $search_user->uid,
+              '=',
+          ),
+          Array(
+              'field_fieldtrip_status',
+              'Submitted',
+              '=',
+          ),
+      ),
+      'options' => Array(
+          'parse mode' => 'terms',
+          'conjunction' => 'AND',
+          'filter class' => 'SearchApiQueryFilter',
+          'search id' => 'devtrac_solr_field_trip_index:saved-search',
+          'search_api_facets' => Array(
+              'author:field_user_superior' => Array(
+                  'field' => 'author:field_user_superior',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'search_api_aggregation_1' => Array(
+                  'field' => 'search_api_aggregation_1',
+                  'limit' => '5',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6:field_district_category' => Array(
+                  'field' => 'taxonomy_vocabulary_6:field_district_category',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '1',
+              ),
+              'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps' => Array(
+                  'field' => 'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps',
+                  'limit' => '10',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtriptags' => Array(
+                  'field' => 'field_fieldtriptags',
+                  'limit' => '20',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'author' => Array(
+                  'field' => 'author',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'created' => Array(
+                  'field' => 'created',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '0',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6' => Array(
+                  'field' => 'taxonomy_vocabulary_6',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtrip_status' => Array(
+                  'field' => 'field_fieldtrip_status',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+          )
+      )
+  );
+
+  $options = Array(
+      'path' => 'fieldtrips',
+      'query' => Array(
+          'f' => Array( 'author%3Afield_user_superior:'.$search_user->uid, 'field_fieldtrip_status:Submitted',),
+      ),
+  );  
+  
+  //$users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  $search = entity_create('search_api_saved_search', array(
+      'uid' => $search_user->uid,
+      'settings_id' => 'devtrac_solr_field_trip_index',
+      'enabled' => $enabled,
+      'name' => "Field Trip reports submitted for your approval",
+      'mail' => $search_user->mail,
+      'created' => REQUEST_TIME,
+      'last_execute' => REQUEST_TIME,
+      'notify_interval' => 86400,
+      'query' => $query,
+      'options' => array(),
+  ));
+  
+  $search->options['page']=$options;
+  $ret = $search->save();
+  if (!$ret) {
+    drupal_set_message(t('An error occurred while trying to save the search. Please contact the site administrator.'), 'error');
+  } else {
+    drupal_set_message(t('Saved search to notify manager about a new fieldtrip was successfully created.' ));
+
+  }
+
+  return "Saved search done";
+
+}
+
+/**
+ * 
+ * @param type $uid
+ * @return string
+ */
+function devtrac_saved_search_user_notify_fieldtrip_rejected($uid) {
+  $search_user = user_load($uid);
+  $query = Array(
+      'keys' => '',
+      'fields' => Array(
+          'search_api_aggregation_1',
+          'field_fieldtrip_narrative:value',
+          'field_fieldtrip_public_summary:value',
+      ),
+      'filters' => Array(
+          Array(
+              'field_fieldtrip_status',
+              'In Progress',
+              '=',
+          ),
+          Array(
+              'author',
+              $search_user->uid,
+              '=',
+          ),          
+      ),
+      'options' => Array(
+          'parse mode' => 'terms',
+          'conjunction' => 'AND',
+          'filter class' => 'SearchApiQueryFilter',
+          'search id' => 'devtrac_solr_field_trip_index:saved-search',
+          'search_api_facets' => Array(
+              'author:field_user_superior' => Array(
+                  'field' => 'author:field_user_superior',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'search_api_aggregation_1' => Array(
+                  'field' => 'search_api_aggregation_1',
+                  'limit' => '5',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6:field_district_category' => Array(
+                  'field' => 'taxonomy_vocabulary_6:field_district_category',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '1',
+              ),
+              'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps' => Array(
+                  'field' => 'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps',
+                  'limit' => '10',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtriptags' => Array(
+                  'field' => 'field_fieldtriptags',
+                  'limit' => '20',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'author' => Array(
+                  'field' => 'author',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'created' => Array(
+                  'field' => 'created',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '0',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6' => Array(
+                  'field' => 'taxonomy_vocabulary_6',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtrip_status' => Array(
+                  'field' => 'field_fieldtrip_status',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+          )
+      )
+  );
+  $options = Array(
+      'path' => 'fieldtrips',
+      'query' => Array(
+          'f' => Array('field_fieldtrip_status:In Progress', 'author:'.$search_user->uid,),
+      ),
+  ); 
+  //$users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  $search = entity_create('search_api_saved_search', array(
+      'uid' => $search_user->uid,
+      'settings_id' => 'devtrac_solr_field_trip_index',
+      'enabled' => $enabled,
+      'name' => "Your Field Trip reports that still need approval",
+      'mail' => $search_user->mail,
+      'created' => REQUEST_TIME,
+      'last_execute' => REQUEST_TIME,
+      'notify_interval' => 86400,
+      'query' => $query,
+      'options' => array(),
+  ));
+  $search->options['page']=$options;
+  $ret = $search->save();
+  if (!$ret) {
+    drupal_set_message(t('An error occurred while trying to save the search. Please contact the site administrator.'), 'error');
+  } else {
+    drupal_set_message(t('Saved search to notify user when fieldtrip is rejected was successfully created.' ));
+
+  }
+
+  return "Saved search done";
+
+}
+
+function devtrac_saved_search_user_weekly_reminder_fieldtrip_rejected($uid) {
+  $search_user = user_load($uid);
+  $query = Array(
+      'keys' => '',
+      'fields' => Array(
+          'search_api_aggregation_1',
+          'field_fieldtrip_narrative:value',
+          'field_fieldtrip_public_summary:value',
+      ),
+      'filters' => Array(
+          Array(
+              'field_fieldtrip_status',
+              'In Progress',
+              '=',
+          ),
+          Array(
+              'author',
+              $search_user->uid,
+              '=',
+          ),
+      ),
+      'options' => Array(
+          'parse mode' => 'terms',
+          'conjunction' => 'AND',
+          'filter class' => 'SearchApiQueryFilter',
+          'search id' => 'devtrac_solr_field_trip_index:saved-search',
+          'search_api_facets' => Array(
+              'author:field_user_superior' => Array(
+                  'field' => 'author:field_user_superior',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'search_api_aggregation_1' => Array(
+                  'field' => 'search_api_aggregation_1',
+                  'limit' => '5',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6:field_district_category' => Array(
+                  'field' => 'taxonomy_vocabulary_6:field_district_category',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '1',
+              ),
+              'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps' => Array(
+                  'field' => 'field_fieldtrip_fc_purpose:field_fieldtrip_fc_purpose_purps',
+                  'limit' => '10',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtriptags' => Array(
+                  'field' => 'field_fieldtriptags',
+                  'limit' => '20',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'author' => Array(
+                  'field' => 'author',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'created' => Array(
+                  'field' => 'created',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '0',
+                  'missing' => '0',
+              ),
+              'taxonomy_vocabulary_6' => Array(
+                  'field' => 'taxonomy_vocabulary_6',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+              'field_fieldtrip_status' => Array(
+                  'field' => 'field_fieldtrip_status',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+          )
+      )
+  );
+  $options = Array(
+      'path' => 'fieldtrips',
+      'query' => Array(
+          'f' => Array('field_fieldtrip_status:In Progress', 'author:'.$search_user->uid,),
+      ),
+  );
+  //$users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  $search = entity_create('search_api_saved_search', array(
+      'uid' => $search_user->uid,
+      'settings_id' => 'devtrac_solr_field_trip_index',
+      'enabled' => $enabled,
+      'name' => "All your Field Trip reports that need approval",
+      'mail' => $search_user->mail,
+      'created' => REQUEST_TIME,
+      'last_execute' => REQUEST_TIME,
+      'notify_interval' => 604800,
+      'query' => $query,
+      'options' => array(),
+  ));
+  
+  
+  $search->options['mode_filter'] = '1';
+ 
+  $search->options['page']=$options;
+  $ret = $search->save();
+  if (!$ret) {
+    drupal_set_message(t('An error occurred while trying to save the search. Please contact the site administrator.'), 'error');
+  } else {
+    drupal_set_message(t('Yours saved search for weekly reminder of rejected fieldtrips has been created. You will soon receive an e-mail with a confirmation link to activate it.' ));
+
+  }
+
+  return "Saved search done";
+
+}
+
+
+//  not working yet
+function getQueryArray() {
+  $index = search_api_index_load("devtrac_solr_field_trip_index");
+  $query = $index->query(array(
+      'parse mode' => 'terms',
+  ));
+
+
+  $options = $query->getOptions();
+  // When checking for new results, we need all results.
+  // @todo Make this configurable?
+  unset($options['offset'], $options['limit']);
+  $options['search id'] = 'devtrac_solr_field_trip_index' . ':' . 'saved-search';
+  $form_state['query'] = array(
+      'index_id' => $query->getIndex()->machine_name,
+      'keys' => $query->getKeys(),
+      'original_keys' => $query->getOriginalKeys(),
+      'fields' => $query->getFields(),
+      'filters' => $query->getFilter()->getFilters(),
+      'options' => $options,
+  );
+  //print(print_r($form_state['query'], TRUE));
+}
+
+function devtrac_saved_search_user_insert(&$edit, $account, $category) {
+    devtrac_saved_search_manager_notify_fieldtrip_submited($account->uid);
+    devtrac_saved_search_user_notify_fieldtrip_rejected($account->uid);  
+    devtrac_saved_search_notify_tagged_user_actionitem($account->uid);
+    
+    devtrac_saved_search_manager_weekly_reminder_fieldtrip_submited($account->uid);
+    devtrac_saved_search_user_weekly_reminder_fieldtrip_rejected($account->uid);
+    devtrac_saved_search_weekly_reminder_tagged_user_actionitem($account->uid);
+}
+
+function devtrac_saved_search_notify_tagged_user_actionitem($uid) {
+  $search_user = user_load($uid);
+  $query = Array(
+
+    'keys' => '',
+    'fields' => Array (
+            'title',
+            'search_api_viewed',
+            'search_api_aggregation_1',
+            'field_actionitem_followuptask:value',
+        ),
+    'filters' => Array(
+          Array(
+              'field_actionitem_responsible',
+              $search_user->uid,
+              '=',
+          ),
+          Array(
+              'field_actionitem_status',
+              '3',
+              '<>',
+          ),
+    ),
+    'options' => Array (
+            'parse mode' => 'terms',
+            'conjunction' => 'AND',
+            'filter class' => 'SearchApiQueryFilter',
+            'search id' => 'devtrac_solr_action_items_index:saved-search',
+            'search_api_facets' => Array (
+                    'search_api_aggregation_1' => Array (
+                            'field' => 'search_api_aggregation_1',
+                            'limit' => '5',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'author:field_user_superior' => Array (
+                            'field' => 'author:field_user_superior',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'field_actionitem_responsible:field_user_superior' => Array
+                        (
+                            'field' => 'field_actionitem_responsible:field_user_superior',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'taxonomy_vocabulary_6:field_district_category' => Array (
+                            'field' => 'taxonomy_vocabulary_6:field_district_category',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '1',
+                        ),
+
+                    'field_action_items_tags' => Array (
+                            'field' => 'field_action_items_tags',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'field_actionitem_responsible' => Array
+                        (
+                            'field' => 'field_actionitem_responsible',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'author' => Array
+                        (
+                            'field' => 'author',
+                            'limit' => '-1',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'status' => Array
+                        (
+                            'field' => 'status',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'taxonomy_vocabulary_6' => Array
+                        (
+                            'field' => 'taxonomy_vocabulary_6',
+                            'limit' => '-1',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' =>'0',
+                        ),
+
+                    'taxonomy_vocabulary_8' => Array
+                        (
+                            'field' => 'taxonomy_vocabulary_8',
+                            'limit' => '-1',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'field_actionitem_status' => Array
+                        (
+                            'field' => 'field_actionitem_status',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'field_actionitem_severity' => Array
+                        (
+                            'field' => 'field_actionitem_severity',
+                            'limit' => '50',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' => '0',
+                        ),
+
+                    'field_actionitem_due_date' => Array
+                        (
+                            'field' => 'field_actionitem_due_date',
+                            'limit' => '-1',
+                            'operator' => 'and',
+                            'min_count' => '1',
+                            'missing' =>'0',
+                        )
+
+                )
+
+        )
+
+);
+
+ $options = Array(
+      'path' => 'actionitems',
+      'query' => Array(
+          'f' => Array( 'field_actionitem_responsible:'.$search_user->uid, 'field_actionitem_status:1'),
+      ),
+  ); 
+  //$users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  $search = entity_create('search_api_saved_search', array(
+      'uid' => $search_user->uid,
+      'settings_id' => 'devtrac_solr_action_items_index',
+      'enabled' => $enabled,
+      'name' => "Updated Action Items you are responsible for",
+      'mail' => $search_user->mail,
+      'created' => REQUEST_TIME,
+      'last_execute' => REQUEST_TIME,
+      'notify_interval' => 86400,
+      'query' => $query,
+      'options' => array(),
+  ));
+  $search->options['page']=$options;
+  $ret = $search->save();
+  if (!$ret) {
+    drupal_set_message(t('An error occurred while trying to save the search. Please contact the site administrator.'), 'error');
+  } else {
+    drupal_set_message(t('Saved search to notify user when they are tagged into an actionitem was successfully created.' ));
+
+  }
+
+  return "Saved search done";
+
+}
+
+
+/**
+ * 
+ * @param unknown_type $uid
+ * @return string
+ */
+
+function devtrac_saved_search_weekly_reminder_tagged_user_actionitem($uid) {
+  $search_user = user_load($uid);
+  $query = Array(
+
+      'keys' => '',
+      'fields' => Array (
+          'title',
+          'search_api_viewed',
+          'search_api_aggregation_1',
+          'field_actionitem_followuptask:value',
+      ),
+      'filters' => Array(
+          Array(
+              'field_actionitem_responsible',
+              $search_user->uid,
+              '=',
+          ),
+          Array(
+              'field_actionitem_status',
+              '3',
+              '<>',
+          ),
+      ),
+      'options' => Array (
+          'parse mode' => 'terms',
+          'conjunction' => 'AND',
+          'filter class' => 'SearchApiQueryFilter',
+          'search id' => 'devtrac_solr_action_items_index:saved-search',
+          'search_api_facets' => Array (
+              'search_api_aggregation_1' => Array (
+                  'field' => 'search_api_aggregation_1',
+                  'limit' => '5',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'author:field_user_superior' => Array (
+                  'field' => 'author:field_user_superior',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'field_actionitem_responsible:field_user_superior' => Array
+              (
+                  'field' => 'field_actionitem_responsible:field_user_superior',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'taxonomy_vocabulary_6:field_district_category' => Array (
+                  'field' => 'taxonomy_vocabulary_6:field_district_category',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '1',
+              ),
+
+              'field_action_items_tags' => Array (
+                  'field' => 'field_action_items_tags',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'field_actionitem_responsible' => Array
+              (
+                  'field' => 'field_actionitem_responsible',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'author' => Array
+              (
+                  'field' => 'author',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'status' => Array
+              (
+                  'field' => 'status',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'taxonomy_vocabulary_6' => Array
+              (
+                  'field' => 'taxonomy_vocabulary_6',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' =>'0',
+              ),
+
+              'taxonomy_vocabulary_8' => Array
+              (
+                  'field' => 'taxonomy_vocabulary_8',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'field_actionitem_status' => Array
+              (
+                  'field' => 'field_actionitem_status',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'field_actionitem_severity' => Array
+              (
+                  'field' => 'field_actionitem_severity',
+                  'limit' => '50',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' => '0',
+              ),
+
+              'field_actionitem_due_date' => Array
+              (
+                  'field' => 'field_actionitem_due_date',
+                  'limit' => '-1',
+                  'operator' => 'and',
+                  'min_count' => '1',
+                  'missing' =>'0',
+              )
+
+          )
+
+      )
+
+  );
+
+  $options = Array(
+      'path' => 'actionitems',
+      'query' => Array(
+          'f' => Array( 'field_actionitem_responsible:'.$search_user->uid, 'field_actionitem_status:1'),
+      ),
+  );
+  //$users = user_load_multiple(FALSE);
+  $enabled = TRUE;
+
+  $search = entity_create('search_api_saved_search', array(
+      'uid' => $search_user->uid,
+      'settings_id' => 'devtrac_solr_action_items_index',
+      'enabled' => $enabled,
+      'name' => "All open Action Items you are responsible for",
+      'mail' => $search_user->mail,
+      'created' => REQUEST_TIME,
+      'last_execute' => REQUEST_TIME,
+      'notify_interval' => 604800,
+      'query' => $query,
+      'options' => array(),
+  ));
+  
+  $search->options['mode_filter'] = '1';
+  $search->options['page']=$options;
+  $ret = $search->save();
+  if (!$ret) {
+    drupal_set_message(t('An error occurred while trying to save the search. Please contact the site administrator.'), 'error');
+  } else {
+    drupal_set_message(t('Yours saved to send a weekly reminder to user that has been tagged in an actionitem was successfully create.' ));
+
+  }
+
+  return "Saved search done";
+
+}

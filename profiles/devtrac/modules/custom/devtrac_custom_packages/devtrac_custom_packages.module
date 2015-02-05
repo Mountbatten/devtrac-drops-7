@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Implements ctools plugin for CKAN Packages.
+ */
+
+/**
+ * Implements hook_ckan_packages_packages().
+ * @ingroup devtrac_api_ckan
+ */
+function devtrac_custom_packages_ckan_packages_packages() {
+  $path = drupal_get_path('module', 'devtrac_custom_packages') . '/plugins/packages';
+
+  // Base userlist_provider class.
+  $plugins['devtrac_custom'] = array(
+    'handler' => array(
+      'class' => 'DevtracCustomPackages',
+      'file' => 'DevtracCustomPackages.inc',
+      'path' => $path,
+    ),
+  );
+
+  return $plugins;
+}
