@@ -23,6 +23,12 @@ projects[drupal][patch][] = https://www.drupal.org/files/issues/drupal_cron-user
 ;
 ; Allows uploading of multiple images using the devtrac api.
 ; projects[drupal][patch][] = https://www.drupal.org/files/issues/programmatically_add_images-1912458-4.patch
+;
+; Remove robots.txt so the robotstxt module can do it's job.
+; On the issue page the patch fails to apply.
+; A try on a fresh 7.34 install on my local machine was successful.
+; So here we go.
+projects[drupal][patch][] = https://www.drupal.org/files/issues/1260912-remove-robotstxt-7.30.patch
 
 ; Pull the devtrac project from git
 projects[devtrac][type] = "profile"

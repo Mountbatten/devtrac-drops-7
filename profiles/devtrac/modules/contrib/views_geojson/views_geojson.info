@@ -11,9 +11,9 @@ files[] = views/views_plugin_argument_default_bboxquery.inc
 dependencies[] = views (>=3.0)
 dependencies[] = geophp (>=1.0)
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "7.x-1.0-alpha2+13-dev"
 core = "7.x"
 project = "views_geojson"
-datestamp = "1423125141"
+datestamp = "1424082126"
 

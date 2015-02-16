@@ -18,8 +18,8 @@ files[] = OL_lat_long.module
 
 stylesheets[all][] = OL_lat_long.css
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "master-dev"
 project = "OL_lat_long"
-datestamp = "1423125160"
+datestamp = "1424082139"
 

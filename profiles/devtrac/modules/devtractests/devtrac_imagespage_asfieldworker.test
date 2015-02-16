@@ -274,7 +274,7 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('/images?display=list&amp;order=owner&amp;sort=asc" title="sort by Owner" class="active">Owner</a>          </th>', t('Owner table column and heading is present on the page. This column is also sortable.'), t('Devtrac'));
 
     // Check that data is displayed in each column.
-    $this->assertRaw('/file/images/admin/11110png?display=list">11110.png</a></h2>', t('Image column is filled.'), t('Devtrac'));
+    $this->assertRaw('/file/images/site-admin/11110png?display=list">11110.png</a></h2>', t('Image column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-field-file-image-title-text" >
             Education policy and administrative management          </td>', t('Title column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-taxonomy-vocabulary-6-1" >
@@ -282,7 +282,7 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('width="16" height="16" alt="Educational research" title="Educational research" /></a></div></div></div></div>          </td>', t('Sector column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-field-ftritem-date-visited active" >
             <span class="date-display-single">01-02-2015</span>          </td>', t('Date Visited column is filled.'), t('Devtrac'));
-    $this->assertRaw('/users/admin?display=list">admin</a>          </td>', t('Owner column is filled.'), t('Devtrac'));
+    $this->assertRaw('/users/admin?display=list">Site Admin</a>          </td>', t('Owner column is filled.'), t('Devtrac'));
 
     // Check for date format.
     $this->assertPattern('/([012]?[1-9]|[12]0|3[01])\-(0?[1-9]|1[012])\-([0-9]{4})/', t('Date format is correct'), t('Devtrac'));
@@ -438,8 +438,8 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('Sectors', 0, t('Sectors Quicktab is labeled'), t('Devtrac'));
 
     // ENABLING A FILTER.
-    $this->assertRaw('/images?display=graphs&amp;f[0]=field_taxonomy_image_tags%3A311" rel="nofollow" class="facetapi-inactive image-tag-1" id="facetapi-link">Image Tag 1 <span class="count">(1)</span><span class="element-invisible"> Apply Image Tag 1 filter </span></a>', t('Filter by Image Tag 1 link is present on the page.'), t('Devtrac'));
-    $this->clickLinkUsingXpath('Basic education', 0, '//*[@id="facetapi-link"]');
+    $this->assertRaw('/images?display=graphs&amp;f[0]=field_taxonomy_image_tags%3A311" rel="nofollow" class="facetapi-inactive image-tag-1" id="facetapi-link--2">Image Tag 1 <span class="count">(1)</span><span class="element-invisible"> Apply Image Tag 1 filter </span></a>', t('Filter by Image Tag 1 link is present on the page.'), t('Devtrac'));
+    $this->clickLinkUsingXpath('Basic education', 0, '//*[@id="facetapi-link--2"]');
 
     // Check current search counter.
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">1 Image</h3></div>', t('Search count changes after filter is enabled.'), t('Devtrac'));
@@ -647,12 +647,12 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     // Link : site_info (Subject to change).
     $this->assertRaw('<link>Education policy and administrative management</link>', t('Link is mapped correctly'), t('Devtrac'));
     // Description : Image.
-    $this->assertRaw('/file/images/admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
+    $this->assertRaw('/file/images/site-admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
     
   
   &lt;div class=&quot;content&quot;&gt;', t('Description mapped correctly'), t('Devtrac'));
     // Author : owner.
-    $this->assertRaw('/users/admin&quot;&gt;admin&lt;/a&gt;</author>', t('Author is mapped'), t('Devtrac'));
+    $this->assertRaw('/users/admin&quot;&gt;Site Admin&lt;/a&gt;</author>', t('Author is mapped'), t('Devtrac'));
     // Published Date : Date Visited (Subject to change).
     $this->assertRaw('<pubDate>&lt;span class=&quot;date-display-single&quot;&gt;01-02-2015&lt;/span&gt;</pubDate>', t('Published Date is mapped correctly'), t('Devtrac'));
 
@@ -660,14 +660,14 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     // Title : title.
     $this->assertRaw('<dc:title>Education policy and administrative management</dc:title>', t('dc Title is mapped correctly'), t('Devtrac'));
     // Creator : owner.
-    $this->assertRaw('/users/admin&quot;&gt;admin&lt;/a&gt;</dc:creator>', t('dc Author is mapped'), t('Devtrac'));
+    $this->assertRaw('/users/admin&quot;&gt;Site Admin&lt;/a&gt;</dc:creator>', t('dc Author is mapped'), t('Devtrac'));
     // Description : Image.
-    $this->assertRaw('/file/images/admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
+    $this->assertRaw('/file/images/site-admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
     
   
   &lt;div class=&quot;content&quot;&gt;', t('dc Description mapped correctly'), t('Devtrac'));
     // Contributor : owner.
-    $this->assertRaw('/users/admin&quot;&gt;admin&lt;/a&gt;</dc:contributor>', t('dc Contributor is mapped'), t('Devtrac'));
+    $this->assertRaw('/users/admin&quot;&gt;Site Admin&lt;/a&gt;</dc:contributor>', t('dc Contributor is mapped'), t('Devtrac'));
     // Date : Date Visited.
     $this->assertRaw('<dc:date>&lt;span class=&quot;date-display-single&quot;&gt;01-02-2015&lt;/span&gt;</dc:date>', t('Date is mapped correctly'), t('Devtrac'));
 

@@ -14,7 +14,7 @@ function devtrac7_theme_feature_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'admin_theme';
-  $strongarm->value = 'shiny';
+  $strongarm->value = 'seven';
   $export['admin_theme'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -632,13 +632,6 @@ system/ajax/*';
   $strongarm->name = 'realname_pattern';
   $strongarm->value = '[user:field_user_firstname] [user:field_user_surname]';
   $export['realname_pattern'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'site_frontpage';
-  $strongarm->value = 'sitereports';
-  $export['site_frontpage'] = $strongarm;
 
   return $export;
 }

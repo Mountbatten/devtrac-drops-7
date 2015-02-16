@@ -807,7 +807,7 @@ function devtrac7_theme_feature_context_default_contexts() {
           'olmaptext_1' => 0,
         ),
       ),
-      'shiny' => array(
+      'seven' => array(
         'disable' => array(
           'content' => 0,
           'help' => 0,

@@ -2320,6 +2320,17 @@ function devtrac7_js_alter(&$javascript) {
     $openbydefault = Array (
       "facetapi-facet-search-apidevtrac-solr-site-visits-index-block-taxonomy-vocabulary-7",
       "facetapi-facet-search-apidevtrac-solr-site-visits-index-block-taxonomy-vocabulary-6",
+      "facetapi-facet-search-apidevtrac-solr-action-items-index-block-taxonomy-vocabulary-8",
+      "facetapi-facet-search-apidevtrac-solr-action-items-index-block-taxonomy-vocabulary-6",
+      "facetapi-facet-search-apidevtrac-solr-field-trip-index-block-taxonomy-vocabulary-6",
+      "facetapi-facet-search-apidevtrac-solr-image-index-block-taxonomy-vocabulary-8",
+      "facetapi-facet-search-apidevtrac-solr-image-index-block-taxonomy-vocabulary-6",
+      "facetapi-facet-search-apiquestions-block-taxonomy-vocabulary-8",
+      "facetapi-facet-search-apianswers-block-taxonomy-vocabulary-6",
+      "facetapi-facet-search-apidevtrac-solr-district-index-block-parents-all",
+      "facetapi-facet-search-apidevtrac-solr-locations-index-block-taxonomy-vocabulary-6",
+      "facetapi-facet-search-apidevtrac7-user-index-block-taxonomy-vocabulary-8",
+      "facetapi-facet-search-apidevtrac7-user-index-block-taxonomy-vocabulary-6",
     );
     $notcollapsable = Array (
       "views_dvtrc_user-block_3",

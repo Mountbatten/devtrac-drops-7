@@ -166,7 +166,8 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'search_api_index_answers';
   $handler->display->display_options['fields']['created']['field'] = 'created';
-  $handler->display->display_options['fields']['created']['date_format'] = 'short';
+  $handler->display->display_options['fields']['created']['date_format'] = 'date_only';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'date_only';
   $handler->display->display_options['fields']['created']['link_to_entity'] = 0;
   /* Field: Indexed Answer: Question */
   $handler->display->display_options['fields']['question']['id'] = 'question';

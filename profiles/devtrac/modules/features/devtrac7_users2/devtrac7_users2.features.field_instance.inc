@@ -629,7 +629,7 @@ function devtrac7_users2_field_default_field_instances() {
     'ds_extras_field_template' => '',
     'entity_type' => 'user',
     'field_name' => 'taxonomy_vocabulary_6',
-    'label' => 'Districts',
+    'label' => 'Admin Units',
     'required' => 0,
     'settings' => array(
       'user_register_form' => 1,

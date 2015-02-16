@@ -32,12 +32,19 @@ files[] = devtrac_fieldtripspage_asfieldworker.test
 files[] = devtrac_imagespage_asanonymoususer.test
 files[] = devtrac_imagespage_asfieldworker.test
 files[] = devtrac_statisticspage_asanonymoususer.test
+files[] = devtrac_statisticspage_asfieldworker.test
+files[] = devtrac_adminunitspage_asanonymoususer.test
+files[] = devtrac_adminunitspage_asfieldworker.test
+files[] = devtrac_locationspage_asanonymoususer.test
+files[] = devtrac_locationspage_asfieldworker.test
+files[] = devtrac_userspage_asanonymoususer.test
+files[] = devtrac_userspage_asfieldworker.test
 core = 7.x
 
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "devtrac"
-datestamp = "1423125024"
+datestamp = "1424082027"
 

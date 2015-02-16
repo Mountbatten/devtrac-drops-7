@@ -653,12 +653,12 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     // Link : site_info (Subject to change).
     $this->assertRaw('<link>Education policy and administrative management</link>', t('Link is mapped correctly'), t('Devtrac'));
     // Description : Image.
-    $this->assertRaw('/file/images/admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
+    $this->assertRaw('/file/images/site-admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
     
   
   &lt;div class=&quot;content&quot;&gt;', t('Description mapped correctly'), t('Devtrac'));
     // Author : owner.
-    $this->assertNoRaw('/users/admin&quot;&gt;&lt;/a&gt;</author>', t('Author is not mapped'), t('Devtrac'));
+    $this->assertNoRaw('/users/admin&quot;&gt;Site Admin&lt;/a&gt;</author>', t('Author is not mapped'), t('Devtrac'));
     // Published Date : Date Visited (Subject to change).
     $this->assertRaw('<pubDate>&lt;span class=&quot;date-display-single&quot;&gt;01-02-2015&lt;/span&gt;</pubDate>', t('Published Date is mapped correctly'), t('Devtrac'));
 
@@ -666,16 +666,14 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     // Title : title.
     $this->assertRaw('<dc:title>Education policy and administrative management</dc:title>', t('dc Title is mapped correctly'), t('Devtrac'));
     // Creator : owner.
-    $this->assertNoRaw('users/admin&quot;&gt;&lt;/a&gt;</dc:creator>', t('dc Author is not mapped'), t('Devtrac'));
+    $this->assertNoRaw('/users/admin&quot;&gt;Site Admin&lt;/a&gt;</dc:creator>', t('dc Author is not mapped'), t('Devtrac'));
     // Description : Image.
-    $this->assertRaw('&lt;div id=&quot;file-1--2&quot; class=&quot;file file-image file-image-png&quot; class=&quot;file file-image file-image-png&quot;&gt;
-
-        &lt;h2 class=&quot;element-invisible&quot;&gt;&lt;a href=&quot;/devtracorgtest/file/images/admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
+    $this->assertRaw('/file/images/site-admin/11110png&quot;&gt;11110.png&lt;/a&gt;&lt;/h2&gt;
     
   
   &lt;div class=&quot;content&quot;&gt;', t('dc Description mapped correctly'), t('Devtrac'));
     // Contributor : owner.
-    $this->assertNoRaw('users/admin&quot;&gt;&lt;/a&gt;</dc:contributor>', t('dc Contributor is not mapped'), t('Devtrac'));
+    $this->assertNoRaw('/users/admin&quot;&gt;Site Admin&lt;/a&gt;</dc:contributor>', t('dc Contributor is not mapped'), t('Devtrac'));
     // Date : Date Visited.
     $this->assertRaw('<dc:date>&lt;span class=&quot;date-display-single&quot;&gt;01-02-2015&lt;/span&gt;</dc:date>', t('Date is mapped correctly'), t('Devtrac'));
 

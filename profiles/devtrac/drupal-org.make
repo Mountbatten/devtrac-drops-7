@@ -9,6 +9,9 @@ includes[mountbatten_seo] = https://raw.githubusercontent.com/Mountbatten/mountb
 includes[mountbatten_web_media] = https://raw.githubusercontent.com/Mountbatten/mountbatten_makefiles/master/mountbatten_web_media.make
 includes[mountbatten_sitewide] = https://raw.githubusercontent.com/Mountbatten/mountbatten_makefiles/master/mountbatten_sitewide.make
 
+; Adding the following Mountbatten developer default for demonstration purposes. It installs a lot of ui stuff.
+includes[mountbatten_developer] = https://raw.githubusercontent.com/Mountbatten/mountbatten_makefiles/master/mountbatten_developer.make
+
 ; Modules
 projects[acl][version] = "1.0"
 projects[acl][type] = "module"
@@ -27,6 +30,10 @@ projects[behavior_weights][version] = "1.0"
 projects[behavior_weights][type] = "module"
 projects[behavior_weights][subdir] = "contrib"
 
+projects[better_messages][version] = "1.x-dev"
+projects[better_messages][type] = "module"
+projects[better_messages][subdir] = "contrib"
+
 projects[blockify][version] = "1.2"
 projects[blockify][type] = "module"
 projects[blockify][subdir] = "contrib"
@@ -38,6 +45,10 @@ projects[charts_graphs][subdir] = "contrib"
 projects[charts_graphs_flot][version] = "1.x-dev"
 projects[charts_graphs_flot][type] = "module"
 projects[charts_graphs_flot][subdir] = "contrib"
+
+projects[chosen][version] = "2.0-beta4"
+projects[chosen][type] = "module"
+projects[chosen][subdir] = "contrib"
 
 projects[ckan_packages][version] = "1.x-dev"
 projects[ckan_packages][type] = "module"
@@ -229,10 +240,6 @@ projects[jquery_update][version] = "2.x-dev"
 projects[jquery_update][type] = "module"
 projects[jquery_update][subdir] = "contrib"
 
-projects[js][version] = "1.0"
-projects[js][type] = "module"
-projects[js][subdir] = "contrib"
-
 projects[kml][version] = "1.x-dev"
 projects[kml][type] = "module"
 projects[kml][subdir] = "contrib"
@@ -306,18 +313,9 @@ projects[pane][type] = "module"
 projects[pane][subdir] = "contrib"
 projects[pane][patch][] = "https://www.drupal.org/files/issues/pane-remove-wrapper-markup-2119593-3.patch"
 
-projects[prepopulate][version] = "2.0"
-projects[prepopulate][type] = "module"
-projects[prepopulate][subdir] = "contrib"
-projects[prepopulate][patch][] = "https://www.drupal.org/files/issues/prepopulate_undefined_index_type-1090930-4.patch"
-
 projects[proj4js][version] = "1.2"
 projects[proj4js][type] = "module"
 projects[proj4js][subdir] = "contrib"
-
-projects[proxy][version] = "1.0-beta3"
-projects[proxy][type] = "module"
-projects[proxy][subdir] = "contrib"
 
 projects[publishcontent][version] = "1.3"
 projects[publishcontent][type] = "module"
@@ -348,17 +346,6 @@ projects[quicktabs][patch][] = "https://www.drupal.org/files/quicktabs--machine_
 projects[realname][version] = "1.2"
 projects[realname][type] = "module"
 projects[realname][subdir] = "contrib"
-
-projects[relation][version] = "1.0-rc6"
-projects[relation][type] = "module"
-projects[relation][subdir] = "contrib"
-projects[relation][patch][] = "https://www.drupal.org/files/relation-entity_property_info-1958298-3.patch"
-; projects[relation][patch][] = "http://cgit.drupalcode.org/relation/patch/?id=5b8e243b7e6450b9e2a26d71447fd91628eb4845"
-projects[relation][patch][] = "https://www.drupal.org/files/issues/relation_feeds-tests-fail-2198405-2.patch"
-
-projects[relation_add][version] = "1.2"
-projects[relation_add][type] = "module"
-projects[relation_add][subdir] = "contrib"
 
 projects[robotstxt][version] = "1.3"
 projects[robotstxt][type] = "module"
@@ -414,10 +401,6 @@ projects[search_api_solr_boundingbox_search][subdir] = "contrib"
 projects[search_api_solr_dynamic_ranges][version] = "1.x-dev"
 projects[search_api_solr_dynamic_ranges][type] = "module"
 projects[search_api_solr_dynamic_ranges][subdir] = "contrib"
-
-projects[search_api_override][version] = "1.0-rc1"
-projects[search_api_override][type] = "module"
-projects[search_api_override][subdir] = "contrib"
 
 projects[search_api_swatches][version] = "1.x-dev"
 projects[search_api_swatches][type] = "module"
@@ -516,10 +499,6 @@ projects[virtual_field][type] = "module"
 projects[virtual_field][subdir] = "contrib"
 projects[virtual_field][patch][] = "https://www.drupal.org/files/issues/virtual_field_views_support_1506376_11.patch"
 
-projects[wms][version] = "2.x-dev"
-projects[wms][type] = "module"
-projects[wms][subdir] = "contrib"
-
 projects[addressfield][version] = "1.0"
 projects[addressfield][type] = "module"
 projects[addressfield][subdir] = "contrib"
@@ -536,6 +515,18 @@ projects[telephone][version] = "1.0-alpha1"
 projects[telephone][type] = "module"
 projects[telephone][subdir] = "contrib"
 
+projects[flexslider][version] = "2.0-alpha3"
+projects[flexslider][type] = "module"
+projects[flexslider][subdir] = "contrib"
+
+projects[nodesinblock][version] = "1.0"
+projects[nodesinblock][type] = "module"
+projects[nodesinblock][subdir] = "contrib"
+
+projects[openlayers_blocks][version] = "2.1"
+projects[openlayers_blocks][type] = "module"
+projects[openlayers_blocks][subdir] = "contrib"
+
 ; Sandbox projects
 projects[cancel_button][type] = "module"
 projects[cancel_button][download][type] = "git"
@@ -549,13 +540,6 @@ projects[commentblock][download][url] = "http://git.drupal.org/sandbox/bc/144731
 projects[commentblock][download][branch] = "7.x-1.x"
 projects[commentblock][subdir] = "contrib"
 projects[commentblock][patch][] = "https://www.drupal.org/files/parameter-1-expected-to-be-a-reference.patch"
-
-projects[facetapi_context][type] = "module"
-projects[facetapi_context][download][type] = "git"
-projects[facetapi_context][download][url] = "http://git.drupal.org/sandbox/ygerasimov/1591872.git"
-projects[facetapi_context][download][branch] = "7.x-1.x"
-projects[facetapi_context][subdir] = "contrib"
-projects[facetapi_context][patch][] = "https://www.drupal.org/files/moreoptions-1704152-1.patch"
 
 projects[OL_lat_long][type] = "module"
 projects[OL_lat_long][download][type] = "git"
@@ -579,9 +563,6 @@ projects[omega][version] = "3.1"
 projects[omega][patch][] = "https://www.drupal.org/files/omega-mini-pager-1828552-49.patch"
 projects[omega][type] = "theme"
 
-projects[shiny][version] = "1.6"
-projects[shiny][type] = "theme"
-
 ; projects[devtrac7_theme][version] = "1.x-dev"
 projects[devtrac7_theme][type] = "theme"
 projects[devtrac7_theme][download][type] = "git"
@@ -593,6 +574,11 @@ libraries[autopager][download][type] = "file"
 libraries[autopager][download][url] = "https://jquery-autopager.googlecode.com/files/jquery.autopager-1.0.0.js"
 libraries[autopager][directory_name] = "autopager"
 libraries[autopager][type] = "library"
+
+libraries[chosen][download][type] = "file"
+libraries[chosen][download][url] = "https://github.com/harvesthq/chosen/releases/download/v1.1.0/chosen_v1.1.0.zip"
+libraries[chosen][directory_name] = "chosen"
+libraries[chosen][type] = "library"
 
 libraries[colorbox][download][type] = "file"
 libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/1.5.14.zip"

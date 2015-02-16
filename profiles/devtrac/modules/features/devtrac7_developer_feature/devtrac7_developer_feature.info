@@ -5,19 +5,31 @@ package = Features
 version = 7.x-1.0-beta
 project = devtrac7_developer_feature
 dependencies[] = context
-dependencies[] = context_ui
 dependencies[] = ctools
 dependencies[] = devel_node_access
 dependencies[] = diff
+
+; Enable more modules, although not needed in this feature.
+dependencies[] = view_mode_tab
+dependencies[] = module_filter
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+; And a lot of visual ui stuff.
+dependencies[] = views_ui
+dependencies[] = field_ui
+dependencies[] = context_ui
+dependencies[] = openlayers_ui
+dependencies[] = delta_ui
+
 features[context][] = devtrac_solr_not_map_views_admin
 features[context][] = devtrac7_developers
 features[ctools][] = context:context:3
 features[features_api][] = api:1
 
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "devtrac"
-datestamp = "1423125024"
+datestamp = "1424082027"
 

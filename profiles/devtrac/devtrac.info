@@ -10,7 +10,6 @@ files[] = devtrac.profile
 
 ; Install profile
 dependencies[] = block
-; dependencies[] = rdf
 dependencies[] = options
 dependencies[] = taxonomy
 dependencies[] = comment
@@ -18,45 +17,32 @@ dependencies[] = file
 dependencies[] = image
 
 ; Core
-; dependencies[] = book
-dependencies[] = color
-dependencies[] = contact
 dependencies[] = contextual
-dependencies[] = field_ui
-dependencies[] = help
 dependencies[] = list
 dependencies[] = menu
 dependencies[] = number
 dependencies[] = path
 dependencies[] = syslog
 dependencies[] = text
-; dependencies[] = update
 
 ; Contrib
 dependencies[] = acl
 dependencies[] = content_access
 dependencies[] = content_taxonomy
 dependencies[] = taxonomy_access
-dependencies[] = admin_menu
-dependencies[] = admin_menu_toolbar
 dependencies[] = ctools
 dependencies[] = charts_graphs
 dependencies[] = flot
 dependencies[] = charts_graphs_flot
 dependencies[] = context
-dependencies[] = context_ui
 dependencies[] = date_api
 dependencies[] = date
 dependencies[] = date_popup
-dependencies[] = date_all_day
 dependencies[] = date_duration_formatter
+dependencies[] = diff
 dependencies[] = migrate
-dependencies[] = migrate_ui
 dependencies[] = migrate_extras
 dependencies[] = ds
-dependencies[] = ds_forms
-dependencies[] = ds_extras
-dependencies[] = ds_search
 dependencies[] = exif
 dependencies[] = features
 dependencies[] = features_override
@@ -71,7 +57,6 @@ dependencies[] = file_entity
 dependencies[] = token
 dependencies[] = me
 dependencies[] = adaptive_image
-; dependencies[] = advanced_help
 dependencies[] = blockify
 dependencies[] = colorbox
 dependencies[] = commentblock
@@ -85,7 +70,6 @@ dependencies[] = field_extrawidgets
 dependencies[] = geocoder
 dependencies[] = geophp
 dependencies[] = geofield
-; dependencies[] = helpinject
 dependencies[] = hidden_comment
 dependencies[] = libraries
 dependencies[] = masonry
@@ -93,30 +77,22 @@ dependencies[] = masonry_views
 dependencies[] = menu_token
 dependencies[] = nice_menus
 dependencies[] = special_menu_items
-dependencies[] = module_filter
 dependencies[] = pane
 ; dependencies[] = pathauto
 dependencies[] = purl
 dependencies[] = purl_search_api
-dependencies[] = prepopulate
 dependencies[] = proj4js
-; dependencies[] = proxy
 dependencies[] = publishcontent
 dependencies[] = quicktabs
 dependencies[] = realname
 dependencies[] = robotstxt
+dependencies[] = r4032login
 dependencies[] = strongarm
 dependencies[] = tipsy
 dependencies[] = transliteration
 dependencies[] = globalredirect
-dependencies[] = relation_endpoint
-; dependencies[] = relation
-; dependencies[] = relation_ui
-; dependencies[] = relation_dummy_field
 dependencies[] = mapit
-; dependencies[] = relation_add
 dependencies[] = search_api
-dependencies[] = search_api_override
 dependencies[] = search_api_autocomplete
 dependencies[] = search_api_date
 dependencies[] = search_api_saved_searches
@@ -125,31 +101,20 @@ dependencies[] = facetapi
 dependencies[] = current_search
 dependencies[] = facetapi_bonus
 dependencies[] = facetapi_graphs
-; dependencies[] = facetapi_context
 dependencies[] = facetapi_tagcloud
 dependencies[] = facetapi_textfield_widget
 dependencies[] = services
 dependencies[] = ckan_packages
 dependencies[] = rest_server
-; None or one of the following two modules will be enabled later
-; in the installation process. Modules that are not selected will
-; be removed from the code base. Configuration for the selected
-; module will also be done later in a separate install task.
-; dependencies[] = piwik
-; dependencies[] = google_analytics
 dependencies[] = delta
 dependencies[] = delta_blocks
-dependencies[] = delta_color
-dependencies[] = delta_ui
 dependencies[] = better_messages
 dependencies[] = chosen
-; dependencies[] = ckeditor
 dependencies[] = collapsiblock
 dependencies[] = image_url_formatter
 dependencies[] = jquery_update
 dependencies[] = uuid
 dependencies[] = views
-dependencies[] = views_ui
 dependencies[] = draggableviews
 ; dependencies[] = footable
 dependencies[] = views_geojson
@@ -174,10 +139,8 @@ dependencies[] = field_collection
 dependencies[] = entityreference
 dependencies[] = entityreference_prepopulate
 dependencies[] = openlayers
-dependencies[] = openlayers_ui
 dependencies[] = openlayers_plus
 dependencies[] = openlayers_views
-; dependencies[] = wms
 dependencies[] = geocoder_wfs
 dependencies[] = search_api_facetapi
 dependencies[] = search_api_views
@@ -188,10 +151,6 @@ dependencies[] = telephone
 dependencies[] = addressfield
 dependencies[] = link_favicon_formatter
 dependencies[] = role_delegation
-; The following line introduces some access issues on taxonomy terms
-; and makes thus makes the shs module fail to do its work.
-; So until we solve this, we just do not enable it.
-; dependencies[] = js
 dependencies[] = shs
 dependencies[] = barcode
 dependencies[] = search_api_file_source_bundle_filter
@@ -205,13 +164,10 @@ dependencies[] = questionnaire_question
 ; Devtrac modules
 dependencies[] = devtrac7
 dependencies[] = devtrac7_access
-; dependencies[] = devtrac7_mymenu
 dependencies[] = devtrac_saved_search
 dependencies[] = devtrac7_current_search
 dependencies[] = devtrac7_fieldtrip_progress
-; dependencies[] = devtrac7_profile_menu
 dependencies[] = devtrac7_progress_field
-; dependencies[] = devtrac7_wms
 dependencies[] = devtrac7_views
 dependencies[] = devtrac7_realms
 dependencies[] = devtrac_custom_packages
@@ -223,23 +179,9 @@ dependencies[] = devtrac7_services_user
 ; Devtrac features
 dependencies[] = mountbatten_web_media
 dependencies[] = devtrac7_services_api
-; See next comment about devtrac7_field_permissions_feature.
-; Same applies for the devtrac7_admin_feature.
-; dependencies[] = devtrac7_admin_feature
-; We'll have to enable the devtrac7_field_permissions feature after
-; rebuilding the features. So even after the site configuration task.
-; So let's comment it out for now and enable it in a new install task.
-; dependencies[] = devtrac7_field_permissions_feature
 dependencies[] = devtrac7_menu
 dependencies[] = devtrac7_views_feature
 dependencies[] = devtrac7_site_configuration_feature
-;dependencies[] = devtrac7_solr_search_feature
-; dependencies[] = devtrac7_solr_search_activity_feature
-;dependencies[] = devtrac7_solr_search_district_feature
-;dependencies[] = devtrac7_solr_search_location_feature
-;dependencies[] = devtrac7_solr_search_act_item_feature
-; dependencies[] = devtrac7_solr_search_org_feature
-;dependencies[] = devtrac7_solr_user_feature
 dependencies[] = devtrac7_taxonomy_feature
 dependencies[] = devtrac7_node_types
 dependencies[] = devtrac7_theme_feature
@@ -248,20 +190,14 @@ dependencies[] = devtrac7_questionnaire_feature
 dependencies[] = devtrac7_users2
 dependencies[] = devtrac7_maps
 dependencies[] = devtrac7_images_feature
-;dependencies[] = devtrac7_solr_search_fieldtrip_feature
-;dependencies[] = devtrac7_solr_search_image_feature
-;dependencies[] = devtrac7_solr_search_questions_feature
-;dependencies[] = devtrac7_solr_search_answers_feature
-; dependencies[] = iati_field_permissions_feature
-; dependencies[] = iati_feature
 
 ; Devtrac apps
 dependencies[] = apps
 
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "devtrac"
-datestamp = "1423125024"
+datestamp = "1424082027"
 

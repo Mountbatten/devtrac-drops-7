@@ -1,0 +1,446 @@
+ <?php
+
+/**
+ * @file
+ * Visit the Admin Units page as an Anonymous user and check that all is as
+ * should be.
+ */
+
+// Make sure simpletest_clone and devtractestcase are available.
+module_load_include('test', 'simpletest_clone');
+module_load_include('inc', 'devtractests', 'includes/devtractestcase');
+
+/**
+ * Checks that when the Admin Units page is viewed by an anonymous user, the
+ * page and its content is all present and working as it should.
+ */
+class VisitAdminUnitsAsAnonymousTestCase extends DevtracTestCase {
+  protected $profile = 'devtrac';
+
+  /**
+   * The getInfo function.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Admin Units page as an Anonymous User',
+      'description' => 'Visit Admin Units page as an Anonymous User and check that all is as should be.',
+      'group' => 'Devtrac2',
+    );
+  }
+
+  /**
+   * The setUp function.
+   */
+  public function setUp() {
+    $this->public_files_directory = variable_get('file_public_path');
+    parent::setUp(array('devtractests'));
+
+    $this->setUpFieldWorker();
+    $this->drupalLogout();
+
+  }
+
+  /**
+   * Assess 'Admin Units' page as an anonymous user.
+   */
+  public function testAdminUnitsPageAccessAnonymous() {
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    $this->assertNoText(t('Access denied'), t('Anonymous user is permitted to visit the Admin Units page.'), t('Devtrac'));
+  }
+
+  /**
+   * Check that all generic content is present.
+   */
+  public function testPresenceOfGenericContentAnonymous() {
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    // Check for Error Messages.
+
+    // DEFAULT VIEW MODE.
+    $this->assertNoRaw('<h2 class="messages-label error">Error</h2>', t('There are no errors on this page'), t('Devtrac'));
+
+    // Check for Built by Mountbatten footer text.
+    $this->assertRaw('<p><span id="project-info-footer"><a href="http://www.devtrac.org" title="Devtrac">www.devtrac.org</a> | Built by  <a href="http://www.mountbatten.net/">Mountbatten Ltd</a> | Originally developed for <a href="http://www.unicef.org/uganda">Unicef Uganda</a> © 2015<br /></span></p>',
+        t('Correct Project Information is displayed on the page'),
+        t('Devtrac'));
+
+    // Check for link to devtrac.
+    $this->assertLinkByHref('http://www.devtrac.org', 0, t('There is a link to devtrac.org on the page.'), t('Devtrac'));
+
+    // Check for generic Main Menu Links.
+    $this->assertLinkByHref('/sitereports', 0, t('Images link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/statistics', 0, t('Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits', 0, t('Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/locations', 0, t('Locations link is present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('/actionitems', t('Action Items link is not present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('/fieldtrips', t('Field trips link is not present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/images', 0, t('Images link is present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Users', t('Users link is not present on the page.'), t('Devtrac'));
+    $this->assertLink('Log in', 0, t('LOG IN link is present on the page.'), t('Devtrac'));
+
+    // Check for view mode button links.
+    $this->assertLinkByHref('/adminunits?display=default', 0, t('Default display link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=list', 0, t('List display link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=graphs', 0, t('Graphs display link is present on the page.'), t('Devtrac'));
+
+    // Check that the my-profile menu is absent.
+    $this->assertNoRaw('<a href="/user" title="">Welcome,', t('My profile menu is not present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Add Field Trip', t('Add Field Trip link is not present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Edit My Profile', t('Edit My Profile link is not present on the page.'), t('Devtrac'));
+
+    // Check for Export links.
+    $this->assertLink('Export', 0, t('Export link is present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('statistics/questions/csvadmin', t('Export to CSV (administrator version) link is  not present on the page.'), t('Devtrac'));
+    $this->assertLink('Export to CSV', 0, t('Export to CSV link is present on the page.'), t('Devtrac'));
+    $this->assertLink('Export to KML', 0, t('Export to KML link is present on the page.'), t('Devtrac'));
+    $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
+
+    // Search Api Elements.
+    // Check for Facets.
+
+    // Admin Unit.
+    $this->assertRaw('\u003Ch2 class=\u0022block-title\u0022\u003EAdmin Unit\u003C\/h2\u003E', t('Admin Unit Heading is present on the page'), t('Devtrac'));
+    $this->assertRaw('\u003Cdiv class=\u0022item-list\u0022\u003E\u003Cul class=\u0022facetapi-facetapi-links facetapi-facet-parents-all\u0022 id=\u0022facetapi-facet-search-apidevtrac-solr-district-index-block-parents-all\u0022\u003E', t('Admin Unit search list is present on the page'), t('Devtrac'));
+
+    // Tags.
+    $this->assertRaw('\u003Ch2 class=\u0022block-title\u0022\u003ETags\u003C\/h2\u003E\n', t('Tags Heading is present on the page'), t('Devtrac'));
+    $this->assertRaw('\u003Cdiv class=\u0022item-list\u0022\u003E\u003Cul class=\u0022facetapi-facetapi-links facetapi-facet-field-district-category\u0022 id=\u0022facetapi-facet-search-apidevtrac-solr-district-index-block-field-district-category\u0022\u003E', t('Tags search list is present on the page'), t('Devtrac'));
+
+    // Check for Admin Unit counter.
+    $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">19 Admin Units</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
+
+    // Check for Info pane text.
+    $this->assertRaw('\u003Cp\u003EThis is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.\u003C\/p\u003E', t('Info pane is present on the page'), t('Devtrac'));
+
+    // Full text search block
+    $this->assertRaw('\u003Cform id=\u0022facetapi-textfield-widget-form\u0022 class=\u0022facetapi-textfield-widget-form\u0022 action=\u0022adminunits\u0022 method=\u0022GET\u0022 onsubmit=\u0022return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)\u0022\u003E\n  \u003Cinput type=\u0022textfield\u0022 name=\u0022search_api_aggregation_1\u0022 value=\u0022\u0022 \/\u003E\n  \u003Cdiv id=\u0022edit-actions\u0022 class=\u0022form-actions form-wrapper\u0022\u003E\n    \u003Cinput type=\u0022submit\u0022 class=\u0022form-submit\u0022 value=\u0022Search\u0022 \/\u003E\n  \u003C\/div\u003E\n\u003C\/form\u003E', t('Full Text Search Block is present on the page'), t('Devtrac'));
+
+    
+    // Check for Facet default state (expanded or collapsed).
+    // Check.
+    // 2 is collapsible, default open.
+    // 3 is collapisble, default closed.
+
+    // Admin Unit block id block-facetapi-lg63gd04gbns5u1dxsguqomdj9xvvjgf
+    $this->assertRaw('"block-facetapi-lg63gd04gbns5u1dxsguqomdj9xvvjgf":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
+
+    // Tags block id block-facetapi-l2dluv3aaqmwzo0fi0e7idwplai93anc
+    $this->assertRaw('"block-facetapi-l2dluv3aaqmwzo0fi0e7idwplai93anc":3', t('Tags block is collapsed by default.'), t('Devtrac'));
+
+    // LIST VIEW MODE.
+    $this->clickLink('list', 0);
+    $this->assertUrl($this->getAbsoluteUrl('/adminunits?display=list'), array(), t('User is redirected to the correct page when list view mode link is clicked.'), t('Devtrac'));
+
+    $this->assertNoRaw('<h2 class="messages-label error">Error</h2>', t('There are no errors on this page'), t('Devtrac'));
+
+    // Check for Built by Mountbatten footer text.
+    $this->assertRaw('<p><span id="project-info-footer"><a href="http://www.devtrac.org" title="Devtrac">www.devtrac.org</a> | Built by  <a href="http://www.mountbatten.net/">Mountbatten Ltd</a> | Originally developed for <a href="http://www.unicef.org/uganda">Unicef Uganda</a> © 2015<br /></span></p>',
+        t('Correct Project Information is displayed on the page'),
+        t('Devtrac'));
+
+    // Check for link to devtrac.
+    $this->assertLinkByHref('http://www.devtrac.org', 0, t('There is a link to devtrac.org on the page.'), t('Devtrac'));
+
+    // Check for order of Facets.
+    $order = array('Admin Unit', 'Tags');
+    $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
+
+    // Check for generic Main Menu Links.
+    $this->assertLinkByHref('/sitereports', 0, t('Images link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/statistics', 0, t('Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits', 0, t('Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/locations', 0, t('Locations link is present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('/actionitems', t('Action Items link is not present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('/fieldtrips', t('Field trips link is not present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/images', 0, t('Images link is present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Users', t('Users link is not present on the page.'), t('Devtrac'));
+    $this->assertLink('Log in', 0, t('LOG IN link is present on the page.'), t('Devtrac'));
+
+    // Check for view mode button links.
+    $this->assertLinkByHref('/adminunits?display=default', 0, t('Default display link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=list', 0, t('List display link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=graphs', 0, t('Graphs display link is present on the page.'), t('Devtrac'));
+
+    // Check that the my-profile menu is absent.
+    $this->assertNoRaw('<a href="/user" title="">Welcome,', t('My profile menu is not present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Add Field Trip', t('Add Field Trip link is not present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Edit My Profile', t('Edit My Profile link is not present on the page.'), t('Devtrac'));
+
+    // Check for Export links.
+    $this->assertLink('Export', 0, t('Export link is present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('statistics/questions/csvadmin', t('Export to CSV (administrator version) link is  not present on the page.'), t('Devtrac'));
+    $this->assertLink('Export to CSV', 0, t('Export to CSV link is present on the page.'), t('Devtrac'));
+    $this->assertLink('Export to KML', 0, t('Export to KML link is present on the page.'), t('Devtrac'));
+    $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
+
+    // Search Api Elements.
+    // Check for Facets.
+
+    // Admin Unit.
+    $this->assertRaw('<h2 class="block-title">Admin Unit</h2>', t('Admin Unit Heading is present on the page'), t('Devtrac'));
+    $this->assertRaw('<div class="item-list"><ul class="facetapi-facetapi-links facetapi-facet-parents-all" id="facetapi-facet-search-apidevtrac-solr-district-index-block-parents-all">', t('Admin Unit search list is present on the page'), t('Devtrac'));
+
+    // Tags.
+    $this->assertRaw('<h2 class="block-title">Tags</h2>', t('Tags Heading is present on the page'), t('Devtrac'));
+    $this->assertRaw('<div class="item-list"><ul class="facetapi-facetapi-links facetapi-facet-field-district-category" id="facetapi-facet-search-apidevtrac-solr-district-index-block-field-district-category">', t('Tags search list is present on the page'), t('Devtrac'));
+
+    // Check for Admin Unit counter.
+    $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">19 Admin Units</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
+
+    // Check for Info pane text.
+    $this->assertRaw('<p>This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.</p>', t('Info pane is present on the page'), t('Devtrac'));
+
+    // Full text search block
+    $this->assertRaw('<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="adminunits" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)">
+  <input type="textfield" name="search_api_aggregation_1" value="" />
+  <input type="hidden" name="display" value="list" />
+  <div id="edit-actions" class="form-actions form-wrapper">
+    <input type="submit" class="form-submit" value="Search" />
+  </div>
+</form>', t('Full Text Search Block is present on the page'), t('Devtrac'));
+
+    
+    // Check for Facet default state (expanded or collapsed).
+    // Check.
+    // 2 is collapsible, default open.
+    // 3 is collapisble, default closed.
+
+    // Admin Unit block id block-facetapi-lg63gd04gbns5u1dxsguqomdj9xvvjgf
+    $this->assertRaw('"block-facetapi-lg63gd04gbns5u1dxsguqomdj9xvvjgf":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
+
+    // Tags block id block-facetapi-l2dluv3aaqmwzo0fi0e7idwplai93anc
+    $this->assertRaw('"block-facetapi-l2dluv3aaqmwzo0fi0e7idwplai93anc":3', t('Tags block is collapsed by default.'), t('Devtrac'));
+
+    // Information pane block id block-pane-devtrac-solr-map-info
+    $this->assertRaw('"block-pane-devtrac-solr-map-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
+
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    $this->clickLink('list', 0);
+
+    // ENABLING A FILTER.
+    $this->assertRaw('/adminunits?display=list&amp;f[0]=parents_all%3A3"', t('Filter by Uganda link is present on the page.'), t('Devtrac'));
+    $this->clickLinkUsingXpath('Uganda', 0, '//*[@id="facetapi-link--8"]');
+
+    // Check current search counter.
+    $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">16 Admin Units</h3></div>', t('Search count changes after filter is enabled.'), t('Devtrac'));
+
+    // Check for current search block.
+    $this->assertRaw('<div class="current-search-item current-search-item-devtracgroup current-search-item-devtrac7-districts-fieldgroup">', t('Current search block is visible when a filter is clicked.'), t('Devtrac'));
+    $this->assertRaw('Uganda [X] <span class="element-invisible"> Remove Uganda filter </span></a>', t('Current search link to remove the filter  is present after a filter is clicked.'), t('Devtrac'));
+
+    // Check main menu links.
+    $this->assertLinkByHref('/sitereports?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Site Reports link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/statistics?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Statistics link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=list&f[0]=parents_all%3A3', 0, t('Filtered Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/locations?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Locations link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/images?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Images link is present on the page.'), t('Devtrac'));
+
+    // Check for Export links.
+    $this->assertLinkByHref('adminunits/analyse/csv?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Export to CSV link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('adminunits/analyse/kml?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Export to KML link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('adminunits/analyse/rss?display=list&f[0]=taxonomy_vocabulary_6%3A3', 0, t('Filtered Subscribe to RSS link is present on the page.'), t('Devtrac'));
+
+    // Check for the columns.
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    $this->clickLink('list', 0);
+    
+    $this->assertRaw('<th class="views-field views-field-name" >
+            Name          </th>', t('Name table column and heading is present on the page.'), t('Devtrac'));
+    $this->assertRaw('<th class="views-field views-field-field-district-category" >
+            Category          </th>', t('Category table column and heading is present on the page.'), t('Devtrac'));
+
+    // Check that data is displayed in each column.
+    $this->assertLink('Amudat', 0, t('Name column is filled.'), t('Devtrac'));
+    $this->assertRaw('<td class="views-field views-field-field-district-category" >
+            Tag 1          </td>', t('Category column is filled.'), t('Devtrac'));
+
+    // GRAPH VIEW MODE.
+    $this->clickLink('graphs', 0);
+    $this->assertUrl($this->getAbsoluteUrl('/adminunits?display=graphs'), array(), t('User is redirected to the correct page when graphs view mode link is clicked.'), t('Devtrac'));
+
+    $this->assertNoRaw('<h2 class="messages-label error">Error</h2>', t('There are no errors on this page'), t('Devtrac'));
+
+    // Check for Built by Mountbatten footer text.
+    $this->assertRaw('<p><span id="project-info-footer"><a href="http://www.devtrac.org" title="Devtrac">www.devtrac.org</a> | Built by  <a href="http://www.mountbatten.net/">Mountbatten Ltd</a> | Originally developed for <a href="http://www.unicef.org/uganda">Unicef Uganda</a> © 2015<br /></span></p>',
+        t('Correct Project Information is displayed on the page'),
+        t('Devtrac'));
+
+    // Check for link to devtrac.
+    $this->assertLinkByHref('http://www.devtrac.org', 0, t('There is a link to devtrac.org on the page.'), t('Devtrac'));
+
+    // Check for order of Facets.
+    $order = array('Admin Unit', 'Tags');
+    $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
+
+    // Check for generic Main Menu Links.
+    $this->assertLinkByHref('/sitereports', 0, t('Images link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/statistics', 0, t('Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits', 0, t('Admin Units link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/locations', 0, t('Locations link is present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('/actionitems', t('Action Items link is not present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('/fieldtrips', t('Field trips link is not present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/images', 0, t('Images link is present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Users', t('Users link is not present on the page.'), t('Devtrac'));
+    $this->assertLink('Log in', 0, t('LOG IN link is present on the page.'), t('Devtrac'));
+
+    // Check for view mode button links.
+    $this->assertLinkByHref('/adminunits?display=default', 0, t('Default display link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=list', 0, t('List display link is present on the page.'), t('Devtrac'));
+    $this->assertLinkByHref('/adminunits?display=graphs', 0, t('Graphs display link is present on the page.'), t('Devtrac'));
+
+    // Check that the my-profile menu is absent.
+    $this->assertNoRaw('<a href="/user" title="">Welcome,', t('My profile menu is not present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Add Field Trip', t('Add Field Trip link is not present on the page.'), t('Devtrac'));
+    $this->assertNoLink('Edit My Profile', t('Edit My Profile link is not present on the page.'), t('Devtrac'));
+
+    // Check for Export links.
+    $this->assertLink('Export', 0, t('Export link is present on the page.'), t('Devtrac'));
+    $this->assertNoLinkByHref('statistics/questions/csvadmin', t('Export to CSV (administrator version) link is  not present on the page.'), t('Devtrac'));
+    $this->assertLink('Export to CSV', 0, t('Export to CSV link is present on the page.'), t('Devtrac'));
+    $this->assertLink('Export to KML', 0, t('Export to KML link is present on the page.'), t('Devtrac'));
+    $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
+
+    // Search Api Elements.
+    // Check for Facets.
+
+    // Admin Unit.
+    $this->assertRaw('<h2 class="block-title">Admin Unit</h2>', t('Admin Unit Heading is present on the page'), t('Devtrac'));
+    $this->assertRaw('<div class="item-list"><ul class="facetapi-facetapi-links facetapi-facet-parents-all" id="facetapi-facet-search-apidevtrac-solr-district-index-block-parents-all">', t('Admin Unit search list is present on the page'), t('Devtrac'));
+
+    // Tags.
+    $this->assertRaw('<h2 class="block-title">Tags</h2>', t('Tags Heading is present on the page'), t('Devtrac'));
+    $this->assertRaw('<div class="item-list"><ul class="facetapi-facetapi-links facetapi-facet-field-district-category" id="facetapi-facet-search-apidevtrac-solr-district-index-block-field-district-category">', t('Tags search list is present on the page'), t('Devtrac'));
+
+    // Check for Admin Unit counter.
+    $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">19 Admin Units</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
+
+    // Check for Info pane text.
+    $this->assertRaw('<p>This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.</p>', t('Info pane is present on the page'), t('Devtrac'));
+
+    // Full text search block
+    $this->assertRaw('<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="adminunits" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)">
+  <input type="textfield" name="search_api_aggregation_1" value="" />
+  <input type="hidden" name="display" value="graphs" />
+  <div id="edit-actions" class="form-actions form-wrapper">
+    <input type="submit" class="form-submit" value="Search" />
+  </div>
+</form>', t('Full Text Search Block is present on the page'), t('Devtrac'));
+
+    
+    // Check for Facet default state (expanded or collapsed).
+    // Check.
+    // 2 is collapsible, default open.
+    // 3 is collapisble, default closed.
+
+    // Admin Unit block id block-facetapi-lg63gd04gbns5u1dxsguqomdj9xvvjgf
+    $this->assertRaw('"block-facetapi-lg63gd04gbns5u1dxsguqomdj9xvvjgf":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
+
+    // Tags block id block-facetapi-l2dluv3aaqmwzo0fi0e7idwplai93anc
+    $this->assertRaw('"block-facetapi-l2dluv3aaqmwzo0fi0e7idwplai93anc":3', t('Tags block is collapsed by default.'), t('Devtrac'));
+
+    // Information pane block-pane-devtrac-solr-map-info
+    $this->assertRaw('"block-pane-devtrac-solr-map-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
+
+    // Check for the quicktabs.
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+
+    $this->clickLink('graphs', 0);
+
+    // Categories.
+    $this->assertRaw('adminunits?display=graphs&amp;qt-devtrac_admin_units_graphs_tabs=0#qt-devtrac_admin_units_graphs_tabs" id="quicktabs-tab-devtrac_admin_units_graphs_tabs-0" class="quicktabs-tab quicktabs-tab-block quicktabs-tab-block-3b980188e82175398a55b4147d88409a active">Categories</a>', t('Categories quicktab is present on the page'), t('Devtrac'));
+    $this->assertLink('Categories', 0, t('Categories Quicktab is labeled'), t('Devtrac'));
+
+    // CSV.
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    $this->clickLink('Export to CSV', 0);
+
+    // Check for column names.
+    $this->assertRaw('"Name","Category","Description","Geo Information","Latitude","Longtitude","URL"', t('All column names are present.'), t('Devtrac'));
+
+    // Check for count of column names.
+    $this->assertColumnCount(80, 7);
+
+    // Fields.
+    // Name.
+    $this->assertRaw('"Amudat"', t('Name field is filled.'), t('Devtrac'));
+    // Category.
+    $this->assertRaw('"Tag 1"', t('Category field is filled.'), t('Devtrac'));
+    // Description.
+    $this->assertRaw('""', t('Description field is filled.'), t('Devtrac'));
+    // Geo Information.
+    $this->assertRaw('"POINT (34.875816679152 1.805407161652)"', t('Geo Information field is filled.'), t('Devtrac'));
+    // Latitude.
+    $this->assertRaw('"1.805407161652"', t('Latitude field is filled.'), t('Devtrac'));
+    // Longtitude.
+    $this->assertRaw('"34.875816679152"', t('Longtitude field is filled.'), t('Devtrac'));
+    // URL.
+    $this->assertRaw('/district/uganda/amudat"', t('URL field is filled.'), t('Devtrac'));
+
+    // KML.
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    $this->clickLink('Export to KML', 0);
+    // Name : Title.
+    $this->assertRaw('/district/uganda/amudat">Amudat</a>]]>
+  </name>', t('Name field is mapped correctly.'), t('Devtrac'));
+    // Description : Category.
+    $this->assertRaw('<description>
+    <![CDATA[Tag 1]]>
+  </description>', t('Description field is mapped correctly.'), t('Devtrac'));
+    // Point : Lon - Lat.
+    $this->assertRaw('<Point>
+    <coordinates>34.875816679152,1.805407161652,0</coordinates>
+  </Point>', t('Coordinates field is mapped correctly.'), t('Devtrac'));
+    
+    // RSS.
+    $this->drupalGet('');
+    $this->clickLink('Admin Units', 0);
+    $this->clickLink('Subscribe to RSS Feed', 0);
+
+    // Core items.
+    // Title : Name.
+    $this->assertRaw('/district/uganda&quot;&gt;Uganda&lt;/a&gt;</title>', t('Title is mapped correctly'), t('Devtrac'));
+    // Link : Name.
+    $this->assertRaw('/district/uganda&quot;&gt;Uganda&lt;/a&gt;</link>', t('Link is mapped correctly'), t('Devtrac'));
+    // Description : Description.
+    $this->assertRaw('The current President of Uganda is Yoweri Kaguta Museveni who came to power in a coup in 1986.&lt;/p&gt;
+</description>', t('Description mapped correctly'), t('Devtrac'));
+    // Category : Category.
+    $this->assertRaw('<category>Tag 1</category>', t('Category mapped correctly'), t('Devtrac'));
+
+    // dc items.
+    // Title : Name.
+    $this->assertRaw('/district/uganda&quot;&gt;Uganda&lt;/a&gt;</dc:title>', t('dc Title is mapped correctly'), t('Devtrac'));
+    // Description : description.
+    $this->assertRaw('The current President of Uganda is Yoweri Kaguta Museveni who came to power in a coup in 1986.&lt;/p&gt;
+</dc:description>', t('dc Description mapped correctly'), t('Devtrac'));
+    // Subject : Category.
+    $this->assertRaw('<dc:subject>Tag 1</dc:subject>', t('dc Category mapped correctly'), t('Devtrac'));
+    // Type : Category.
+    $this->assertRaw('<dc:type>Tag 1</dc:type>', t('dc Type mapped correctly'), t('Devtrac'));
+
+    // georss items.
+    // Point : Latitude, Longitude.
+    $this->assertRaw('<georss:point>Latitude: 1.281481078791 &lt;br/&gt;Longitude: 32.391387892363</georss:point>', t('dc Point is mapped correctly'), t('Devtrac'));
+
+    // JSON.
+    $this->drupalGet('adminunits/json');
+
+    // Title.
+    $this->assertRaw('\/district\/uganda\/amudat\u0022\u003EAmudat\u003C\/a\u003E"', t('Title field is present and filled in.'), t('Devtrac'));
+
+    // Description.
+    $this->assertRaw('\/district\/uganda\/amudat\u0022\u003ERead more\u003C\/a\u003E\u003C\/div\u003E\u003C\/div\u003E\u003C\/div\u003E\u003C\/div\u003E"', t('Description field is present and filled in.'), t('Devtrac'));
+
+    // Latitude and Longitude.
+    $this->assertRaw('"field_district_geo":1.805407161652,"field_district_geo_1":34.875816679152}', t('Latitude and Longitude field is present and filled in.'), t('Devtrac'));
+
+    // Geo.
+    $this->assertRaw('"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[34.9340889,2.2853953],[34.934546,2.282337],[34.9455171,2.2113444],[34.9708793,2.0941469],[34.9707162,2.0935504],[34.9707415,2.0931435],[34.9709568,2.0927634],[34.9713858,2.0922475],[34.9716726,2.0916232],[34.9717948,2.0909088],[34.972058,2.0902936],[34.9722732,2.0898865],[34.97269,2.0894519],[34.972857,2.0891895],[34.9724133,2.0878067],[34.9723919,2.0873275],[34.9727292,2.0861787],[34.9800204,2.0520097],[34.9800057,', t('Geo field is present and filled in.'), t('Devtrac'));
+  }
+}

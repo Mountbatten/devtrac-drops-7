@@ -277,7 +277,17 @@ function devtrac_install() {
   // After the save we'll get a nid.
   node_save($node);
   // Set the Access denied (403) page variable to te appropriate value.
-  variable_set('site_403', 'node/' . $node->nid);
+  if (module_exists('r4032login')) {
+    variable_set('site_403', 'r4032login');
+    variable_set('r4032login_display_denied_message', TRUE);
+    variable_set('r4032login_access_denied_message', 'Access denied. You must log in to view this page.');
+    variable_set('r4032login_redirect_authenticated_users_to', 'node/' . $node->nid);
+    variable_set('r4032login_user_login_path', 'user/login');
+    variable_set('r4032login_default_redirect_code', '302');
+  }
+  else {
+    variable_set('site_403', 'node/' . $node->nid);
+  }
   // Clean up.
   unset($node);
   // Create a Page not found (404) page.
@@ -452,7 +462,7 @@ function devtrac_install() {
     ->execute();
 
   // Enable the administration theme.
-  $admin_theme = 'shiny';
+  $admin_theme = 'seven';
   theme_enable(array($admin_theme));
   variable_set('admin_theme', $admin_theme);
   variable_set('node_admin_theme', '0');
@@ -760,92 +770,6 @@ function _devtrac_filter_dependencies($dependency) {
   return !module_exists($dependency);
 }
 
-/**
- * Inplements devtrac_solr_configure_form()
- */
-function devtrac_solr_configure_form() {
-  drupal_set_title(st('Configure Solr Settings'));
-
-  $form['solr'] = array(
-    '#type' => 'fieldset',
-    '#title' => st('Solr Settings'),
-  );
-  $form['solr']['host'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Host'),
-    '#default_value' => 'localhost',
-    '#maxlength' => 64,
-    '#description' => t('Add hostname or IP address of your solr server.'),
-    '#required' => FALSE,
-    '#weight' => -20,
-  );
-  $form['solr']['port'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Port'),
-    '#default_value' => '8080',
-    '#maxlength' => 64,
-    '#description' => t('Port number where your solr server can be reached. 8080 is the default for a solr installation in Tomcat.'),
-    '#required' => FALSE,
-    '#weight' => -19,
-  );
-  $form['solr']['path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Path'),
-    '#default_value' => '/solr',
-    '#maxlength' => 64,
-    '#description' => t('Path to your solr instance.'),
-    '#required' => FALSE,
-    '#weight' => -18,
-  );
-
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => st('Create and Continue'),
-    '#weight' => 15,
-  );
-  return $form;
-}
-
-function devtrac_solr_configure_form_submit($form, &$form_state) {
-  global $databases, $drupal_hash_salt;
-
-  $settings = array();
-  $settings['databases'] = array(
-    'value' => $databases,
-  );
-  $settings['drupal_hash_salt'] = array(
-    'value' => $drupal_hash_salt,
-  );
-
-  $settings["conf['search_api_override_mode']"] = array(
-    'value' => 'load',
-    'required' => TRUE,
-  );
-  $settings["conf['search_api_override_servers']"] = array(
-    'value' => array(
-      'devtrac_solr_server' => array(
-        'name' => 'Devtrac Solr Server (Overridden)',
-        'options' => array(
-          'host' => $form_state['values']['host'],
-          'port' => $form_state['values']['port'],
-          'path' => $form_state['values']['path'],
-          'http_user' => '',
-          'http_pass' => '',
-          'excerpt' => 0,
-          'retrieve_data' => 0,
-          'highlight_data' => 0,
-          'http_method' => 'POST',
-        ),
-      ),
-    ),
-    'required' => TRUE,
-  );
-
-  //Do the actual write to settings.php.
-  drupal_rewrite_settings($settings);
-}
-
 function devtrac_date_format_form() {
   module_load_include('inc', 'system', 'system.admin');
   $date_time_settings = system_date_time_settings();
@@ -977,6 +901,15 @@ function devtrac_install_finished(&$install_state) {
   // the database to do a menu rebuild later and enable the module later.
   // Setting the marker here and now.
   variable_set('devtrac_menu_rebuild_needed', TRUE);
+
+  // Set the default frontpage to 'sitereports'.
+  variable_set('site_frontpage', 'sitereports');
+
+  // Disable the devtrac_imports module.
+  $modules = array(
+    'devtrac_imports',
+  );
+  module_disable($modules);
 
   if (isset($messages['error'])) {
     $output = '<p>' . (isset($messages['error']) ? st('Review the messages above before visiting <a href="@url">your new site</a>.', array('@url' => url(''))) : st('<a href="@url">Visit your new site</a>.', array('@url' => url('')))) . '</p>';

@@ -241,7 +241,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
             Closed          </td>', t('Status column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-field-actionitem-due-date" >
             <span class="date-display-single">31-01-2015</span>          </td>', t('Due Date column is filled.'), t('Devtrac'));
-    $this->assertRaw('/users/admin">admin</a>          </td>', t('Resposible column is filled.'), t('Devtrac'));
+    $this->assertRaw('/admin">Site Admin</a>          </td>', t('Responsible column is filled.'), t('Devtrac'));
     // $this->assertRaw('<th class="views-field views-field-virtual-field" data-hide="phone"></th>',
     // t('Empty Button table heading is present on the page'), t('Devtrac'));
     $this->assertNoLink('Edit', t('Edit button is not present.'), t('Devtrac'));
@@ -488,20 +488,19 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
 
     // Fields.
     // Title.
-    $this->assertRaw('"Community Mobilization for SIA"', t('Title field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Test Action Item"', t('Title field is filled.'), t('Devtrac'));
     // Admin Unit.
     $this->assertRaw('"Undefined Area"',t('Admin Unit field is filled.'), t('Devtrac'));
     // Sector.
-    $this->assertRaw('"Infectious disease control"', t('Sector field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Educational research"', t('Sector field is filled.'), t('Devtrac'));
     // Status.
-    $this->assertRaw('"Closed"',t('Status field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Open"',t('Status field is filled.'), t('Devtrac'));
     // Due Date.
-    $this->assertRaw('"31-01-2015"', t('Due Date field is filled.'), t('Devtrac'));
+    $this->assertRaw('"' . date("d-m-Y") . '"', t('Due Date field is filled.'), t('Devtrac'));
     // Responsible.
-    $this->assertRaw('"admin"', t('Responsible field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Test Fieldworker"', t('Responsible field is filled.'), t('Devtrac'));
     // Task.
-    $this->assertRaw('"The message for Community mobilization should be pretetsted before passing the message to the community
-"', t('Task field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Testing presence of Edit button."', t('Task field is filled.'), t('Devtrac'));
     // Tags (Categories).
     $this->assertRaw('"Urgent"', t('Tags (Categories) field is filled.'), t('Devtrac'));
     // UUID (Subject to change).
@@ -541,13 +540,13 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
 
     // Core items.
     // Title : title.
-    $this->assertRaw('<title>Community Mobilization for SIA</title>', t('Title is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<title>Test Action Item</title>', t('Title is mapped correctly'), t('Devtrac'));
     // Link : site_info (Subject to change).
     // $this->assertRaw('<link>http://www.devtrac.ug/node/26</link>', t('Link is mapped correctly'), t('Devtrac'));
     // Author : author.
-    $this->assertRaw('<author>admin</author>', t('Author is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<author>Test Fieldworker</author>', t('Author is mapped correctly'), t('Devtrac'));
     // Category : taxonomy_vocabulary_8.
-    $this->assertRaw('<category>Undefined Area, Infectious disease control</category>', t('Category is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<category>Undefined Area, Educational research</category>', t('Category is mapped correctly'), t('Devtrac'));
     // Guid : uuid (Subject to change).
     // $this->assertRaw('<guid isPermaLink="false">http://www.devtrac.ug/node/26</guid>',
     // t('Guid is mapped correctly'), t('Devtrac'));
@@ -559,11 +558,11 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
 
     // dc items.
     // Title : title.
-    $this->assertRaw('<dc:title>Community Mobilization for SIA</dc:title>', t('dc Title is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<dc:title>Test Action Item</dc:title>', t('dc Title is mapped correctly'), t('Devtrac'));
     // Creator : author.
-    $this->assertRaw('<dc:creator>admin</dc:creator>', t('dc Author is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<dc:creator>Test Fieldworker</dc:creator>', t('dc Author is mapped correctly'), t('Devtrac'));
     // Subject : taxonomy_vocabulary_8.
-    $this->assertRaw('<dc:subject>Undefined Area, Infectious disease control</dc:subject>', t('dc Subject is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<dc:subject>Undefined Area, Educational research</dc:subject>', t('dc Subject is mapped correctly'), t('Devtrac'));
     // Publisher : site_info_1 (Subject to change).
     // Date : created (Subject to change).
     // Identifier : uuid (Subject to change).
@@ -576,7 +575,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     // Point : field_ftritem_lat_long_lon.
     $this->assertRaw('<georss:point> 0 </georss:point>', t('georss Point is mapped correctly'), t('Devtrac'));
     // FeatureName : title.
-    $this->assertRaw('<georss:featureName>Community Mobilization for SIA</georss:featureName>', t('georss FeatureName is mapped correctly'), t('Devtrac'));
+    $this->assertRaw('<georss:featureName>Test Action Item</georss:featureName>', t('georss FeatureName is mapped correctly'), t('Devtrac'));
 
   }
 }

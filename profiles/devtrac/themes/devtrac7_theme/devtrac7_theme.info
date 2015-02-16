@@ -423,9 +423,9 @@ dependencies[] = delta
 
 
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "devtrac7_theme"
-datestamp = "1423125266"
+datestamp = "1424082144"
 

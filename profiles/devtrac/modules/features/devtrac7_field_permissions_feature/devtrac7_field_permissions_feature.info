@@ -4,10 +4,8 @@ core = 7.x
 package = Devtrac
 version = 7.x-1.0-beta1
 project = devtrac7_field_permissions_feature
-dependencies[] = admin_menu
 dependencies[] = better_messages
 dependencies[] = comment
-dependencies[] = context_ui
 dependencies[] = devtrac7
 dependencies[] = draggableviews
 dependencies[] = features
@@ -25,7 +23,6 @@ dependencies[] = services
 dependencies[] = system
 dependencies[] = user
 features[features_api][] = api:2
-features[user_permission][] = access administration menu
 features[user_permission][] = access administration pages
 features[user_permission][] = access better messages
 features[user_permission][] = access comments
@@ -35,7 +32,6 @@ features[user_permission][] = access media browser
 features[user_permission][] = access site reports
 features[user_permission][] = access user profiles
 features[user_permission][] = administer better messages
-features[user_permission][] = administer contexts
 features[user_permission][] = administer devtrac
 features[user_permission][] = administer hidden comments
 features[user_permission][] = administer own comments
@@ -48,7 +44,6 @@ features[user_permission][] = assign devtrac admin role
 features[user_permission][] = assign editor role
 features[user_permission][] = assign field worker role
 features[user_permission][] = assign iati manager role
-features[user_permission][] = context ajax block access
 features[user_permission][] = create actionitem content
 features[user_permission][] = create field_actionitem_due_date
 features[user_permission][] = create field_actionitem_followuptask
@@ -322,9 +317,9 @@ features[user_permission][] = view the administration theme
 mtime = 1417861771
 
 
-; Information added by drush on 2015-02-05
+; Information added by drush on 2015-02-16
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "devtrac"
-datestamp = "1423125024"
+datestamp = "1424082027"
 

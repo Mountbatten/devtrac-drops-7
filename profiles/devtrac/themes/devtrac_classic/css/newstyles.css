@@ -3482,3 +3482,190 @@ html .not-logged-in.page-user.context-user .zone-content .region-content-inner #
 html .not-logged-in.page-user.context-user .zone-content .region-content-inner #block-system-main input.form-text {
   width: 100%;
 }
+
+
+/*===================================================================================*\
+ * Front Page Styles
+\*===================================================================================*/
+
+.page-frontpage-sitereports {}
+
+.page-frontpage-sitereports #region-preface-first .block-title {
+  display: none;
+}
+
+.page-frontpage-sitereports #region-highlighted #page-title {
+  background: none;
+  padding: 0 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.page-frontpage-sitereports .zone-content .grid-4.region-content {
+  background: none;
+}
+
+.page-frontpage-sitereports .zone-content .region-inner {
+  padding: 0;
+}
+
+.page-frontpage-sitereports #block-system-main ,
+.page-frontpage-sitereports .block-nodesinblock-1 {
+  border: thin solid #CCCCCC;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-1 {
+  margin-bottom: 20px;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-1 .field-name-body ,
+.page-frontpage-sitereports .block-nodesinblock-1 .block-title {
+  display: none;
+}
+
+.page-frontpage-sitereports #block-system-main .block-inner ,
+.page-frontpage-sitereports .block-nodesinblock-1 .block-inner {
+  padding: 15px;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-1 .teaser-button {
+  display: none;
+}
+
+.page-frontpage-sitereports #block-system-main .view-footer p {
+  margin-bottom: 0;
+}
+
+.page-frontpage-sitereports #block-system-main .view-footer .view-more-statistics {
+  display: block;
+  text-align: right;
+  margin-top: 10px;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-0 {
+  background-image: url(../images/frontpage-about-icon.png);
+  background-repeat: no-repeat;
+  background-position: 96% 50%;
+  background-size:  20% auto;
+  border: thin solid #CCCCCC;
+  margin-bottom: 20px;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-0 .block-inner {
+  padding: 15px;
+  padding-right: 25%;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-0 .block-inner p {
+  margin-bottom: 0;
+}
+
+.page-frontpage-sitereports .region-sidebar-second-inner .block-views {
+  border: thin solid #CCCCCC;
+}
+
+.page-frontpage-sitereports .region-sidebar-second-inner .block-views h2 {
+  margin-bottom: 0;
+}
+
+.page-frontpage-sitereports .region-sidebar-second-inner .block-views {
+  padding: 15px;
+}
+
+.page-frontpage-sitereports .frontpage-recent-report {
+  margin: 0;
+}
+
+.page-frontpage-sitereports .frontpage-recent-report li.views-row {
+  padding: 10px;
+  border: thin solid #CCCCCC;
+  margin: 0;
+  margin-bottom: 10px;
+}
+.page-frontpage-sitereports .frontpage-recent-report li.views-row-last {
+  margin-bottom: 0;
+}
+
+.view-frontpage-recent-sitereports li .field-name-title h3 {
+  margin: 0;
+}
+
+.view-frontpage-recent-sitereports li .field-name-field-ftritem-images {
+  display: inline-block;
+  float: left;
+  margin-right: 10px;
+}
+
+.field-name-field-ftritem-public-summary p {
+  margin-bottom: 0;
+}
+
+.teaser-button {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.teaser-button a {
+  display: inline-block;
+  padding: 5px 8px;
+  color: #FFFFFF !important;
+  text-decoration: none;
+  background-color: #777777;
+}
+
+.teaser-button a:hover {
+  display: inline-block;
+  padding: 5px 8px;
+  color: #FFFFFF !important;
+  text-decoration: none;
+  background-color: #333333;
+}
+
+
+
+/*===================================================================================*\
+ * Flexslideshow Styles
+\*===================================================================================*/
+
+/* https://www.drupal.org/files/issues/0001-Issue-2086525-by-alvar0hurtad0-Johnny-vd-Laar-Flexsl_0.patch */
+
+.flexslider {
+  padding: 10px;
+  margin: 0;
+  border: none;
+  box-shadow: 0 0 0 transparent;
+  border-radius: 0;
+  background: none;
+}
+
+.flexslider .slides > li {
+  margin: 0 5px;
+}
+
+.flexslider .flex-direction-nav .flex-prev,
+.flexslider .flex-direction-nav .flex-next {
+  color: transparent;
+  text-shadow: 0 0 0 transparent;
+  background-color: #000000;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+}
+
+.flexslider .flex-direction-nav .flex-prev {
+  background-image: url(../images/pager-icon-left.png);
+}
+
+.flexslider .flex-direction-nav .flex-next {
+  background-image: url(../images/pager-icon-right.png);
+}
+
+.flex-direction-nav a.flex-prev:before ,
+.flex-direction-nav a.flex-next:before {
+  content: normal;
+}
+
+.flexslider:hover .flex-prev ,
+.flexslider:hover .flex-next {
+  opacity: 1.0;
+}
+

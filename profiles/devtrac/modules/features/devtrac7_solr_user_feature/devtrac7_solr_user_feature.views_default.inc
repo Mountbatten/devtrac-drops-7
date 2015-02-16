@@ -158,7 +158,8 @@ function devtrac7_solr_user_feature_views_default_views() {
   $handler->display->display_options['fields']['last_access']['id'] = 'last_access';
   $handler->display->display_options['fields']['last_access']['table'] = 'search_api_index_devtrac7_user_index';
   $handler->display->display_options['fields']['last_access']['field'] = 'last_access';
-  $handler->display->display_options['fields']['last_access']['date_format'] = 'short';
+  $handler->display->display_options['fields']['last_access']['date_format'] = 'date_only';
+  $handler->display->display_options['fields']['last_access']['second_date_format'] = 'date_only';
   $handler->display->display_options['fields']['last_access']['link_to_entity'] = 0;
   /* Field: Indexed User: Edit URL */
   $handler->display->display_options['fields']['edit_url']['id'] = 'edit_url';
@@ -213,7 +214,8 @@ function devtrac7_solr_user_feature_views_default_views() {
   $handler->display->display_options['fields']['last_access']['id'] = 'last_access';
   $handler->display->display_options['fields']['last_access']['table'] = 'search_api_index_devtrac7_user_index';
   $handler->display->display_options['fields']['last_access']['field'] = 'last_access';
-  $handler->display->display_options['fields']['last_access']['date_format'] = 'short';
+  $handler->display->display_options['fields']['last_access']['date_format'] = 'date_only';
+  $handler->display->display_options['fields']['last_access']['second_date_format'] = 'date_only';
   $handler->display->display_options['fields']['last_access']['link_to_entity'] = 0;
   /* Field: Indexed User: Edit URL */
   $handler->display->display_options['fields']['edit_url']['id'] = 'edit_url';
