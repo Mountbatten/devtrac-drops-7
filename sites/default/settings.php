@@ -576,14 +576,14 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
 # $conf['pressflow_smart_start'] = TRUE;
 
 // All Pantheon Environments.
-if (defined('PANTHEON_ENVIRONMENT')) {
-  // Use Redis for caching.
-  $conf['redis_client_interface'] = 'PhpRedis';
-  $conf['cache_backends'][] = 'profiles/devtrac/modules/contrib/redis/redis.autoload.inc';
-  $conf['cache_default_class'] = 'Redis_Cache';
-  $conf['cache_prefix'] = array('default' => 'pantheon-redis');
-  // Do not use Redis for cache_form (no performance difference).
-  $conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
-  // Use Redis for Drupal locks (semaphore).
-  $conf['lock_inc'] = 'profiles/devtrac/modules/contrib/redis/redis.lock.inc';
-}
+//if (defined('PANTHEON_ENVIRONMENT')) {
+//  // Use Redis for caching.
+//  $conf['redis_client_interface'] = 'PhpRedis';
+//  $conf['cache_backends'][] = 'profiles/devtrac/modules/contrib/redis/redis.autoload.inc';
+//  $conf['cache_default_class'] = 'Redis_Cache';
+//  $conf['cache_prefix'] = array('default' => 'pantheon-redis');
+//  // Do not use Redis for cache_form (no performance difference).
+//  $conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
+//  // Use Redis for Drupal locks (semaphore).
+//  $conf['lock_inc'] = 'profiles/devtrac/modules/contrib/redis/redis.lock.inc';
+//}
