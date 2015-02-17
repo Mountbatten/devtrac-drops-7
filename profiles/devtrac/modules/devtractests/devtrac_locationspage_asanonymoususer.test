@@ -126,7 +126,7 @@ class VisitLocationsAsAnonymousTestCase extends DevtracTestCase {
     // 3 is collapisble, default closed.
 
     // Admin Unit block id block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx
-    $this->assertRaw('"block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx":3', t('Admin Unit block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
 
     // Location block id block-facetapi-f1ulpolcdxrjeuarlsg1atilme6kphrd
     $this->assertRaw('"block-facetapi-f1ulpolcdxrjeuarlsg1atilme6kphrd":3', t('Location block is collapsed by default.'), t('Devtrac'));
@@ -216,7 +216,7 @@ class VisitLocationsAsAnonymousTestCase extends DevtracTestCase {
     // 3 is collapisble, default closed.
 
     // Admin Unit block id block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx
-    $this->assertRaw('"block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx":3', t('Admin Unit block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
 
     // Location block id block-facetapi-f1ulpolcdxrjeuarlsg1atilme6kphrd
     $this->assertRaw('"block-facetapi-f1ulpolcdxrjeuarlsg1atilme6kphrd":3', t('Location block is collapsed by default.'), t('Devtrac'));
@@ -352,7 +352,7 @@ class VisitLocationsAsAnonymousTestCase extends DevtracTestCase {
     // 3 is collapisble, default closed.
 
     // Admin Unit block id block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx
-    $this->assertRaw('"block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx":3', t('Admin Unit block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-nyr3gawd0dmh1wd1ctakauodwircyqmx":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
 
     // Location block id block-facetapi-f1ulpolcdxrjeuarlsg1atilme6kphrd
     $this->assertRaw('"block-facetapi-f1ulpolcdxrjeuarlsg1atilme6kphrd":3', t('Location block is collapsed by default.'), t('Devtrac'));
@@ -395,8 +395,7 @@ class VisitLocationsAsAnonymousTestCase extends DevtracTestCase {
     // Latitude.
     $this->assertRaw('"0.556481550015"', t('Latitude field is filled.'), t('Devtrac'));
     // Longtitude.
-    $this->assertRaw('"32.704498222317"
-', t('Longtitude field is filled.'), t('Devtrac'));
+    $this->assertRaw('"32.704498222317"', t('Longtitude field is filled.'), t('Devtrac'));
 
     // KML.
     $this->drupalGet('');

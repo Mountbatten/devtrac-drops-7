@@ -4,13 +4,7 @@ core = "7.x"
 package = "Devtrac Apps"
 
 dependencies[] = devtrac_frontpage_sitereports_feature
+dependencies[] = openlayers_blocks
+dependencies[] = nodesinblock
 
 files[] = devtrac_frontpage_sitereports.module
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

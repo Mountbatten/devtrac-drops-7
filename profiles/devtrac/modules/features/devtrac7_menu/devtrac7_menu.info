@@ -32,11 +32,3 @@ features[variable][] = nice_menus_sf_delay
 features[variable][] = nice_menus_sf_speed
 features[variable][] = nice_menus_type_1
 features[variable][] = nice_menus_type_3
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

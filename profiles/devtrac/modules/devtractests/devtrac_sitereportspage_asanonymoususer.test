@@ -190,7 +190,7 @@ class VisitSiteReportsAsAnonymousTestCase extends DevtracTestCase {
     $this->clickLink('List');
 
     // Check for order of Facets.
-    $order = array('Report', 'Admin Unit', 'Sector', 'Status', 'Admin Unit Tags', 'Date Visited', 'Location');
+    $order = array('Report', 'Sector', 'Admin Unit', 'Admin Unit Tags', 'Date Visited', 'Location');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Check for generic Main Menu Links.
@@ -327,7 +327,7 @@ class VisitSiteReportsAsAnonymousTestCase extends DevtracTestCase {
     $this->clickLink('Graphs');
 
     // Check for order of Facets.
-    $order = array('Report', 'Admin Unit', 'Sector', 'Status', 'Admin Unit Tags', 'Date Visited', 'Location');
+    $order = array('Report', 'Sector', 'Admin Unit', 'Admin Unit Tags', 'Date Visited', 'Location');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Check for generic Main Menu Links.

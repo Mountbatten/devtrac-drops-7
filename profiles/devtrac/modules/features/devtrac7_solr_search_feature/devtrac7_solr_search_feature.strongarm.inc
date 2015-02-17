@@ -49,7 +49,6 @@ function devtrac7_solr_search_feature_strongarm() {
     'devtrac_solr_view_fieldtrips:list' => 'devtrac_solr_view_fieldtrips:list',
     'devtrac_solr_view_fieldtrips:graphs' => 'devtrac_solr_view_fieldtrips:graphs',
     'devtrac_solr_view_fieldtrips:views_data_export_1' => 'devtrac_solr_view_fieldtrips:views_data_export_1',
-    'devtrac_solr_view_fieldtrips:feed_2' => 'devtrac_solr_view_fieldtrips:feed_2',
     'devtrac_solr_view_fieldtrips:feed_1' => 'devtrac_solr_view_fieldtrips:feed_1',
     'devtrac_solr_view_images' => 'devtrac_solr_view_images',
     'devtrac_solr_view_images:default' => 'devtrac_solr_view_images:default',

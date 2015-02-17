@@ -26,6 +26,29 @@ function devtrac_frontpage_sitereports_app_configure_form() {
     '#required' => TRUE,
     '#description' => t('The slogan you want to have featured on your custom sitereports based front page.'),
   );
+  $form['devtrac_frontpage_sitereports_organisation_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Organisation'),
+    '#default_value' => variable_get('devtrac_frontpage_sitereports_organisation_name', 'Organisation Name'),
+    '#required' => TRUE,
+    '#description' => t('The name of your organisation that will be featured on your custom sitereports based front page.'),
+  );
+  $form['devtrac_frontpage_sitereports_organisation_desc'] = array(
+    '#type' => 'textarea',
+    '#rows' => 5,
+    '#title' => t('Description'),
+    '#default_value' => variable_get('devtrac_frontpage_sitereports_organisation_desc', 'Organisation description.'),
+    '#required' => TRUE,
+    '#description' => t('A short description of your organisation that will be featured on your custom sitereports based front page.'),
+  );
+  $form['devtrac_frontpage_sitereports_about_us'] = array(
+    '#type' => 'textarea',
+    '#rows' => 5,
+    '#title' => t('About Us'),
+    '#default_value' => variable_get('devtrac_frontpage_sitereports_about_us', 'About us.'),
+    '#required' => TRUE,
+    '#description' => t('A short About Us of the people in your organisation that will be featured on your custom sitereports based front page.'),
+  );
 
   // Add a custom submit handler.
   $form['#submit'][] = 'devtrac_frontpage_sitereports_app_configure_form_submit';
@@ -36,9 +59,112 @@ function devtrac_frontpage_sitereports_app_configure_form() {
 /**
  * Implements hook_app_configure_form_submit.
  * 
+ * - Creates an Organisation and an About Us page to be placed
+ *   on the front page using nodesinblock.
  * - Resets the site_frontpage variable.
  */
 function devtrac_frontpage_sitereports_app_configure_form_submit($form, &$form_state) {
+  // Get the data from the submitted form.
+  $values = $form_state['values'];
+  $organisation = $values['devtrac_frontpage_sitereports_organisation_name'];
+  $description = $values['devtrac_frontpage_sitereports_organisation_desc'];
+  $about_us = $values['devtrac_frontpage_sitereports_about_us'];
+
+  $results = db_select('nodesinblock', 'nib')
+    ->fields('nib', array('nid', 'delta'))
+    ->execute()
+    ->fetchAll();
+  if ($results) {
+    foreach ($results as $result) {
+      $node = node_load($result->nid);
+      if ($result->delta == 0) {
+        $node->body[$node->language][0]['value'] = $about_us;
+        $node->body[$node->language][0]['summary'] = $about_us;
+      }
+      else {
+        $node->title = $organisation;
+        $node->body[$node->language][0]['value'] = $description;
+        $node->body[$node->language][0]['summary'] = $description;
+      }
+      // Only update the node. No need to update the nodesinblock information.
+      node_save($node);
+      // Clean up.
+      unset($node);
+    }
+  }
+  else {
+    // Create a frontpage About Us page.
+    // First create a new node object.
+    $node = new stdClass();
+    // Set the bundle type.
+    $node->type = 'page';
+    // Set the title.
+    $node->title = t('About Us');
+    // Set the language.
+    $node->language = LANGUAGE_NONE;
+     // Set the node path.
+    $node->path = array('alias' => 'content/about-us');
+    // Set some default values.
+    node_object_prepare($node);
+    // Set the author/owner of the node.
+    $node->uid = 1;
+    // Let's add standard body field
+    $node->body[$node->language][0]['value'] = $about_us;
+    $node->body[$node->language][0]['summary'] = $about_us;
+    // Define the default plain_text format for the body field.
+    $node->body[$node->language][0]['format'] = 'plain_text';
+    // Prepare node for a submit.
+    $node = node_submit($node);
+    // Add nodesinblock settings to the node.
+    $node->nodesinblock_delta = 0;
+    $node->nodesinblock_weight = 0;
+    $node->nodesinblock_visibility = '*';
+    $node->nodesinblock_render = 'teaser:1';
+    // Finaly, make sure that the nodesinblock implementation of
+    // hook_node_insert() is fired.
+    $node->nodesinblock_enable = TRUE;
+    // On save hook_node_insert will be called.
+    // That will update the database accordingly.
+    node_save($node);
+    // Clean up.
+    unset($node);
+    // Create a frontpage Organisation page.
+    // First create a new node object.
+    $node = new stdClass();
+    // Set the bundle type.
+    $node->type = 'page';
+    // Set the title.
+    $node->title = $organisation;
+    // Set the language.
+    $node->language = LANGUAGE_NONE;
+     // Set the node path.
+    $node->path = array('alias' => 'content/organisation');
+    // Set some default values.
+    node_object_prepare($node);
+    // Set the author/owner of the node.
+    $node->uid = 1;
+    // Let's add standard body field
+    $node->body[$node->language][0]['value'] = $description;
+    $node->body[$node->language][0]['summary'] = $description;
+    // Define the default plain_text format for the body field.
+    $node->body[$node->language][0]['format'] = 'plain_text';
+    // Prepare node for a submit.
+    $node = node_submit($node);
+    // Add nodesinblock settings to the node.
+    $node->nodesinblock_delta = 1;
+    $node->nodesinblock_weight = 0;
+    $node->nodesinblock_visibility = '*';
+    $node->nodesinblock_render = 'teaser:1';
+    // Finaly, make sure that the nodesinblock implementation of
+    // hook_node_insert() is fired.
+    $node->nodesinblock_enable = TRUE;
+    // On save hook_insert will be called.
+    // That will update the database accordingly.
+    node_save($node);
+    // Clean up.
+    unset($node);
+  }
+
   // Reset the site_frontpage variable to 'frontpage-sitereports'.
   variable_set('site_frontpage', 'frontpage-sitereports');
   // Clear all caches for the view to be available and the title change to take effect.

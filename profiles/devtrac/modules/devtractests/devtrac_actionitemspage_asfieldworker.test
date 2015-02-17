@@ -115,10 +115,10 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('"block-facetapi-uulb6nu1kwf1109nqm10twgrji1s2yg6":3', t('Location block is collapsed by default.'), t('Devtrac'));
 
     // Admin Unit block id block-facetapi-9v2lgys4yvh3sg0swlgzqrrqnfrk8cpw.
-    $this->assertRaw('"block-facetapi-9v2lgys4yvh3sg0swlgzqrrqnfrk8cpw":3', t('Admin Unit block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-9v2lgys4yvh3sg0swlgzqrrqnfrk8cpw":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
 
     // Sector block id block-facetapi-yrre28gatxo7f09ivqpdh2nrr2yja14p.
-    $this->assertRaw('"block-facetapi-yrre28gatxo7f09ivqpdh2nrr2yja14p":3', t('Sector block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-yrre28gatxo7f09ivqpdh2nrr2yja14p":2', t('Sector block is expanded by default.'), t('Devtrac'));
 
     // Responsible block id block-facetapi-juh0liko1i0pkeepvdfe5jri5goyrg57.
     $this->assertRaw('"block-facetapi-juh0liko1i0pkeepvdfe5jri5goyrg57":3', t('Responsible block is collapsed by default.'), t('Devtrac'));
@@ -153,7 +153,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->clickLink('Action Items');
 
     // Check for order of Facets.
-    $order = array('Admin Unit', 'Sector', 'Status', 'Priority', 'Admin Unit Tags', 'Due Date', 'Tags', 'Responsible', 'Responsible\'s Manager', 'Date', 'User', 'Manager');
+    $order = array('Status', 'Priority', 'Due Date', 'Sector', 'Admin Unit', 'Admin Unit Tags', 'Tags', 'Date', 'Responsible', 'Responsible\'s Manager', 'User', 'Manager');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Search Api Elements.
@@ -311,16 +311,16 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('"block-facetapi-uulb6nu1kwf1109nqm10twgrji1s2yg6":3', t('Location block is collapsed by default.'), t('Devtrac'));
 
     // Admin Unit block id block-facetapi-9v2lgys4yvh3sg0swlgzqrrqnfrk8cpw.
-    $this->assertRaw('"block-facetapi-9v2lgys4yvh3sg0swlgzqrrqnfrk8cpw":3', t('Admin Unit block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-9v2lgys4yvh3sg0swlgzqrrqnfrk8cpw":2', t('Admin Unit block is expanded by default.'), t('Devtrac'));
 
     // Sector block id block-facetapi-yrre28gatxo7f09ivqpdh2nrr2yja14p.
-    $this->assertRaw('"block-facetapi-yrre28gatxo7f09ivqpdh2nrr2yja14p":3', t('Sector block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-yrre28gatxo7f09ivqpdh2nrr2yja14p":2', t('Sector block is expanded by default.'), t('Devtrac'));
 
     // Responsible block id block-facetapi-juh0liko1i0pkeepvdfe5jri5goyrg57.
     $this->assertRaw('"block-facetapi-juh0liko1i0pkeepvdfe5jri5goyrg57":3', t('Responsible block is collapsed by default.'), t('Devtrac'));
 
     // Responsible's Manager block id block-facetapi-ucj8e9q0dd6c2sdmssjubiugwhn2t38m.
-    $this->assertRaw('"block-facetapi-ucj8e9q0dd6c2sdmssjubiugwhn2t38m":3', t('Responsible block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-ucj8e9q0dd6c2sdmssjubiugwhn2t38m":3', t('Responsible\'s Manager block is collapsed by default.'), t('Devtrac'));
 
     // User block id block-facetapi-jobz0vr9jh1vmqykxnx6xkndwnb7qop0.
     $this->assertRaw('"block-facetapi-jobz0vr9jh1vmqykxnx6xkndwnb7qop0":3', t('User block is collapsed by default.'), t('Devtrac'));
@@ -350,7 +350,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->clickLink('graphs');
 
     // Check for order of Facets.
-    $order = array('Admin Unit', 'Sector', 'Status', 'Priority', 'Admin Unit Tags', 'Due Date', 'Tags', 'Responsible', 'Responsible\'s Manager', 'Date', 'User', 'Manager');
+    $order = array('Status', 'Priority', 'Due Date', 'Sector', 'Admin Unit', 'Admin Unit Tags', 'Tags', 'Date', 'Responsible', 'Responsible\'s Manager', 'User', 'Manager');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Search Api Elements.
@@ -500,7 +500,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     // Responsible.
     $this->assertRaw('"Test Fieldworker"', t('Responsible field is filled.'), t('Devtrac'));
     // Task.
-    $this->assertRaw('"Testing presence of Edit button."', t('Task field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Testing presence of Edit button. "', t('Task field is filled.'), t('Devtrac'));
     // Tags (Categories).
     $this->assertRaw('"Urgent"', t('Tags (Categories) field is filled.'), t('Devtrac'));
     // UUID (Subject to change).

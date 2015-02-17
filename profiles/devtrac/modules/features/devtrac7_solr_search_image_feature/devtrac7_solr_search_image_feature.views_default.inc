@@ -386,13 +386,22 @@ function devtrac7_solr_search_image_feature_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['style_plugin'] = 'kml_feed';
   $handler->display->display_options['style_options']['fields']['name'] = 'field_file_image_title_text';
-  $handler->display->display_options['style_options']['fields']['description'] = 'field_file_image_title_text';
-  $handler->display->display_options['style_options']['fields']['longitude'] = 'field_district_geo_1';
-  $handler->display->display_options['style_options']['fields']['latitude'] = 'field_district_geo';
+  $handler->display->display_options['style_options']['fields']['description'] = 'rendered_entity';
+  $handler->display->display_options['style_options']['fields']['longitude'] = 'field_ftritem_lat_long_lon';
+  $handler->display->display_options['style_options']['fields']['latitude'] = 'field_ftritem_lat_long_lat';
   $handler->display->display_options['style_options']['filename'] = 'Images';
   $handler->display->display_options['style_options']['feed_in_links'] = 0;
   $handler->display->display_options['defaults']['relationships'] = FALSE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: File: Rendered File */
+  $handler->display->display_options['fields']['rendered_entity']['id'] = 'rendered_entity';
+  $handler->display->display_options['fields']['rendered_entity']['table'] = 'views_entity_file';
+  $handler->display->display_options['fields']['rendered_entity']['field'] = 'rendered_entity';
+  $handler->display->display_options['fields']['rendered_entity']['label'] = 'Image';
+  $handler->display->display_options['fields']['rendered_entity']['link_to_entity'] = 1;
+  $handler->display->display_options['fields']['rendered_entity']['display'] = 'view';
+  $handler->display->display_options['fields']['rendered_entity']['view_mode'] = 'teaser';
+  $handler->display->display_options['fields']['rendered_entity']['bypass_access'] = 0;
   /* Field: Indexed File: Title Text */
   $handler->display->display_options['fields']['field_file_image_title_text']['id'] = 'field_file_image_title_text';
   $handler->display->display_options['fields']['field_file_image_title_text']['table'] = 'search_api_index_devtrac_solr_image_index';

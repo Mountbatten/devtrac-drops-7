@@ -123,7 +123,7 @@ class VisitUsersAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="item-list"><ul class="facetapi-facetapi-links facetapi-facet-field-user-superior" id="facetapi-facet-search-apidevtrac7-user-index-block-field-user-superior">', t('Manager search list is present on the page'), t('Devtrac'));
 
     // Check for order of Facets.
-    $order = array('Sectors', 'Department', 'Function', 'Admin Unit', 'User Roles',  'Status', 'Admin Unit Tags',  'Manager');
+    $order = array('Manager', 'Department', 'Function', 'Status', 'Sectors', 'Admin Unit', 'Admin Unit Tags', 'User Roles');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Check for User counter.
@@ -156,7 +156,7 @@ class VisitUsersAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('"block-facetapi-djddko7vvouihi8c1c3rssy3hyq80wzm":3', t('Function block is collapsed by default.'), t('Devtrac'));
 
     // Admin Units block id block-facetapi-gdbezfxczac606tzcznsv0athxdj6qsb
-    $this->assertRaw('"block-facetapi-gdbezfxczac606tzcznsv0athxdj6qsb":3', t('Admin Units block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-gdbezfxczac606tzcznsv0athxdj6qsb":2', t('Admin Units block is expanded by default.'), t('Devtrac'));
 
     // Status block id block-facetapi-gd090z2gi4ffpha319dokuybohz80jbx
     $this->assertRaw('"block-facetapi-gd090z2gi4ffpha319dokuybohz80jbx":3', t('Status block is collapsed by default.'), t('Devtrac'));
@@ -246,7 +246,7 @@ class VisitUsersAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLinkByHref('http://www.devtrac.org', 0, t('There is a link to devtrac.org on the page.'), t('Devtrac'));
 
     // Check for order of Facets.
-    $order = array('Sectors', 'Department', 'Function', 'Admin Unit', 'User Roles',  'Status', 'Admin Unit Tags',  'Manager');
+    $order = array('Manager', 'Department', 'Function', 'Status', 'Sectors', 'Admin Unit', 'Admin Unit Tags', 'User Roles');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Check for generic Main Menu Links.
@@ -335,7 +335,7 @@ class VisitUsersAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('"block-facetapi-djddko7vvouihi8c1c3rssy3hyq80wzm":3', t('Function block is collapsed by default.'), t('Devtrac'));
 
     // Admin Units block id block-facetapi-gdbezfxczac606tzcznsv0athxdj6qsb
-    $this->assertRaw('"block-facetapi-gdbezfxczac606tzcznsv0athxdj6qsb":3', t('Admin Units block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-gdbezfxczac606tzcznsv0athxdj6qsb":2', t('Admin Units block is expanded by default.'), t('Devtrac'));
 
     // Status block id block-facetapi-gd090z2gi4ffpha319dokuybohz80jbx
     $this->assertRaw('"block-facetapi-gd090z2gi4ffpha319dokuybohz80jbx":3', t('Status block is collapsed by default.'), t('Devtrac'));

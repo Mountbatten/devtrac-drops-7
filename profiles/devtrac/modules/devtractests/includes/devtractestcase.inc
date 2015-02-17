@@ -118,6 +118,15 @@ class DevtracTestCase extends SimpleTestCloneTestCase {
       $this->fail(t('CSV Column Count is wrong.'), t('Devtrac'));
     }
   }
+
+  /**
+   * Reindexes a Search API Index.
+   */
+  public function reindex($url) {
+    $this->drupalPost($url, NULL, t('Clear all indexed data'));
+    $this->drupalPost(NULL, NULL, t('Confirm'));
+    $this->drupalPost(NULL, NULL, t('Index now'));
+  }
   
   /**
    * Enables Demo Data.
@@ -152,7 +161,11 @@ class DevtracTestCase extends SimpleTestCloneTestCase {
     $this->clickLink('Amudat');
     $this->assertRaw('<div class="field-label">Tags:&nbsp;</div><div class="field-items"><div class="field-item even">Tag 1</div></div></div></div>', t('Amudat district tagged correctly.'), t('Devtrac'));
 
-    $this->cronRun();
+    $this->reindex('admin/config/search/search_api/index/devtrac_solr_field_trip_index');
+    $this->reindex('admin/config/search/search_api/index/devtrac_solr_action_items_index');
+    $this->reindex('admin/config/search/search_api/index/devtrac_solr_locations_index');
+    $this->reindex('admin/config/search/search_api/index/devtrac_solr_site_visits_index');
+    $this->reindex('admin/config/search/search_api/index/devtrac7_user_index');
     // $this->drupalGet('district/uganda/amudat');
   }
 

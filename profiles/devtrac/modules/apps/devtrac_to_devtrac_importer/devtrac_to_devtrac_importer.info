@@ -10,11 +10,3 @@ dependencies[] = feeds_entityreference
 dependencies[] = devtrac_2_devtrac_feeds_importers
 
 files[] = devtrac_to_devtrac_importer.module
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

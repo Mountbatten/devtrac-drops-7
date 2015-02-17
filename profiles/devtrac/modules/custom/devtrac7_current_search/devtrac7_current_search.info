@@ -5,10 +5,3 @@ package = Devtrac
 core = 7.x
 files[] = plugins/current_search/devtrac_item_group.inc
 files[] = tests/devtrac7_current_search.test
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

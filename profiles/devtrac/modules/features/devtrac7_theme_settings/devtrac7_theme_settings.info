@@ -17,11 +17,3 @@ features[delta][] = user_page_layout
 features[features_api][] = api:2
 features[variable][] = theme_devtrac_classic_settings
 features[variable][] = theme_settings
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

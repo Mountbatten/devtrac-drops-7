@@ -104,11 +104,3 @@ features_exclude[dependencies][views_data_export] = views_data_export
 features_exclude[dependencies][views_infinite_scroll] = views_infinite_scroll
 features_exclude[dependencies][views_modes] = views_modes
 features_exclude[dependencies][views_rss] = views_rss
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

@@ -80,11 +80,3 @@ features[search_api_index][] = devtrac_solr_field_trip_index
 features[search_api_saved_searches_settings][] = devtrac_solr_field_trip_index
 features[variable][] = search_api_saved_searches_search_ids
 features[views_view][] = devtrac_solr_view_fieldtrips
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

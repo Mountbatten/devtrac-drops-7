@@ -1335,32 +1335,6 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
     'parent_identifier' => 'menu-my-profile_export:export',
   );
 
-  $menu_items['menu-my-profile_field-trips-analyse-kml:fieldtripsanalysekml'] = array(
-    'menu_name' => 'menu-my-profile',
-    'link_path' => 'fieldtrips/analyse/kml',
-    'router_path' => 'fieldtrips/analyse/kml',
-    'link_title' => $title . 'to KML',
-    'options' => array(
-      'attributes' => array(
-        'title' => $title . 'to KML',
-        'orginal-title' => 'kml',
-        'class' => array('kml'),
-      ),
-      'alter' => 1,
-      'customized' => 1,
-      'identifier' => 'menu-my-profile_field-trips-analyse-kml:fieldtripsanalysekml',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'weight' => -38,
-    'has_children' => 0,
-    'depth' => 1,
-    'expanded' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'menu-my-profile_export:export',
-  );
-
   $menu_items['menu-my-profile_field-trips-analyse-rss:fieldtripsanalyserss'] = array(
     'menu_name' => 'menu-my-profile',
     'link_path' => 'fieldtrips/analyse/rss',

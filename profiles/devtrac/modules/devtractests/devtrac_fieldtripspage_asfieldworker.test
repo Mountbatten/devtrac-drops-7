@@ -141,7 +141,7 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->clickLink('Field trips');
 
     // Check for order of Facets.
-    $order = array('Admin Unit', 'Status', 'Admin Unit Tags', 'Date', 'Purposes', 'Tags', 'Author', 'Manager');
+    $order = array('Status', 'Admin Unit', 'Admin Unit Tags', 'Purpose', 'Tags', 'Date', 'User', 'Manager');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Search Api Elements.
@@ -315,7 +315,7 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->clickLink('graphs');
 
     // Check for order of Facets.
-    $order = array('Admin Unit', 'Status', 'Admin Unit Tags', 'Date', 'Purposes', 'Tags', 'Author', 'Manager');
+    $order = array('Status', 'Admin Unit', 'Admin Unit Tags', 'Purpose', 'Tags', 'Date', 'User', 'Manager');
     $this->assertFacetOrder($order, t('Facets are in the correct order.'), t('Devtrac'));
 
     // Search Api Elements.
@@ -456,24 +456,6 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
     // URL (Subject to change).
     // $this->assertRaw('/uuid/node/72262913-b484-4252-b6fc-935a3638bc63"',
     // t('URL field is filled.'), t('Devtrac'));
-
-    // KML.
-    $this->drupalGet('');
-    $this->clickLink('Field trips');
-    $this->clickLink('graphs');
-    $this->clickLink('Export to KML', 0);
-    // Name : Title.
-    $this->assertRaw('<name>
-    <![CDATA[Site visit to Looro piped water system]]>
-  </name>', t('Name field is mapped correctly.'), t('Devtrac'));
-    // Description : Report.
-    $this->assertNoRaw('<description>
-    <![CDATA[]]>
-  </description>', t('Description field is mapped correctly.'), t('Devtrac'));
-    // Point : Lon - Lat.
-    $this->assertNoRaw('<Point>
-    <coordinates>,,0</coordinates>
-  </Point>', t('Coordinates field is mapped correctly.'), t('Devtrac'));
 
     // RSS Feeds.
     $this->drupalGet('');

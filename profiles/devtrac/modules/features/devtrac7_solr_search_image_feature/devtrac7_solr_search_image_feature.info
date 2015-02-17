@@ -40,6 +40,7 @@ features[ctools][] = current_search:current_search:1
 features[ctools][] = ds:ds:1
 features[ctools][] = facetapi:facetapi_defaults:1
 features[ctools][] = openlayers:openlayers_maps:1
+features[ctools][] = pane:pane:2
 features[ctools][] = quicktabs:quicktabs:1
 features[ctools][] = strongarm:strongarm:1
 features[ctools][] = views:views_default:3.0
@@ -121,6 +122,8 @@ features[features_api][] = api:2
 features[image][] = grid
 features[image][] = image_export
 features[openlayers_maps][] = devtrac_solr_images_map
+features[pane_container][] = images_info
+features[pane_data][] = images_info_und
 features[quicktabs][] = devtrac_images_graphs_tabs
 features[search_api_autocomplete_search][] = search_api_views_devtrac_solr_view_images
 features[search_api_index][] = default_node_index
@@ -129,11 +132,3 @@ features[search_api_saved_searches_settings][] = devtrac_solr_image_index
 features[variable][] = add_date_format_title
 features[variable][] = facetapi:block_cache:search_api@devtrac_solr_image_index
 features[views_view][] = devtrac_solr_view_images
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

@@ -12,11 +12,3 @@ features[variable][] = click_heatmap_change_login
 features[variable][] = click_heatmap_pages
 features[variable][] = click_heatmap_scope
 features[variable][] = click_heatmap_visibility
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

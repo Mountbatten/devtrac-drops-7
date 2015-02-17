@@ -25,11 +25,3 @@ features[views_view][] = admin_view
 features[views_view][] = devtrac_admin_taxonomy
 features[views_view][] = district_check
 features_exclude[dependencies][features] = features
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

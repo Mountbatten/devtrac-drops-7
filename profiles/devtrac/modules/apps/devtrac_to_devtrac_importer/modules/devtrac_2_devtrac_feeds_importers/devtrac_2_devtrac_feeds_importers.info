@@ -15,11 +15,3 @@ features[feeds_importer][] = devtrac_2_devtrac_site_reports_import
 features[feeds_importer][] = devtrac_2_devtrac_user_import
 features[feeds_tamper][] = devtrac_2_devtrac_action_item_import-responsible-explode
 features[feeds_tamper][] = devtrac_2_devtrac_action_item_import-responsible-trim
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

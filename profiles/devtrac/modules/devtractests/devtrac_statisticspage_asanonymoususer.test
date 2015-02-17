@@ -122,7 +122,7 @@ class VisitStatisticsAsAnonymousTestCase extends DevtracTestCase {
     // 3 is collapisble, default closed.
 
     // Sector block id block-facetapi-fsx63uliwbaiwskuqwaksqmetz0lfzxq
-    $this->assertRaw('"block-facetapi-fsx63uliwbaiwskuqwaksqmetz0lfzxq":3', t('Sector block is collapsed by default.'), t('Devtrac'));
+    $this->assertRaw('"block-facetapi-fsx63uliwbaiwskuqwaksqmetz0lfzxq":2', t('Sector block is expanded by default.'), t('Devtrac'));
 
     // Location block id block-facetapi-yttgmzsted723wjneg6ebrh6pzk1shjp
     $this->assertRaw('"block-facetapi-yttgmzsted723wjneg6ebrh6pzk1shjp":3', t('Location block is collapsed by default.'), t('Devtrac'));

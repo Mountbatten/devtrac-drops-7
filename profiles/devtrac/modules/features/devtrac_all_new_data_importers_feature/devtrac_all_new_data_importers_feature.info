@@ -41,11 +41,3 @@ features[user_permission][] = unlock devtrac_fieldtrips_importer feeds
 features[user_permission][] = unlock devtrac_locations_importer feeds
 features[user_permission][] = unlock devtrac_sitereports_importer feeds
 features[user_permission][] = unlock devtrac_users_importer feeds
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

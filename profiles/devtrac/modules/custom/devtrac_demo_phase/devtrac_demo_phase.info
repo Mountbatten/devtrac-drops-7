@@ -3,11 +3,3 @@ description = "Alters pager settings for view displays when using the db indexin
 core = "7.x"
 
 files[] = devtrac_demo_phase.module
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

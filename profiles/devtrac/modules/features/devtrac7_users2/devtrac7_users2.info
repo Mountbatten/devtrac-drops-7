@@ -85,11 +85,3 @@ features[variable][] = user_pictures
 features[variable][] = user_register
 features[variable][] = user_signatures
 features[views_view][] = user_media
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

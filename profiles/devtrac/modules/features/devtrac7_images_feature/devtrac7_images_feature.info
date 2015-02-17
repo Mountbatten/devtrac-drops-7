@@ -63,11 +63,3 @@ features[variable][] = exif_nodetypes
 features[variable][] = exif_update
 features[variable][] = exif_vocabulary
 features[variable][] = field_bundle_settings_file__image
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

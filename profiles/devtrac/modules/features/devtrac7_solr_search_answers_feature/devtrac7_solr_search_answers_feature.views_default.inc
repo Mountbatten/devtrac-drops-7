@@ -294,9 +294,9 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'kml_feed';
   $handler->display->display_options['style_options']['fields']['name'] = 'answer';
-  $handler->display->display_options['style_options']['fields']['description'] = 'title';
-  $handler->display->display_options['style_options']['fields']['longitude'] = 'field_place_lat_long_lon';
-  $handler->display->display_options['style_options']['fields']['latitude'] = 'field_place_lat_long_lat';
+  $handler->display->display_options['style_options']['fields']['description'] = 'question';
+  $handler->display->display_options['style_options']['fields']['longitude'] = 'field_ftritem_lat_long_1';
+  $handler->display->display_options['style_options']['fields']['latitude'] = 'field_ftritem_lat_long';
   $handler->display->display_options['style_options']['feed_in_links'] = 0;
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Indexed Answer: Answer ID */
@@ -312,6 +312,30 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
   $handler->display->display_options['fields']['question']['id'] = 'question';
   $handler->display->display_options['fields']['question']['table'] = 'search_api_index_answers';
   $handler->display->display_options['fields']['question']['field'] = 'question';
+  /* Field: Node: Lat-Long */
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['id'] = 'field_ftritem_lat_long';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['table'] = 'entity_node';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['field'] = 'field_ftritem_lat_long';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['relationship'] = 'questionnaire_id';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['label'] = 'Latitude';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['click_sort_column'] = 'geom';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['type'] = 'geofield_lat';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['settings'] = array(
+    'data' => 'full',
+    'format' => 'decimal_degrees',
+  );
+  /* Field: Node: Lat-Long */
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['id'] = 'field_ftritem_lat_long_1';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['table'] = 'entity_node';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['field'] = 'field_ftritem_lat_long';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['relationship'] = 'questionnaire_id';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['label'] = 'Longitude';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['click_sort_column'] = 'geom';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['type'] = 'geofield_lon';
+  $handler->display->display_options['fields']['field_ftritem_lat_long_1']['settings'] = array(
+    'data' => 'full',
+    'format' => 'decimal_degrees',
+  );
   $handler->display->display_options['path'] = 'statistics/analyse/kml';
   $handler->display->display_options['displays'] = array(
     'default' => 'default',

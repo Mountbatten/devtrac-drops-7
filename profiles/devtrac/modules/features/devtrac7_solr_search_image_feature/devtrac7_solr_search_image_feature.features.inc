@@ -23,6 +23,9 @@ function devtrac7_solr_search_image_feature_ctools_plugin_api($module = NULL, $a
   if ($module == "openlayers" && $api == "openlayers_maps") {
     return array("version" => "1");
   }
+  if ($module == "pane" && $api == "pane") {
+    return array("version" => "2");
+  }
   if ($module == "quicktabs" && $api == "quicktabs") {
     return array("version" => "1");
   }

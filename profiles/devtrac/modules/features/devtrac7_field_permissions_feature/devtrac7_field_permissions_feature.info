@@ -315,11 +315,3 @@ features[user_permission][] = view taxonomy_vocabulary_7
 features[user_permission][] = view taxonomy_vocabulary_8
 features[user_permission][] = view the administration theme
 mtime = 1417861771
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

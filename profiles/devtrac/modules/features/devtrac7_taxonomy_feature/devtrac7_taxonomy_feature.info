@@ -65,11 +65,3 @@ features[variable][] = field_bundle_settings_taxonomy_term__vocabulary_8
 features[views_view][] = district
 features_exclude[dependencies][devtrac7_node_types] = devtrac7_node_types
 mtime = 1418915630
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

@@ -148,11 +148,3 @@ features[variable][] = piwik_visibility_pages
 features[variable][] = piwik_visibility_roles
 features[variable][] = robotstxt
 features[variable][] = special_menu_items_nolink_tag
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

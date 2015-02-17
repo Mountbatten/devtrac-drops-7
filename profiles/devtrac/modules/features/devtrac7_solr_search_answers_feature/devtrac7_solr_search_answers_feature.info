@@ -87,11 +87,3 @@ features_exclude[features_overrides][quicktabs.devtrac_statistics_graphs_tabs.ta
 features_exclude[features_overrides][quicktabs.devtrac_statistics_graphs_tabs.tabs|6] = quicktabs.devtrac_statistics_graphs_tabs.tabs|6
 features_exclude[features_overrides][quicktabs.devtrac_statistics_graphs_tabs.tabs|7] = quicktabs.devtrac_statistics_graphs_tabs.tabs|7
 mtime = 1420468082
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

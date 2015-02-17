@@ -133,11 +133,3 @@ features[variable][] = node_admin_theme
 features[variable][] = realname_fields
 features[variable][] = realname_pattern
 mtime = 1420700927
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

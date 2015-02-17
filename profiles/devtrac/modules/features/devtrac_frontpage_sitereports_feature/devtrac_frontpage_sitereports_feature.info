@@ -18,25 +18,9 @@ features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[image][] = teaser_thumbnail_image
 features[openlayers_maps][] = frontpage_map
-features[variable][] = nodesinblock_article_block
-features[variable][] = nodesinblock_article_collapsed
-features[variable][] = nodesinblock_article_collapsible
-features[variable][] = nodesinblock_article_label
-features[variable][] = nodesinblock_article_render
 features[variable][] = nodesinblock_contenttypes
-features[variable][] = nodesinblock_fieldtrip_block
-features[variable][] = nodesinblock_fieldtrip_collapsed
-features[variable][] = nodesinblock_fieldtrip_collapsible
-features[variable][] = nodesinblock_fieldtrip_label
-features[variable][] = nodesinblock_fieldtrip_render
 features[variable][] = nodesinblock_friendlyname_0
 features[variable][] = nodesinblock_friendlyname_1
-features[variable][] = nodesinblock_friendlyname_2
-features[variable][] = nodesinblock_ftritem_block
-features[variable][] = nodesinblock_ftritem_collapsed
-features[variable][] = nodesinblock_ftritem_collapsible
-features[variable][] = nodesinblock_ftritem_label
-features[variable][] = nodesinblock_ftritem_render
 features[variable][] = nodesinblock_nrofblocks
 features[variable][] = nodesinblock_page_block
 features[variable][] = nodesinblock_page_collapsed
@@ -46,18 +30,9 @@ features[variable][] = nodesinblock_page_render
 features[variable][] = nodesinblock_referer
 features[variable][] = nodesinblock_visibility_0
 features[variable][] = nodesinblock_visibility_1
-features[variable][] = nodesinblock_visibility_2
 features[views_view][] = devtrac_frontpage_sitereports
 features[views_view][] = frontpage_recent_sitereports
 features[views_view][] = frontpage_slideshow
 features_exclude[dependencies][ctools] = ctools
 features_exclude[dependencies][openlayers] = openlayers
 features_exclude[dependencies][views] = views
-
-
-; Information added by drush on 2015-02-16
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "devtrac"
-datestamp = "1424082027"
-

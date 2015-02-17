@@ -46,33 +46,39 @@ class VisitUsersAsAnonymousUserTestCase extends DevtracTestCase {
     $this->drupalGet('');
     $this->assertNoLink('Users', t('Users link is not present on the page.'), t('Devtrac'));
     $this->drupalGet('users');
-    $this->assertResponse(403, t('Anonymous User is can not access the Users page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users'), array(), t('Anonymous User can not access the Users page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users page.'), t('Devtrac'));
+
     $this->drupalGet('users', array('query' => array('display' => 'default')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users List page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users%3Fdisplay%3Ddefault&display=default'), array(), t('Anonymous User can not access the Users List page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users List page.'), t('Devtrac'));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users List page.'), t('Devtrac'));
-    $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users List page.'), t('Devtrac'));
+
     $this->drupalGet('users/analyse/csv', array('query' => array('display' => 'default')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users CSV Export page via the default page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users/analyse/csv%3Fdisplay%3Ddefault&display=default'), array(), t('Anonymous User can not access the Users CSV Export page via the default page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users CSV Export page via the default page.'), t('Devtrac'));
+
     $this->drupalGet('users/analyse/kml', array('query' => array('display' => 'default')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users KML Export page via the default page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users/analyse/kml%3Fdisplay%3Ddefault&display=default'), array(), t('Anonymous User can not access the Users KML Export page via the default page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users KML Export page via the default page.'), t('Devtrac'));
+
     $this->drupalGet('users/analyse/rss', array('query' => array('display' => 'default')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users RSS Feed page via the default page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users/analyse/rss%3Fdisplay%3Ddefault&display=default'), array(), t('Anonymous User can not access the Users RSS Feed page via the default page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users RSS Feed page via the default page.'), t('Devtrac'));
+
     $this->drupalGet('users', array('query' => array('display' => 'graphs')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users Graphs page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users%3Fdisplay%3Dgraphs&display=graphs'), array(), t('Anonymous User can not access the Users Graphs page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users Graphs page.'), t('Devtrac'));
+
     $this->drupalGet('users/analyse/csv', array('query' => array('display' => 'graphs')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users CSV Export page via the graphs page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users/analyse/csv%3Fdisplay%3Dgraphs&display=graphs'), array(), t('Anonymous User can not access the Users CSV Export page via the graphs page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users CSV Export page via the graphs page.'), t('Devtrac'));
+
     $this->drupalGet('users/analyse/kml', array('query' => array('display' => 'graphs')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users KML Export page via the graphs page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users/analyse/kml%3Fdisplay%3Dgraphs&display=graphs'), array(), t('Anonymous User can not access the Users KML Export page via the graphs page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users KML Export page via the graphs page.'), t('Devtrac'));
+
     $this->drupalGet('users/analyse/rss', array('query' => array('display' => 'graphs')));
-    $this->assertResponse(403, t('Anonymous User is can not access the Users RSS Feed page via the graphs page.'), t('Devtrac'));
+    $this->assertUrl($this->getAbsoluteUrl('user/login?destination=users/analyse/rss%3Fdisplay%3Dgraphs&display=graphs'), array(), t('Anonymous User can not access the Users RSS Feed page via the graphs page.'), t('Devtrac'));
     $this->assertText(t('Access denied'), t('Anonymous User is not permitted to visit the Users RSS Feed page via the graphs page.'), t('Devtrac'));
   }
 
