@@ -4,9 +4,3 @@ core = 7.x
 package = Design and Configuration
 
 files[] = cancel_button.module
-
-; Information added by drush on 2015-02-16
-version = "master-dev"
-project = "cancel_button"
-datestamp = "1424082136"
-

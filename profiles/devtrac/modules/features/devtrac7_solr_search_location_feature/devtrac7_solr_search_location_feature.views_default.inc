@@ -105,15 +105,6 @@ function devtrac7_solr_search_location_feature_views_default_views() {
   $handler->display->display_options['fields']['taxonomy_vocabulary_1']['field'] = 'taxonomy_vocabulary_1';
   $handler->display->display_options['fields']['taxonomy_vocabulary_1']['link_to_entity'] = 1;
   $handler->display->display_options['fields']['taxonomy_vocabulary_1']['view_mode'] = 'full';
-  /* Contextual filter: Custom: Bounding box */
-  $handler->display->display_options['arguments']['bbox_argument']['id'] = 'bbox_argument';
-  $handler->display->display_options['arguments']['bbox_argument']['table'] = 'views';
-  $handler->display->display_options['arguments']['bbox_argument']['field'] = 'bbox_argument';
-  $handler->display->display_options['arguments']['bbox_argument']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['bbox_argument']['default_argument_type'] = 'querystring';
-  $handler->display->display_options['arguments']['bbox_argument']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['bbox_argument']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['bbox_argument']['summary_options']['items_per_page'] = '25';
 
   /* Display: Map */
   $handler = $view->new_display('page', 'Map', 'map');
@@ -692,6 +683,15 @@ function devtrac7_solr_search_location_feature_views_default_views() {
   );
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Contextual filter: Custom: Bounding box */
+  $handler->display->display_options['arguments']['bbox_argument']['id'] = 'bbox_argument';
+  $handler->display->display_options['arguments']['bbox_argument']['table'] = 'views';
+  $handler->display->display_options['arguments']['bbox_argument']['field'] = 'bbox_argument';
+  $handler->display->display_options['arguments']['bbox_argument']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['bbox_argument']['default_argument_type'] = 'querystring';
+  $handler->display->display_options['arguments']['bbox_argument']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['bbox_argument']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['bbox_argument']['summary_options']['items_per_page'] = '25';
   /* Filter criterion: Lat-Long: Latitude (indexed) */
   $handler->display->display_options['filters']['field_place_lat_long_lat']['id'] = 'field_place_lat_long_lat';
   $handler->display->display_options['filters']['field_place_lat_long_lat']['table'] = 'search_api_index_devtrac_solr_locations_index';

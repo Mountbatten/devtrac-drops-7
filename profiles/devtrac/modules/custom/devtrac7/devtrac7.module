@@ -1488,18 +1488,18 @@ function devtrac7_createsubmitcomment($node) {
   // Load the full user credentials to also get to the fields
   $author = user_load($user->uid);
   // Set the superior
-  if (isset($author->field_user_superior[LANGUAGE_NONE][0]['target_id'])) {
-    $superior = user_load($author->field_user_superior[LANGUAGE_NONE][0]['target_id']);
-  }
-  else {
-    $superior = $author; // The user does not have a superior, so the user has to do the approval
-  }
+//  if (isset($author->field_user_superior[LANGUAGE_NONE][0]['target_id'])) {
+//    $superior = user_load($author->field_user_superior[LANGUAGE_NONE][0]['target_id']);
+//  }
+//  else {
+//    $superior = $author; // The user does not have a superior, so the user has to do the approval
+//  }
   // Create a new comment.
   $comment = new stdClass();
   $comment->cid = 0;
   $comment->pid = 0;
-  $comment->uid = $superior->uid;
-  $comment->name = $superior->name;
+  $comment->uid = $author->uid;
+  $comment->name = $author->name;
   $comment->language = LANGUAGE_NONE;
   $comment->nid = $node->nid;
   $comment->subject = t('Needs your approval');

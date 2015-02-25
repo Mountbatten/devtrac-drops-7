@@ -299,7 +299,8 @@ function nodesinblock_nodequeue_access($node) {
  */
 function nodesinblock_nodequeue($node) {
   module_load_include('inc', 'nodesinblock', 'nodesinblock.admin');
-  return drupal_render(drupal_get_form('nodesinblock_queue', $node->nodesinblock, FALSE, FALSE));
+  $form = drupal_get_form('nodesinblock_queue', $node->nodesinblock, FALSE, FALSE);
+  return drupal_render($form);
 }
 
 /**

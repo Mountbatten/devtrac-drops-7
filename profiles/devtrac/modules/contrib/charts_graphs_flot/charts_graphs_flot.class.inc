@@ -157,14 +157,21 @@ TABLE
 
     }
 
-
     /*
      *  Massage our data arrays into a propor flotData
      */
     $datasets = array();
+    $i = 0;
+    $coloured = ($this->series_colours[0] != "");
     foreach ($datas as $data) {
       $myset = new flotData($data['data']);
       $myset->label = $data['label'];
+      if ($coloured) {
+        // Once you set this attribute, the default color for all series
+        // will be grey
+        $myset->color = new stdClass();
+        $myset->color = $this->series_colours[$i];
+      }
       if (($this->type == 'bar') && count($datas > 1)) {
         // This loads the flot orderBars plugin and only works on a vertical bar chart with more than 1 dataset
         $myset->bars = new stdClass();
@@ -174,8 +181,16 @@ TABLE
         $myset->bars->autoScale = TRUE;
         $myset->bars->fillOpacity = 1;
         $myset->bars->align = "center";
+        if ($coloured) {
+          $myset->bars->fillColor = $this->series_colours[$i];
+        }
       }
-
+      if ($coloured) {
+        $i++;
+        if ($i >= count($this->series_colours)) {
+          $i = 0;
+        }
+      }
 
       if (($this->type == 'linestack') || ($this->type == 'barstack') || ($this->type == 'sidebarstack')) {
         $myset->stack = 'stack';
@@ -203,7 +218,7 @@ TABLE
       if (isset($options->yaxis)) {
         $options->yaxis->min = $this->y_min;
         $options->yaxis->max = $this->y_max;
-        $options->yaxis->tickSize = $this->y_step;        
+        $options->yaxis->tickSize = $this->y_step;
       }
 
       $dateaxis = 'xaxis';
@@ -239,15 +254,17 @@ TABLE
       }
       $options->resize = TRUE;
       $options->grid->tickColor = '#eee';
+      $options->color = new stdClass();
+      $options->color = $this->series_colours;
 
-    $element = array(
+      $element = array(
         '#theme' => 'flot_graph',
         '#element' => array('style' => "width:" . $width . ";height:" . $height . ";"),
         '#data' => $datasets,
         '#options' => $options,
         '#zoom' => $this->zoom,
         '#legend' => $this->showlegend,
-    );
+      );
 
     /*
      *  To print a table that shows which raw data goes into flot
@@ -255,9 +272,9 @@ TABLE
      */
 //    print(implode('', $table));
 
-    return $element;
+      return $element;
 
-  }
+   }
 
   /**
    *  Reverses the order of each datapoint
@@ -277,5 +294,4 @@ TABLE
     }
     return $reverse;
   }
-
 }

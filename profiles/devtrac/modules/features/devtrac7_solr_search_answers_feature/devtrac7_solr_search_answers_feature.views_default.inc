@@ -33,6 +33,10 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['row_plugin'] = 'fields';
+  /* Relationship: Indexed Answer: Questionnaire */
+  $handler->display->display_options['relationships']['questionnaire_id']['id'] = 'questionnaire_id';
+  $handler->display->display_options['relationships']['questionnaire_id']['table'] = 'search_api_index_answers';
+  $handler->display->display_options['relationships']['questionnaire_id']['field'] = 'questionnaire_id';
   /* Field: Indexed Answer: Answer ID */
   $handler->display->display_options['fields']['id']['id'] = 'id';
   $handler->display->display_options['fields']['id']['table'] = 'search_api_index_answers';
@@ -278,7 +282,7 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
   $handler->display->display_options['fields']['question']['field'] = 'question';
   $handler->display->display_options['fields']['question']['exclude'] = TRUE;
   $handler->display->display_options['fields']['question']['link_to_entity'] = 0;
-  $handler->display->display_options['path'] = 'statistics/analyse/csv';
+  $handler->display->display_options['path'] = 'statistics/answers/analyse/csv';
   $handler->display->display_options['displays'] = array(
     'default' => 'default',
     'graphs' => 'graphs',
@@ -336,7 +340,7 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
     'data' => 'full',
     'format' => 'decimal_degrees',
   );
-  $handler->display->display_options['path'] = 'statistics/analyse/kml';
+  $handler->display->display_options['path'] = 'statistics/answers/analyse/kml';
   $handler->display->display_options['displays'] = array(
     'default' => 'default',
     'graphs' => 'graphs',
@@ -490,7 +494,7 @@ function devtrac7_solr_search_answers_feature_views_default_views() {
   $handler->display->display_options['fields']['taxonomy_vocabulary_1']['link_to_entity'] = 1;
   $handler->display->display_options['fields']['taxonomy_vocabulary_1']['view_mode'] = 'full';
   $handler->display->display_options['fields']['taxonomy_vocabulary_1']['bypass_access'] = 0;
-  $handler->display->display_options['path'] = 'statistics/analyse/rss';
+  $handler->display->display_options['path'] = 'statistics/answers/analyse/rss';
   $handler->display->display_options['displays'] = array(
     'default' => 'default',
     'graphs' => 'graphs',

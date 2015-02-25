@@ -104,9 +104,6 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     // Attribution.
     $this->assertRaw('"attribution":"\u0026copy;\u003Ca href=\u0022http:\/\/creativecommons.org\/licenses\/by-sa\/2.0\/\u0022\u003ECCBYSA\u003C\/a\u003E \u003Ca href=\u0022http:\/\/www.openstreetmap.org\/copyright\u0022\u003E\u0026copy; OpenStreetMap contributors\u003C\/a\u003E"', t('Attribution is present on the map.'), t('Devtrac'));
 
-    // Check for Info pane text.
-    $this->assertRaw('\u003Cp\u003EThese are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.\u003C/p\u003E', t('Info pane is present on the page'), t('Devtrac'));
-
     // Search Api Elements.
     // Check for Facets.
 
@@ -157,8 +154,6 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     // Tags block id block-facetapi-otpskdhshzgrk9st6cu3fnypqtqzyri1.
     $this->assertRaw('"block-facetapi-otpskdhshzgrk9st6cu3fnypqtqzyri1":3', t('Tags block is collapsed by default.'), t('Devtrac'));
 
-    // Information pane block id block-pane-images-info
-    $this->assertRaw('"block-pane-images-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
 
     // Check for fulltest search block.
     $this->assertRaw('\u003Cform id=\u0022facetapi-textfield-widget-form\u0022 class=\u0022facetapi-textfield-widget-form\u0022 action=\u0022images\u0022 method=\u0022GET\u0022 onsubmit=\u0022return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)\u0022\u003E\n  \u003Cinput type=\u0022textfield\u0022 name=\u0022search_api_aggregation_1\u0022 value=\u0022\u0022 \/\u003E\n  \u003Cdiv id=\u0022edit-actions\u0022 class=\u0022form-actions form-wrapper\u0022\u003E\n    \u003Cinput type=\u0022submit\u0022 class=\u0022form-submit\u0022 value=\u0022Search\u0022 \/\u003E\n  \u003C\/div\u003E\n\u003C\/form\u003E', t('Full text search block is present on the page'), t('Devtrac'));
@@ -278,7 +273,7 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     $this->assertNoRaw('<th data-hide="phone" class="views-field views-field-virtual-field" ></th>', t('Button table column and heading is not present on the page.'), t('Devtrac'));
 
     // Check that data is displayed in each column.
-    $this->assertRaw('/file/images/admin/11110png?display=list">11110.png</a></h2>', t('Image column is filled.'), t('Devtrac'));
+    $this->assertRaw('/file/images/site-admin/11110png?display=list">11110.png</a></h2>', t('Image column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-field-file-image-title-text" >
             Education policy and administrative management          </td>', t('Title column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-taxonomy-vocabulary-6-1" >
@@ -587,10 +582,10 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     $this->clickLink('Export to CSV', 0);
 
     // Check for column names.
-    $this->assertRaw('"File name","Title","Districts","Sectors","Date Visited","URL"', t('All column names are present.'), t('Devtrac'));
+    $this->assertRaw('"File name","Title","Districts","Sectors","Date Visited","Owner","URL"', t('All column names are present.'), t('Devtrac'));
 
     // Check for count of column names.
-    $this->assertColumnCount(63, 6);
+    $this->assertColumnCount(70, 7);
 
     // Fields.
     // File Name.
@@ -616,12 +611,15 @@ class VisitImagesAsAnonymousTestCase extends DevtracTestCase {
     $this->assertRaw('<name>
     <![CDATA[Education policy and administrative management]]>', t('Name field is mapped correctly.'), t('Devtrac'));
     // Description : Report.
-    $this->assertNoRaw('<description>
-    <![CDATA[]]>
+    $this->assertRaw('alt="Education policy and administrative management" title="Education policy and administrative management" /></a>  </div>
+
+  
+</div>
+]]>
   </description>', t('Description field is mapped correctly.'), t('Devtrac'));
     // Point : Lon - Lat.
-    $this->assertNoRaw('<Point>
-    <coordinates>0.556481550015,32.704498222317,0</coordinates>
+    $this->assertRaw('<Point>
+    <coordinates>32.704498222317,0.556481550015,0</coordinates>
   </Point>', t('Coordinates field is mapped correctly.'), t('Devtrac'));
 
     // RSS Feeds.

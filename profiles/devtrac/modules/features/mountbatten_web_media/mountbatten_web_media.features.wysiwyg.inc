@@ -25,11 +25,20 @@ function mountbatten_web_media_wysiwyg_default_profiles() {
           'Bold' => 1,
           'Italic' => 1,
           'Underline' => 1,
+          'JustifyLeft' => 1,
+          'JustifyRight' => 1,
           'BulletedList' => 1,
           'NumberedList' => 1,
+          'Outdent' => 1,
+          'Indent' => 1,
           'Link' => 1,
           'Unlink' => 1,
           'Blockquote' => 1,
+          'Styles' => 1,
+          'Table' => 1,
+        ),
+        'picture_ckeditor' => array(
+          'picture_ckeditor' => 1,
         ),
         'drupal' => array(
           'media' => 1,
@@ -42,15 +51,15 @@ function mountbatten_web_media_wysiwyg_default_profiles() {
       'verify_html' => 1,
       'preformatted' => 0,
       'convert_fonts_to_spans' => 1,
-      'remove_linebreaks' => 1,
+      'remove_linebreaks' => 0,
       'apply_source_formatting' => 0,
       'paste_auto_cleanup_on_paste' => 0,
       'block_formats' => 'p,address,pre,h2,h3,h4,h5,h6,div',
       'css_setting' => 'theme',
       'css_path' => '',
-      'css_classes' => '',
+      'css_classes' => 'Header 4 =h4
+Header 5 =h5',
     ),
-    'rdf_mapping' => array(),
   );
 
   return $profiles;

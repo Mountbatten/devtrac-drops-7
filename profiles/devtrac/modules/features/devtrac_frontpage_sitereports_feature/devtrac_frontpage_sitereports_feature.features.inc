@@ -11,6 +11,9 @@ function devtrac_frontpage_sitereports_feature_ctools_plugin_api($module = NULL,
   if ($module == "context" && $api == "context") {
     return array("version" => "3");
   }
+  if ($module == "flexslider" && $api == "flexslider_default_preset") {
+    return array("version" => "1");
+  }
   if ($module == "openlayers" && $api == "openlayers_maps") {
     return array("version" => "1");
   }

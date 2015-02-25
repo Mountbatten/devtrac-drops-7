@@ -17,6 +17,9 @@ function devtrac7_solr_search_answers_feature_ctools_plugin_api($module = NULL, 
   if ($module == "facetapi" && $api == "facetapi_defaults") {
     return array("version" => "1");
   }
+  if ($module == "pane" && $api == "pane") {
+    return array("version" => "2");
+  }
   if ($module == "quicktabs" && $api == "quicktabs") {
     return array("version" => "1");
   }
@@ -55,7 +58,7 @@ function devtrac7_solr_search_answers_feature_default_search_api_index() {
       "cron_limit" : "50",
       "fields" : {
         "answernumber" : { "type" : "decimal" },
-        "answertext" : { "type" : "text" },
+        "answertext" : { "type" : "string" },
         "context_id" : { "type" : "integer" },
         "created" : { "type" : "date" },
         "question" : { "type" : "integer", "entity_type" : "node" },

@@ -500,7 +500,8 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     // Responsible.
     $this->assertRaw('"Test Fieldworker"', t('Responsible field is filled.'), t('Devtrac'));
     // Task.
-    $this->assertRaw('"Testing presence of Edit button. "', t('Task field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Testing presence of Edit button.
+"', t('Task field is filled.'), t('Devtrac'));
     // Tags (Categories).
     $this->assertRaw('"Urgent"', t('Tags (Categories) field is filled.'), t('Devtrac'));
     // UUID (Subject to change).

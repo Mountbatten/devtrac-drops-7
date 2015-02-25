@@ -26,6 +26,8 @@ projects[drupal][patch][] = https://www.drupal.org/files/issues/drupal_cron-user
 ; A try on a fresh 7.34 install on my local machine was successful.
 ; So here we go.
 projects[drupal][patch][] = https://www.drupal.org/files/issues/1260912-remove-robotstxt-7.30.patch
+; Remove xmlrpc.php for security reasons since we are not using rpc on devtrac.
+projects[drupal][patch][] = https://www.drupal.org/files/issues/2430081-remove-xmlrpc.php-7.34.patch
 
 ; Pull the devtrac project from git
 projects[devtrac][type] = "profile"

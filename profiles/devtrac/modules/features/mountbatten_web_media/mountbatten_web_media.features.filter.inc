@@ -18,14 +18,10 @@ function mountbatten_web_media_filter_default_formats() {
     'status' => 1,
     'weight' => 0,
     'filters' => array(
-      'filter_html' => array(
+      'media_filter' => array(
         'weight' => -50,
         'status' => 1,
-        'settings' => array(
-          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd><pre><u>',
-          'filter_html_help' => 1,
-          'filter_html_nofollow' => 0,
-        ),
+        'settings' => array(),
       ),
       'picture' => array(
         'weight' => -49,
@@ -39,15 +35,19 @@ function mountbatten_web_media_filter_default_formats() {
           'filter_url_length' => 72,
         ),
       ),
-      'filter_autop' => array(
-        'weight' => -47,
-        'status' => 1,
-        'settings' => array(),
-      ),
       'filter_htmlcorrector' => array(
         'weight' => -46,
         'status' => 1,
         'settings' => array(),
+      ),
+      'filter_html' => array(
+        'weight' => -45,
+        'status' => 1,
+        'settings' => array(
+          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd><pre><u><table><tbody><caption><tr><td><h4><h5>',
+          'filter_html_help' => 0,
+          'filter_html_nofollow' => 0,
+        ),
       ),
       'spamspan' => array(
         'weight' => -44,
@@ -68,11 +68,6 @@ function mountbatten_web_media_filter_default_formats() {
             'spamspan_email_default' => 'contact_us_general_enquiry',
           ),
         ),
-      ),
-      'media_filter' => array(
-        'weight' => -41,
-        'status' => 1,
-        'settings' => array(),
       ),
     ),
   );

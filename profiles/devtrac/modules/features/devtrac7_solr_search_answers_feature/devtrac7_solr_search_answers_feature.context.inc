@@ -14,7 +14,7 @@ function devtrac7_solr_search_answers_feature_context_default_contexts() {
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'devtrac7_answers_all';
-  $context->description = 'Active when displaying the Answers';
+  $context->description = 'Active when displaying the Answers (List + Graphs)';
   $context->tag = 'Questionnaire';
   $context->conditions = array(
     'views' => array(
@@ -31,6 +31,12 @@ function devtrac7_solr_search_answers_feature_context_default_contexts() {
           'delta' => 'devtrac7_answers_standard',
           'region' => 'featured',
           'weight' => '-100',
+        ),
+        'pane-answers_info' => array(
+          'module' => 'pane',
+          'delta' => 'answers_info',
+          'region' => 'featured',
+          'weight' => '-10',
         ),
         'current_search-devtrac7_answers_activefacets' => array(
           'module' => 'current_search',
@@ -74,7 +80,7 @@ function devtrac7_solr_search_answers_feature_context_default_contexts() {
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'devtrac7_answers_graphs';
-  $context->description = 'Active when displaying the Answers (List + Graphs)';
+  $context->description = 'Active when displaying the Answers Graphs';
   $context->tag = 'Answers & Questions';
   $context->conditions = array(
     'views' => array(
@@ -92,12 +98,6 @@ function devtrac7_solr_search_answers_feature_context_default_contexts() {
   $context->reactions = array(
     'block' => array(
       'blocks' => array(
-        'pane-statistics_info' => array(
-          'module' => 'pane',
-          'delta' => 'statistics_info',
-          'region' => 'featured',
-          'weight' => '-50',
-        ),
         'quicktabs-devtrac_statistics_graphs_tabs' => array(
           'module' => 'quicktabs',
           'delta' => 'devtrac_statistics_graphs_tabs',
@@ -114,6 +114,7 @@ function devtrac7_solr_search_answers_feature_context_default_contexts() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Active when displaying the Answers Graphs');
   t('Active when displaying the Answers (List + Graphs)');
   t('Answers & Questions');
   $export['devtrac7_answers_graphs'] = $context;

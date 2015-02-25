@@ -2865,6 +2865,7 @@ function devtrac7_field_permissions_feature_user_default_permissions() {
     'name' => 'view questions',
     'roles' => array(
       'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'questionnaire_question',

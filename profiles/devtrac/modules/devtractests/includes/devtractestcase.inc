@@ -400,5 +400,11 @@ class DevtracTestCase extends SimpleTestCloneTestCase {
     $answers['29'] = "Mediocre";
     $this->drupalPost(NULL, $answers, t('Submit'));
     $this->addAnActionItem('Test Action Item', '57', 'Testing presence of Edit button.');
+    $this->clickLink('Site Reports', 0);
+    $this->clickLink('List', 0);
+    $this->clickLink('Site Visit at Loroo Piped Water', 0);
+    $this->clickLink('Add Questionnaire');
+    $answers2['31'] = "Mediocre";
+    $this->drupalPost(NULL, $answers2, t('Submit'));
    }
 }

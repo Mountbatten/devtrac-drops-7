@@ -112,7 +112,7 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('How would you rate this water point?', 0, t('First question is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>The statistics page is where summaries and graphical representation of the data in the system can be viewed. Try out different filter options to analyse the data graphically.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('The statistics page is where summaries and graphical representation of the data in the system can be viewed. Try out different filter options to analyse the data graphically.', t('Info pane is present on the page'), t('Devtrac'));
 
     
     // Check for Facet default state (expanded or collapsed).
@@ -239,7 +239,7 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-devtrac7-answers"><h3 class="">2 Answers</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>The statistics page is where summaries and graphical representation of the data in the system can be viewed. Try out different filter options to analyse the data graphically.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('The answers page is where tabular and graphical representations of responses to questionnaires filled out during field reporting can be viewed. Try out different filter options to analyse the data graphically or download it for offline analysis.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Check for Facet default state (expanded or collapsed).
     // Check.
@@ -255,8 +255,8 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     // Location block id block-facetapi-pafqvo6lfcmew1sqgy8d2nzm6kt7n8tv
     $this->assertRaw('"block-facetapi-pafqvo6lfcmew1sqgy8d2nzm6kt7n8tv":3', t('Location block is collapsed by default.'), t('Devtrac'));
 
-    // Information pane block id block-pane-statistics-info
-    $this->assertRaw('"block-pane-statistics-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
+    // Information pane block id block-pane-answers-info
+    $this->assertRaw('"block-pane-answers-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
 
     // Check for no : in Date Visited.
     // High level.
@@ -293,6 +293,9 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->clickLink('Statistics', 0);
 
     $this->clickLink('How would you rate this school?', 0);
+
+    // Assert Question Presence.
+    $this->assertText('How would you rate this school?', t('Question is present on the page.'), t('Devtrac'));
 
     // Districts.
     $this->assertRaw('/statistics/answers?f[0]=question%3A29&amp;qt-devtrac_statistics_graphs_tabs=2#qt-devtrac_statistics_graphs_tabs" id="quicktabs-tab-devtrac_statistics_graphs_tabs-2" class="quicktabs-tab quicktabs-tab-block quicktabs-tab-block-f9c6d54f34c84f80e6bf9e37b776f138 active">Districts</a>', t('Districts quicktab is present on the page'), t('Devtrac'));
@@ -362,7 +365,7 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-devtrac7-answers"><h3 class="">2 Answers</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>The statistics page is where summaries and graphical representation of the data in the system can be viewed. Try out different filter options to analyse the data graphically.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('The answers page is where tabular and graphical representations of responses to questionnaires filled out during field reporting can be viewed. Try out different filter options to analyse the data graphically or download it for offline analysis.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Check for Facet default state (expanded or collapsed).
     // Check.
@@ -378,8 +381,8 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     // Location block id block-facetapi-pafqvo6lfcmew1sqgy8d2nzm6kt7n8tv
     $this->assertRaw('"block-facetapi-pafqvo6lfcmew1sqgy8d2nzm6kt7n8tv":3', t('Location block is collapsed by default.'), t('Devtrac'));
 
-    // Information pane block id block-pane-statistics-info
-    $this->assertRaw('"block-pane-statistics-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
+    // Information pane block id block-pane-answers-info
+    $this->assertRaw('"block-pane-answers-info":3', t('Information pane block is collapsed by default.'), t('Devtrac'));
 
     // Check for no : in Date Visited.
     // High level.
@@ -421,6 +424,9 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
 
     $this->clickLink('How would you rate this school?', 0);
     $this->clickLink('List', 0);
+
+    // Assert Question Presence.
+    $this->assertText('How would you rate this school?', t('Question is present on the page.'), t('Devtrac'));
     
     // Check for table.
     // Columns and Headings.
@@ -439,11 +445,16 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('test location', 0, t('Location column is filled.'), t('Devtrac'));
     $this->assertRaw('Site Visit at test location', t('Site Visit column is filled'), t('Devtrac'));
     $this->assertLink('Undefined Area', 0, t('Admin Unit column is filled.'), t('Devtrac'));
-    $this->assertRaw('<td class="views-field views-field-field-ftritem-date-visited active" >
-            <span class="date-display-single">' . date("d-m-Y") . '</span>          </td>', t('Date Visited column is filled.'), t('Devtrac'));
+    $this->assertRaw('<td class="views-field views-field-created active" >
+            ' . date("d-m-Y") . '          </td>', t('Date Visited column is filled.'), t('Devtrac'));
     /*$this->assertRaw('/users/admin?display=list">admin</a>          </td>', t('Owner column is filled.'), t('Devtrac'));*/
 
-    $this->drupalGet('statistics/analyse/csv');
+    // CSV.
+    $this->drupalGet('');
+    $this->clickLink('Statistics', 0);
+
+    $this->clickLink('How would you rate this school?', 0);
+    $this->clickLink('Export to CSV', 0);
 
     // Check for column names.
     $this->assertRaw('"Answer","Site report","Location Placetype","Admin Unit","Date created"', t('All column names are present.'), t('Devtrac'));
@@ -453,9 +464,9 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
 
     // Fields.
     // Answer.
-    $this->assertRaw('"Needs more books in the library."', t('Answer field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Mediocre"', t('Answer field is filled.'), t('Devtrac'));
     // Site report.
-    $this->assertRaw('"Site Visit at test location"', t('Site report field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Site Visit at test location"', t('Site report field is not filled.'), t('Devtrac'));
     // Location Placetype.
     $this->assertRaw('"Public Government School"', t('Location Placetype field is filled.'), t('Devtrac'));
     // Admin Unit.
@@ -464,20 +475,29 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('"' . date("d-m-Y") . '"', t('Date Created field is filled.'), t('Devtrac'));
 
     // KML.
-    $this->drupalGet('statistics/analyse/kml');
+    $this->drupalGet('');
+    $this->clickLink('Statistics', 0);
+
+    $this->clickLink('How would you rate this school?', 0);
+    $this->clickLink('Export to KML', 0);
     // Name : Title.
-    $this->assertNoRaw('<name>
-    <![CDATA[Education policy and administrative management]]>', t('Name field is mapped correctly.'), t('Devtrac'));
+    $this->assertRaw('<name>
+    <![CDATA[Mediocre]]>
+  </name>', t('Name field is mapped correctly.'), t('Devtrac'));
     // Description : Report.
-    $this->assertNoRaw('<description>
-    <![CDATA[]]>
+    $this->assertRaw('/question/how-would-you-rate-school">How would you rate this school?</a>]]>
   </description>', t('Description field is mapped correctly.'), t('Devtrac'));
     // Point : Lon - Lat.
-    $this->assertNoRaw('<Point>
-    <coordinates>,,0</coordinates>
+    $this->assertRaw('<Point>
+    <coordinates>32.704498222317,0.556481550015,0</coordinates>
   </Point>', t('Coordinates field is mapped correctly.'), t('Devtrac'));
-    
-    $this->drupalGet('statistics/analyse/rss');
+
+    // RSS.
+    $this->drupalGet('');
+    $this->clickLink('Statistics', 0);
+
+    $this->clickLink('How would you rate this school?', 0);
+    $this->clickLink('Subscribe to RSS Feed', 0);
 
     // Core items.
     // Title : Answer All.
@@ -501,7 +521,7 @@ class VisitStatisticsAsFieldWorkerTestCase extends DevtracTestCase {
     // Type : Location Placetype.
     $this->assertRaw('/devtracorgtest/category/location-type/public-government-school&quot;&gt;Public Government School&lt;/a&gt;</dc:type>', t('dc Type is mapped'), t('Devtrac'));
     // Identifier : Answer Id.
-    $this->assertRaw('<dc:identifier>1</dc:identifier>', t('dc Identifier is mapped'), t('Devtrac'));
+    $this->assertRaw('<dc:identifier>2</dc:identifier>', t('dc Identifier is mapped'), t('Devtrac'));
 
     // georss items.
     // Relationship Tag : Location Placetype.

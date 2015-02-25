@@ -58,10 +58,6 @@ projects[collapsiblock][version] = "1.0"
 projects[collapsiblock][type] = "module"
 projects[collapsiblock][subdir] = "contrib"
 
-projects[colorbox][version] = "2.8"
-projects[colorbox][type] = "module"
-projects[colorbox][subdir] = "contrib"
-
 projects[content_access][version] = "1.2-beta2"
 projects[content_access][type] = "module"
 projects[content_access][subdir] = "contrib"
@@ -515,10 +511,6 @@ projects[telephone][version] = "1.0-alpha1"
 projects[telephone][type] = "module"
 projects[telephone][subdir] = "contrib"
 
-projects[flexslider][version] = "2.0-alpha3"
-projects[flexslider][type] = "module"
-projects[flexslider][subdir] = "contrib"
-
 projects[nodesinblock][version] = "1.0"
 projects[nodesinblock][type] = "module"
 projects[nodesinblock][subdir] = "contrib"
@@ -590,11 +582,6 @@ libraries[FirePHPCore][download][type] = "file"
 libraries[FirePHPCore][download][url] = "https://github.com/firephp/firephp-core/archive/master.zip"
 libraries[FirePHPCore][directory_name] = "FirePHPCore"
 libraries[FirePHPCore][type] = "library"
-
-libraries[flexslider][download][type] = "file"
-libraries[flexslider][download][url] = "https://github.com/woothemes/FlexSlider/archive/master.zip"
-libraries[flexslider][directory_name] = "flexslider"
-libraries[flexslider][type] = "library"
 
 libraries[flot][download][type] = "file"
 libraries[flot][download][url] = "https://flot.googlecode.com/files/flot-0.7.tar.gz"

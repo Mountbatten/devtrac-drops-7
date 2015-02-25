@@ -471,6 +471,10 @@ function devtrac_install() {
   $default_theme = 'devtrac_classic';
   theme_enable(array($default_theme));
   variable_set('theme_default', $default_theme);
+  db_update('system')
+    ->fields(array('weight' => '1'))
+    ->condition('name', 'devtrac_classic')
+    ->execute();
 }
 
 /**
@@ -500,6 +504,13 @@ function devtrac_install_tasks(&$install_state) {
   $tasks['devtrac_install_additional_modules'] = array(
     'display_name' => st('Install additional functionality'),
     'type' => 'batch',
+  );
+  // All modules are enabled now.
+  // Let's create the search_api_server.
+  $tasks['devtrac_initialize_search_server'] = array(
+    'display_name' => st('Initialize Search Server'),
+    'display' => FALSE,
+    'type' => 'normal',
   );
 
   // We're not going to initialize the taxonomy access settings now. Instead we
@@ -545,16 +556,6 @@ function devtrac_install_tasks_alter(&$tasks, $install_state) {
 
   // Set the installation theme.
   _devtrac_set_theme('devtrac_classic');
-
-  // The Solr congiguration screen needs to come after the database
-  // setup, enabling the system module and after the full bootstrap.
-  $solr_task['devtrac_initialize_search_server'] = array(
-    'display_name' => st('Initialize Search Server'),
-    'display' => FALSE,
-    'type' => 'normal',
-  );
-  $old_tasks = $tasks;
-  $tasks = array_slice($old_tasks, 0, 9) + $solr_task + array_slice($old_tasks, 9);
 }
 
 /**
@@ -672,6 +673,7 @@ function devtrac_install_additional_modules(&$install_state) {
   // variable_set('devtrac_menu_rebuild_needed', TRUE);
   $modules = array(
     // 'devtrac7_profile_menu',
+    'search_api_db',
     'devtrac7_site_configuration_feature',
     'devtrac7_solr_search_feature',
     'devtrac7_solr_search_district_feature',

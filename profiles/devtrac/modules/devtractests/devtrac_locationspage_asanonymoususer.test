@@ -261,8 +261,6 @@ class VisitLocationsAsAnonymousTestCase extends DevtracTestCase {
             Location          </th>', t('Location table column and heading is present on the page.'), t('Devtrac'));
     $this->assertRaw('<th class="views-field views-field-taxonomy-vocabulary-6" >
             Admin Unit          </th>', t('Admin Unit  column and heading is present on the page..'), t('Devtrac'));
-    $this->assertNoRaw('<th class="views-field views-field-virtual-field" >
-                      </th>', t('Virtual field column and heading is not present on the page..'), t('Devtrac'));
     
     $this->assertRaw('/location/public-government-school/test-location?display=list">test location</a>          </td>', t('Title table column is filled.'), t('Devtrac'));
     $this->assertRaw('<td class="views-field views-field-taxonomy-vocabulary-1" >

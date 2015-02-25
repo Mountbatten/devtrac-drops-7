@@ -91,7 +91,6 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('Export', 0, t('Export link is present on the page.'), t('Devtrac'));
     $this->assertNoLinkByHref('/fieldtrips/analyse/csvadmin', t('Export to CSV (administrator version) link is not present on the page.'), t('Devtrac'));
     $this->assertLink('Export to CSV', 0, t('Export to CSV link is present on the page.'), t('Devtrac'));
-    $this->assertLink('Export to KML', 0, t('Export to KML link is present on the page.'), t('Devtrac'));
     $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
 
     // Check for Facet default state (expanded or collapsed).
@@ -227,9 +226,7 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertPattern('/([012]?[1-9]|[12]0|3[01])\-(0?[1-9]|1[012])\-([0-9]{4})/', t('Date format is correct'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<div class="content clearfix">
-      <p>A field trip is a detail of a trip by a Field worker to the field. It details the purpose of the field trip, the start and end date, the internal ID and any tags the user may be interested in labeling the Field trip with. The field trip page contains a dynamic list that can be filtered on many types of fields e.g Status, Date, etc.</p>
-    </div>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('A field trip is a detail of a trip by a Field worker to the field. It details the purpose of the field trip, the start and end date, the internal ID and any tags the user may be interested in labeling the Field trip with. The field trip page contains a dynamic list that can be filtered on many types of fields e.g Status, Date, etc.', t('Info pane text is present on the page'), t('Devtrac'));
 
     // GRAPHS VIEW MODE.
     // Check that link to graphs view mode goes to the right page.
@@ -263,7 +260,6 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('Export', 0, t('Export link is present on the page.'), t('Devtrac'));
     $this->assertNoLinkByHref('/fieldtrips/analyse/csvadmin', t('Export to CSV (administrator version) link is  not present on the page.'), t('Devtrac'));
     $this->assertLink('Export to CSV', 0, t('Export to CSV link is present on the page.'), t('Devtrac'));
-    $this->assertLink('Export to KML', 0, t('Export to KML link is present on the page.'), t('Devtrac'));
     $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
 
     // Check for Facet default state (expanded or collapsed).
@@ -412,7 +408,6 @@ class VisitFieldTripsAsFieldWorkerTestCase extends DevtracTestCase {
 
     // Check for Export links.
     $this->assertLinkByHref('/fieldtrips/analyse/csv?display=graphs&f[0]=field_fieldtrip_status%3AApproved', 0, t('Filtered Export to CSV link is present on the page.'), t('Devtrac'));
-    $this->assertLinkByHref('/fieldtrips/analyse/kml?display=graphs&f[0]=field_fieldtrip_status%3AApproved', 0, t('Filtered Export to KML link is present on the page.'), t('Devtrac'));
     $this->assertLinkByHref('/fieldtrips/analyse/rss?display=graphs&f[0]=field_fieldtrip_status%3AApproved', 0, t('Filtered Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
 
     $this->drupalGet('');

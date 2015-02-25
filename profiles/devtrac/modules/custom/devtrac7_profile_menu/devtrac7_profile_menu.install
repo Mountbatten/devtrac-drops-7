@@ -1620,11 +1620,10 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
     'customized' => 0,
     'parent_identifier' => 'menu-my-profile_export:export',
   );
-*/
-  $menu_items['menu-my-profile_statistics-analyse-csv:statisticsanalysecsv'] = array(
+*/$menu_items['menu-my-profile_statistics-analyse-csv:statisticsanswersanalysecsv'] = array(
     'menu_name' => 'menu-my-profile',
-    'link_path' => 'statistics/analyse/csv',
-    'router_path' => 'statistics/analyse/csv',
+    'link_path' => 'statistics/answers/analyse/csv',
+    'router_path' => 'statistics/answers/analyse/csv',
     'link_title' => $title . 'to CSV',
     'options' => array(
       'attributes' => array(
@@ -1634,7 +1633,7 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
       ),
       'alter' => 1,
       'customized' => 1,
-      'identifier' => 'menu-my-profile_statistics-analyse-csv:statisticsanalysecsv',
+      'identifier' => 'menu-my-profile_statistics-analyse-csv:statisticsanswersanalysecsv',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -1647,10 +1646,10 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
     'parent_identifier' => 'menu-my-profile_export:export',
   );
 
-  $menu_items['menu-my-profile_statistics-analyse-kml:statisticsanalysekml'] = array(
+  $menu_items['menu-my-profile_statistics-analyse-kml:statisticsanswersanalysekml'] = array(
     'menu_name' => 'menu-my-profile',
-    'link_path' => 'statistics/analyse/kml',
-    'router_path' => 'statistics/analyse/kml',
+    'link_path' => 'statistics/answers/analyse/kml',
+    'router_path' => 'statistics/answers/analyse/kml',
     'link_title' => $title . 'to KML',
     'options' => array(
       'attributes' => array(
@@ -1660,7 +1659,7 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
       ),
       'alter' => 1,
       'customized' => 1,
-      'identifier' => 'menu-my-profile_statistics-analyse-kml:statisticsanalysekml',
+      'identifier' => 'menu-my-profile_statistics-analyse-kml:statisticsanswersanalysekml',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -1673,10 +1672,10 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
     'parent_identifier' => 'menu-my-profile_export:export',
   );
 
-  $menu_items['menu-my-profile_statistics-analyse-rss:statisticsanalyserss'] = array(
+  $menu_items['menu-my-profile_statistics-analyse-rss:statisticsanswersanalyserss'] = array(
     'menu_name' => 'menu-my-profile',
-    'link_path' => 'statistics/analyse/rss',
-    'router_path' => 'statistics/analyse/rss',
+    'link_path' => 'statistics/answers/analyse/rss',
+    'router_path' => 'statistics/answers/analyse/rss',
     'link_title' => 'Subscribe to RSS Feed',
     'options' => array(
       'attributes' => array(
@@ -1686,7 +1685,7 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
       ),
       'alter' => 1,
       'customized' => 1,
-      'identifier' => 'menu-my-profile_statistics-analyse-rss:statisticsanalyserss',
+      'identifier' => 'menu-my-profile_statistics-analyse-rss:statisticsanswersanalyserss',
     ),
     'module' => 'menu',
     'hidden' => 0,
@@ -1779,8 +1778,8 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
 
   $menu_items['menu-my-profile_locations-analyse-csv:locationsanalysecsv'] = array(
     'menu_name' => 'menu-my-profile',
-    'link_path' => 'locations/analyse/csv/1',
-    'router_path' => 'locations/analyse/csv/1',
+    'link_path' => 'locations/analyse/csv',
+    'router_path' => 'locations/analyse/csv',
     'link_title' => $title . 'to CSV',
     'options' => array(
       'attributes' => array(
@@ -1805,8 +1804,8 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
 
   $menu_items['menu-my-profile_locations-analyse-kml:locationsanalysekml'] = array(
     'menu_name' => 'menu-my-profile',
-    'link_path' => 'locations/analyse/kml/1',
-    'router_path' => 'locations/analyse/kml/1',
+    'link_path' => 'locations/analyse/kml',
+    'router_path' => 'locations/analyse/kml',
     'link_title' => $title . 'to KML',
     'options' => array(
       'attributes' => array(
@@ -1831,8 +1830,8 @@ function devtrac7_profile_menu_file_exports_menu_links($mlid) {
 
   $menu_items['menu-my-profile_locations-analyse-rss:locationsanalyserss'] = array(
     'menu_name' => 'menu-my-profile',
-    'link_path' => 'locations/analyse/rss/1',
-    'router_path' => 'locations/analyse/rss/1',
+    'link_path' => 'locations/analyse/rss',
+    'router_path' => 'locations/analyse/rss',
     'link_title' => 'Subscribe to RSS Feed',
     'options' => array(
       'attributes' => array(

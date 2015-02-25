@@ -6,7 +6,7 @@
 function devtrac7_profile_menu_translated_menu_link_alter(&$item, $map) {
   if ($item['menu_name'] == 'menu-my-profile') {
     if (($item['link_path'] == '<nolink>')) {
-      if (in_array($_GET['q'], array('sitereports', 'actionitems', 'fieldtrips', 'organisations', 'activities', 'images', 'statistics/analyse', 'statistics', 'adminunits', 'locations'))) {
+      if (in_array($_GET['q'], array('sitereports', 'actionitems', 'fieldtrips', 'organisations', 'activities', 'images', 'statistics/analyse', 'statistics', 'statistics/answers', 'adminunits', 'locations'))) {
         $item['hidden'] = 0;
       }
       else {
@@ -24,6 +24,9 @@ function devtrac7_profile_menu_translated_menu_link_alter(&$item, $map) {
           }
           else {
             if (strpos($item['link_path'], 'questions') && ($_GET['q'] == 'statistics')) { // Questions csv file exports.
+              $item['hidden'] = 0;
+            }
+            else if (strpos($item['link_path'], 'analyse') && (strpos($item['link_path'], $_GET['q']) !== FALSE) && ($_GET['q'] == 'statistics/answers')) { // Answers csv file exports.
               $item['hidden'] = 0;
             }
             else {

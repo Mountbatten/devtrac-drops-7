@@ -502,7 +502,7 @@ table tbody tr.even td.active {
 }
 
 .block-without-title h2.views-field-questionnaire-answer-question {
-  display: none;
+  /* display: none; */
 }
 
 
@@ -1944,14 +1944,15 @@ div .collapsiblockCollapsed a {
   float: right;
   height: 26px;
   width: 30px;
-  background: #151515 url(../images/search-icon.png) no-repeat 50% 50%;
+  background: #151515 url(../images/search-icon.png) no-repeat 50% 18%;
   background-size: 16px 16px;
   color: transparent;
   border-radius: 0;
+  padding-top: 40px;
 }
 
 .block-facetapi form input[type='submit']:hover {
-  background: #151515 url(../images/search-icon.png) no-repeat 50% 50%;
+  background: #151515 url(../images/search-icon.png) no-repeat 50% 18%;
 }
 /*
 
@@ -2138,6 +2139,7 @@ div .collapsiblockCollapsed a {
 }
 
 .olControlPanel.olControlNoSelect .olButton[original-title='Site reports'] ,
+.olControlPanel.olControlNoSelect .olButton[original-title='Images'] ,
 .olControlPanel.olControlNoSelect .olButton[original-title='Admin Units'] ,
 .olControlPanel.olControlNoSelect .olButton[original-title='Locations'] ,
 .olControlPanel.olControlNoSelect .olButton[original-title='About DevTrac'] {
