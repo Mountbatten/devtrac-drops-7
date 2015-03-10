@@ -56,6 +56,16 @@ function devtrac7_field_permissions_feature_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'access content'.
+  $permissions['access contextual links'] = array(
+    'name' => 'access contextual links',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'devtrac admin' => 'devtrac admin',
+    ),
+    'module' => 'contextual',
+  );
+
   // Exported permission: 'access draggableviews'.
   $permissions['access draggableviews'] = array(
     'name' => 'access draggableviews',
@@ -873,6 +883,20 @@ function devtrac7_field_permissions_feature_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'deny configuration on node form'.
+  $permissions['deny configuration on node form'] = array(
+    'name' => 'deny configuration on node form',
+    'roles' => array(
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
+      'devtrac admin' => 'devtrac admin',
+      'editor' => 'editor',
+      'field worker' => 'field worker',
+      'iati manager' => 'iati manager',
+    ),
+    'module' => 'nodesinblock',
+  );
+
   // Exported permission: 'edit any actionitem content'.
   $permissions['edit any actionitem content'] = array(
     'name' => 'edit any actionitem content',
@@ -896,6 +920,16 @@ function devtrac7_field_permissions_feature_user_default_permissions() {
     'name' => 'edit any ftritem content',
     'roles' => array(
       'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any page content'.
+  $permissions['edit any page content'] = array(
+    'name' => 'edit any page content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'devtrac admin' => 'devtrac admin',
     ),
     'module' => 'node',
   );

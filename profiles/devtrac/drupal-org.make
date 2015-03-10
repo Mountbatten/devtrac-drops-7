@@ -41,6 +41,7 @@ projects[blockify][subdir] = "contrib"
 projects[charts_graphs][version] = "2.0"
 projects[charts_graphs][type] = "module"
 projects[charts_graphs][subdir] = "contrib"
+projects[charts_graphs][patch][] = "https://www.drupal.org/files/issues/charts_graphs-fix_for_customisable_default_series_colours.patch"
 
 projects[charts_graphs_flot][version] = "1.x-dev"
 projects[charts_graphs_flot][type] = "module"
@@ -82,7 +83,7 @@ projects[diff][version] = "3.2"
 projects[diff][type] = "module"
 projects[diff][subdir] = "contrib"
 
-projects[draggableviews][version] = "2.0"
+projects[draggableviews][version] = "2.1"
 projects[draggableviews][type] = "module"
 projects[draggableviews][subdir] = "contrib"
 
@@ -140,6 +141,10 @@ projects[feeds_entityreference][subdir] = "contrib"
 projects[feeds_tamper][version] = "1.0"
 projects[feeds_tamper][type] = "module"
 projects[feeds_tamper][subdir] = "contrib"
+
+projects[feeds_ex][version] = "1.0-beta1"
+projects[feeds_ex][type] = "module"
+projects[feeds_ex][subdir] = "contrib"
 
 projects[field_collection_feeds][version] = "1.0-alpha3"
 projects[field_collection_feeds][type] = "module"
@@ -232,7 +237,7 @@ projects[job_scheduler][version] = "2.0-alpha3"
 projects[job_scheduler][type] = "module"
 projects[job_scheduler][subdir] = "contrib"
 
-projects[jquery_update][version] = "2.x-dev"
+projects[jquery_update][version] = "2.5"
 projects[jquery_update][type] = "module"
 projects[jquery_update][subdir] = "contrib"
 
@@ -294,7 +299,7 @@ projects[openlayers][patch][] = "https://www.drupal.org/files/2060451-bbox_geojs
 projects[openlayers][patch][] = "https://www.drupal.org/files/issues/fix_facetapi.patch"
 ; Following patch makes sure any library variants will be picked up
 projects[openlayers][patch][] = "https://www.drupal.org/files/issues/openlayers-locale-original-variant-2191887-19.patch"
-projects[openlayers[patch][] ="https://www.drupal.org/files/issues/OpenLayers-Markers-not-displaying-in-211-2360525-%235.patch"
+projects[openlayers][patch][] ="https://www.drupal.org/files/issues/OpenLayers-Markers-not-displaying-in-211-2360525-%235.patch"
 
 projects[openlayers_geosearch][version] = "1.0-beta4"
 projects[openlayers_geosearch][type] = "module"
@@ -304,7 +309,7 @@ projects[openlayers_plus][version] = "3.x-dev"
 projects[openlayers_plus][type] = "module"
 projects[openlayers_plus][subdir] = "contrib"
 
-projects[pane][version] = "2.5"
+projects[pane][version] = "2.6"
 projects[pane][type] = "module"
 projects[pane][subdir] = "contrib"
 projects[pane][patch][] = "https://www.drupal.org/files/issues/pane-remove-wrapper-markup-2119593-3.patch"
@@ -336,6 +341,11 @@ projects[questionnaire][subdir] = "contrib"
 projects[quicktabs][version] = "3.x-dev"
 projects[quicktabs][type] = "module"
 projects[quicktabs][subdir] = "contrib"
+projects[quicktabs][download][type] = "git"
+; without this refspec OpenLayers Quicktabs plugin throws an error. 
+; This error must be introduced between 2/12/2014 and 5/3/2015 in quicktabs
+projects[quicktabs][download][url] = "http://git.drupal.org/project/quicktabs.git"
+projects[quicktabs][download][revision] = "84fc5b541e79684e2fcda9c981d0827b2b160fa2"
 ;projects[quicktabs][patch][] = "https://www.drupal.org/files/quicktabs.user-interface.2108935-3.patch"
 projects[quicktabs][patch][] = "https://www.drupal.org/files/quicktabs--machine_name-7.x-3.6.patch"
 
@@ -384,9 +394,8 @@ projects[search_api_saved_searches][subdir] = "contrib"
 projects[search_api_saved_searches][patch][] = "https://www.drupal.org/files/issues/search_api_saved_searches-7.x-1.2-reminders-3.patch"
 ; projects[search_api_saved_searches][patch][] = "https://www.drupal.org/files/issues/search_api_saved_searches-last_excuted-field-7.x-1.x-2142063_9.patch"
 projects[search_api_saved_searches][patch][] = "https://www.drupal.org/files/issues/2346679-3--expose_search_status.patch"
-projects[search_api_saved_searches][patch][] = "https://www.drupal.org/files/issues/2346677-5--user_ban_disable_searches.patch"
 
-projects[search_api_solr][version] = "1.5"
+projects[search_api_solr][version] = "1.6"
 projects[search_api_solr][type] = "module"
 projects[search_api_solr][subdir] = "contrib"
 

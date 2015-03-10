@@ -42,7 +42,6 @@ function devtrac7_solr_search_feature_quicktabs_default_quicktabs() {
   // Included for use with string extractors like potx.
   t('Bar');
   t('Pie');
-  t('devtrac_sitereports_graphs_placetype_tabs');
 
   $export['devtrac_sitereports_graphs_place'] = $quicktabs;
 
@@ -93,7 +92,6 @@ function devtrac7_solr_search_feature_quicktabs_default_quicktabs() {
   t('Location Type');
   t('Sectors');
   t('User');
-  t('devtrac_sitereports_graphs_tabs');
 
   $export['devtrac_sitereports_graphs_tabs'] = $quicktabs;
 

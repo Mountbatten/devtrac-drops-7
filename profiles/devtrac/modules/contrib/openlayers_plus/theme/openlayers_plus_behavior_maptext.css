@@ -132,33 +132,6 @@ olControlMaptext .bnContainer a.toggle_button.down {
   background-position: 0px -30px !important;
 }
 
-/*============olControlScaleLine==============*/
-
-.olControlScaleLine {
-  padding: 10px 20px;
-  background: url(../images/alpha-black-bg.png);
-  color: #FFF;
-  left: auto !important;
-  right: 20px;
-	font-size: x-small !important;
-	border-radius: 3px;
-}
-
-.olControlScaleLine .olControlScaleLineTop ,
-.olControlScaleLine .olControlScaleLineBottom {
-  border: solid 2px #FFF;
-  text-align: center;
-}
-
-.olControlScaleLine .olControlScaleLineTop {
-  border-top: none;
-}
-
-.olControlScaleLine .olControlScaleLineBottom {
-  border-bottom: none;
-  margin-top: -2px;
-}
-
 /*===================popup=======================*/
 
 .openlayers-popupbox {

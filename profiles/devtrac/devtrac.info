@@ -171,9 +171,9 @@ dependencies[] = devtrac7_views
 dependencies[] = devtrac7_realms
 dependencies[] = devtrac_custom_packages
 dependencies[] = devtrac_question_packages
-dependencies[] = devtrac_imports
 dependencies[] = devtrac_purl
 dependencies[] = devtrac7_services_user
+dependencies[] = devtrac_imports
 
 ; Devtrac features
 dependencies[] = mountbatten_web_media
@@ -192,4 +192,3 @@ dependencies[] = devtrac7_images_feature
 
 ; Devtrac apps
 dependencies[] = apps
-

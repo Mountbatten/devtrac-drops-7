@@ -251,9 +251,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertPattern('/([012]?[1-9]|[12]0|3[01])\-(0?[1-9]|1[012])\-([0-9]{4})/', t('Date format is correct'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<div class="content clearfix">
-      <p>An Action item is a task that a user can assign to another user within the system. They contain a comments section where progress on the action item can be tracked. Only when the action item has been satisfactorily worked can it be closed by the person responsible.</p>
-    </div>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('An Action item is a task that a user can assign to another user within the system. They contain a comments section where progress on the action item can be tracked. Only when the action item has been satisfactorily worked can it be closed by the person responsible.', t('Info pane is present on the page'), t('Devtrac'));
 
     // GRAPHS VIEW MODE.
     // Check that link to graphs view mode goes to the right page.
@@ -500,8 +498,7 @@ class VisitActionItemsAsFieldWorkerTestCase extends DevtracTestCase {
     // Responsible.
     $this->assertRaw('"Test Fieldworker"', t('Responsible field is filled.'), t('Devtrac'));
     // Task.
-    $this->assertRaw('"Testing presence of Edit button.
-"', t('Task field is filled.'), t('Devtrac'));
+    $this->assertRaw('"Testing presence of Edit button.', t('Task field is filled.'), t('Devtrac'));
     // Tags (Categories).
     $this->assertRaw('"Urgent"', t('Tags (Categories) field is filled.'), t('Devtrac'));
     // UUID (Subject to change).

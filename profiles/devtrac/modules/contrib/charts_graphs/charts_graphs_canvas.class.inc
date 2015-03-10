@@ -136,7 +136,11 @@ abstract class ChartsGraphsCanvas {
     $this->width = 500;
     $this->height = 250;
     $this->title = t('A Drupal Chart');
-    $this->series_colours = array(
+    $this->series_colours = $this->series_colours();
+  }
+
+  function series_colours() {
+    $series_colours_defaults = array(
       '#0000FF',
       '#FF0000',
       '#FFFF00',
@@ -163,9 +167,8 @@ abstract class ChartsGraphsCanvas {
       '#4086AA',
       '#91C3DC',
     );
-  }
 
-  function series_colours() {
+    $this->series_colours = variable_get("charts_graphs_default_series", $series_colours_defaults);
     if (!is_array($this->series_colours)) {
       $colours = explode(',', $this->series_colours);
       $this->series_colours = array();

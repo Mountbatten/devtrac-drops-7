@@ -2312,7 +2312,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 13,
       ),
     ),
     'entity_type' => 'node',
@@ -2448,16 +2448,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'inline',
-        'module' => 'date',
-        'settings' => array(
-          'format_type' => 'medium',
-          'fromto' => 'both',
-          'multiple_from' => '',
-          'multiple_number' => '',
-          'multiple_to' => '',
-        ),
-        'type' => 'date_default',
-        'weight' => 5,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 8,
       ),
       'token' => array(
         'label' => 'inline',
@@ -2539,12 +2532,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 3,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 6,
       ),
     ),
     'ds_extras_field_template' => '',
@@ -2619,10 +2609,10 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'file_entity',
         'settings' => array(
-          'file_view_mode' => 'default',
+          'file_view_mode' => 'teaser',
         ),
         'type' => 'file_rendered',
-        'weight' => 8,
+        'weight' => 0,
       ),
       'token' => array(
         'label' => 'hidden',
@@ -2708,11 +2698,8 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'inline',
-        'module' => 'geofield',
-        'settings' => array(
-          'data' => 'full',
-        ),
-        'type' => 'geofield_wkt',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 9,
       ),
     ),
@@ -2841,10 +2828,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 7,
+        'type' => 'hidden',
+        'weight' => 2,
       ),
       'token' => array(
         'label' => 'above',
@@ -2910,12 +2896,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 4,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
       ),
     ),
     'ds_extras_field_template' => '',
@@ -2998,9 +2981,11 @@ function devtrac7_node_types_field_default_field_instances() {
       'teaser' => array(
         'label' => 'above',
         'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 6,
+        'settings' => array(
+          'trim_length' => 600,
+        ),
+        'type' => 'text_trimmed',
+        'weight' => 1,
       ),
       'token' => array(
         'label' => 'above',
@@ -3107,7 +3092,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 10,
+        'weight' => 14,
       ),
       'token' => array(
         'label' => 'hidden',
@@ -3170,7 +3155,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 12,
       ),
     ),
     'entity_type' => 'node',
@@ -3219,7 +3204,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 11,
       ),
     ),
     'entity_type' => 'node',
@@ -3266,10 +3251,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'above',
-        'module' => 'ds',
         'settings' => array(),
-        'type' => 'taxonomy_location_type_icon',
-        'weight' => 0,
+        'type' => 'hidden',
+        'weight' => 3,
       ),
     ),
     'entity_type' => 'node',
@@ -3328,7 +3312,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 10,
       ),
     ),
     'entity_type' => 'node',
@@ -3380,10 +3364,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
+        'type' => 'hidden',
+        'weight' => 4,
       ),
     ),
     'entity_type' => 'node',
@@ -3434,10 +3417,9 @@ function devtrac7_node_types_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'above',
-        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 2,
+        'type' => 'hidden',
+        'weight' => 5,
       ),
     ),
     'ds_extras_field_template' => '',
@@ -3506,6 +3488,68 @@ function devtrac7_node_types_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-place-body'
+  $field_instances['node-place-body'] = array(
+    'bundle' => 'place',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+      'full' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'trim_length' => 300,
+        ),
+        'type' => 'text_summary_or_trimmed',
+        'weight' => 3,
+      ),
+      'map_popup_view_mode' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'trim_length' => 300,
+        ),
+        'type' => 'text_summary_or_trimmed',
+        'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'trim_length' => 300,
+        ),
+        'type' => 'text_summary_or_trimmed',
+        'weight' => 2,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'body',
+    'label' => 'Description',
+    'required' => 0,
+    'settings' => array(
+      'display_summary' => TRUE,
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 20,
+        'summary_rows' => 5,
+      ),
+      'type' => 'text_textarea_with_summary',
+      'weight' => 4,
+    ),
+  );
+
   // Exported field_instance: 'node-place-field_fieldtrip_button'
   $field_instances['node-place-field_fieldtrip_button'] = array(
     'bundle' => 'place',
@@ -3518,14 +3562,14 @@ function devtrac7_node_types_field_default_field_instances() {
         'module' => 'devtrac7_progress_field',
         'settings' => array(),
         'type' => 'devtrac7_progress_field_field_formatter',
-        'weight' => 11,
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
         'module' => 'devtrac7_progress_field',
         'settings' => array(),
         'type' => 'devtrac7_progress_field_field_formatter',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'map_popup_view_mode' => array(
         'label' => 'hidden',
@@ -3538,7 +3582,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 10,
       ),
     ),
     'entity_type' => 'node',
@@ -3553,7 +3597,7 @@ function devtrac7_node_types_field_default_field_instances() {
       'module' => 'virtual_field',
       'settings' => array(),
       'type' => 'hidden',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -3568,13 +3612,13 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 8,
       ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 17,
+        'weight' => 15,
       ),
       'map_popup_view_mode' => array(
         'label' => 'above',
@@ -3592,7 +3636,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 9,
       ),
     ),
     'entity_type' => 'node',
@@ -3624,7 +3668,7 @@ function devtrac7_node_types_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -3693,13 +3737,13 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 8,
+        'weight' => 9,
       ),
       'full' => array(
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 21,
+        'weight' => 19,
       ),
       'map_popup_view_mode' => array(
         'label' => 'inline',
@@ -3811,7 +3855,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -3881,21 +3925,21 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'full' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
         'weight' => 4,
       ),
       'map_popup_view_mode' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'mobile' => array(
         'label' => 'above',
@@ -3962,7 +4006,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 19,
+        'weight' => 17,
       ),
       'map_popup_view_mode' => array(
         'label' => 'above',
@@ -4061,7 +4105,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 20,
+        'weight' => 18,
       ),
       'map_popup_view_mode' => array(
         'label' => 'above',
@@ -4160,7 +4204,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 18,
+        'weight' => 16,
       ),
       'map_popup_view_mode' => array(
         'label' => 'inline',
@@ -4223,7 +4267,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -4237,7 +4281,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'mobile' => array(
         'label' => 'above',
@@ -4327,14 +4371,14 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'full' => array(
-        'label' => 'hidden',
-        'module' => 'ds',
+        'label' => 'inline',
+        'module' => 'taxonomy',
         'settings' => array(),
-        'type' => 'taxonomy_location_type_icon',
-        'weight' => 2,
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 1,
       ),
       'map_popup_view_mode' => array(
         'label' => 'hidden',
@@ -4398,14 +4442,14 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'inline',
         'module' => 'mapit',
         'settings' => array(),
         'type' => 'mapit_taxonomy_term_reference_link',
-        'weight' => 3,
+        'weight' => 2,
       ),
       'map_popup_view_mode' => array(
         'label' => 'inline',
@@ -4425,7 +4469,7 @@ The \'Search Address\' box will only help you to do an initial search on a rough
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
-        'weight' => 2,
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'node',

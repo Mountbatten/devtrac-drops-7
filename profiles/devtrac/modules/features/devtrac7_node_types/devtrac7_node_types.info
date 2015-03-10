@@ -175,6 +175,7 @@ features[field_instance][] = node-ftritem-taxonomy_vocabulary_6
 features[field_instance][] = node-ftritem-taxonomy_vocabulary_7
 features[field_instance][] = node-ftritem-taxonomy_vocabulary_8
 features[field_instance][] = node-page-body
+features[field_instance][] = node-place-body
 features[field_instance][] = node-place-field_fieldtrip_button
 features[field_instance][] = node-place-field_place_contact_info
 features[field_instance][] = node-place-field_place_email
@@ -275,3 +276,11 @@ features[variable][] = node_submitted_ftritem
 features[variable][] = node_submitted_page
 features[variable][] = node_submitted_place
 features[variable][] = tipsy
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

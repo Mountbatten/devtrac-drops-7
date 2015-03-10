@@ -130,8 +130,9 @@ class VisitUsersAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">7 Users</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>These are users that have accounts in DevTrac. The user is required to submit a profile about them detailing names, Supervisor (Manager), the Sectors they are involved in, and a brief description about the person</p>
-<p>The Users page contains a list of all users that can be filtered by the Zonal Office of operation, Supervisor, Department, etc.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are users that have accounts in DevTrac. The user is required to submit a profile about them detailing names, Supervisor (Manager), the Sectors they are involved in, and a brief description about the person
+
+The Users page contains a list of all users that can be filtered by the Zonal Office of operation, Supervisor, Department, etc.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Full text search block
     $this->assertRaw('<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="users" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)">
@@ -308,8 +309,9 @@ class VisitUsersAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">7 Users</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>These are users that have accounts in DevTrac. The user is required to submit a profile about them detailing names, Supervisor (Manager), the Sectors they are involved in, and a brief description about the person</p>
-<p>The Users page contains a list of all users that can be filtered by the Zonal Office of operation, Supervisor, Department, etc.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are users that have accounts in DevTrac. The user is required to submit a profile about them detailing names, Supervisor (Manager), the Sectors they are involved in, and a brief description about the person
+
+The Users page contains a list of all users that can be filtered by the Zonal Office of operation, Supervisor, Department, etc.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Full text search block
     $this->assertRaw('<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="users" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)">

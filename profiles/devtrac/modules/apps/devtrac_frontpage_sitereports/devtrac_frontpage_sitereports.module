@@ -26,30 +26,6 @@ function devtrac_frontpage_sitereports_app_configure_form() {
     '#required' => TRUE,
     '#description' => t('The slogan you want to have featured on your custom sitereports based front page.'),
   );
-  $form['devtrac_frontpage_sitereports_organisation_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Organisation'),
-    '#default_value' => variable_get('devtrac_frontpage_sitereports_organisation_name', 'Organisation Name'),
-    '#required' => TRUE,
-    '#description' => t('The name of your organisation that will be featured on your custom sitereports based front page.'),
-  );
-  $form['devtrac_frontpage_sitereports_organisation_desc'] = array(
-    '#type' => 'textarea',
-    '#rows' => 5,
-    '#title' => t('Description'),
-    '#default_value' => variable_get('devtrac_frontpage_sitereports_organisation_desc', 'Organisation description.'),
-    '#required' => TRUE,
-    '#description' => t('A short description of your organisation that will be featured on your custom sitereports based front page.'),
-  );
-  $form['devtrac_frontpage_sitereports_about_us'] = array(
-    '#type' => 'textarea',
-    '#rows' => 5,
-    '#title' => t('About Us'),
-    '#default_value' => variable_get('devtrac_frontpage_sitereports_about_us', 'About us.'),
-    '#required' => TRUE,
-    '#description' => t('A short About Us of the people in your organisation that will be featured on your custom sitereports based front page.'),
-  );
-
   // Add a custom submit handler.
   $form['#submit'][] = 'devtrac_frontpage_sitereports_app_configure_form_submit';
 
@@ -64,35 +40,30 @@ function devtrac_frontpage_sitereports_app_configure_form() {
  * - Resets the site_frontpage variable.
  */
 function devtrac_frontpage_sitereports_app_configure_form_submit($form, &$form_state) {
-  // Get the data from the submitted form.
-  $values = $form_state['values'];
-  $organisation = $values['devtrac_frontpage_sitereports_organisation_name'];
-  $description = $values['devtrac_frontpage_sitereports_organisation_desc'];
-  $about_us = $values['devtrac_frontpage_sitereports_about_us'];
+  $path = 'profiles/devtrac/themes/devtrac_classic/images/my-organisation.png';
+  $real_path = drupal_realpath($path);
+  $file = new stdClass();
+  $file->uid = 1;
+  $file->uri = $real_path;
+  $file->filemime = file_get_mimetype($real_path);
+  $file->status = 1;
+  $file = file_copy($file, 'public://');
+  $logo_alt_text = t('My Logo');
+  // Let's put the alt_text on the file object.
+  $file->alt = $logo_alt_text;
+  // While at it, also default the file title field to the alt_text.
+  $file->title = $logo_alt_text;
+
+  $organisation = t('My Organisation');
+  $description = t('This space is intended to hold information of the company that is maintaining this installation of Devtrac. It can be customized by the site administrator and any devtrac administrator. To do so, please hover over this text. A small cogwheel with a down arrow next to it will appear to the right of the title. Clicking it will unfold a menu. Selecting the Edit item will open the content edit page. Make changes to the Title and this Description. Replace the default logo with your own company logo. Click Save to commit your changes.');
+  $about_us = t('This space is intended to hold information about you as a company who are maintaining this installation of Devtrac. It can be customized by the site administrator and any devtrac administrator. To do so, please hover over this text. A small cogwheel with a down arrow next to it will appear to the right of the title. Clicking it will unfold a menu. Selecting the Edit item will open the content edit page. Make changes to the Title and this Description. Click Save to commit your changes.');
 
   $results = db_select('nodesinblock', 'nib')
     ->fields('nib', array('nid', 'delta'))
     ->execute()
     ->fetchAll();
-  if ($results) {
-    foreach ($results as $result) {
-      $node = node_load($result->nid);
-      if ($result->delta == 0) {
-        $node->body[$node->language][0]['value'] = $about_us;
-        $node->body[$node->language][0]['summary'] = $about_us;
-      }
-      else {
-        $node->title = $organisation;
-        $node->body[$node->language][0]['value'] = $description;
-        $node->body[$node->language][0]['summary'] = $description;
-      }
-      // Only update the node. No need to update the nodesinblock information.
-      node_save($node);
-      // Clean up.
-      unset($node);
-    }
-  }
-  else {
+  // Do nothing if nodesinblock table has been populated.
+  if (!$results) {
     // Create a frontpage About Us page.
     // First create a new node object.
     $node = new stdClass();
@@ -112,7 +83,7 @@ function devtrac_frontpage_sitereports_app_configure_form_submit($form, &$form_s
     $node->body[$node->language][0]['value'] = $about_us;
     $node->body[$node->language][0]['summary'] = $about_us;
     // Define the default plain_text format for the body field.
-    $node->body[$node->language][0]['format'] = 'plain_text';
+    $node->body[$node->language][0]['format'] = 'filtered_html';
     // Prepare node for a submit.
     $node = node_submit($node);
     // Add nodesinblock settings to the node.
@@ -143,11 +114,13 @@ function devtrac_frontpage_sitereports_app_configure_form_submit($form, &$form_s
     node_object_prepare($node);
     // Set the author/owner of the node.
     $node->uid = 1;
-    // Let's add standard body field
+    // Let's add standard body field.
     $node->body[$node->language][0]['value'] = $description;
     $node->body[$node->language][0]['summary'] = $description;
     // Define the default plain_text format for the body field.
-    $node->body[$node->language][0]['format'] = 'plain_text';
+    $node->body[$node->language][0]['format'] = 'filtered_html';
+    // Let's add the image field.
+    $node->field_image[$node->language][0] = (array) $file;
     // Prepare node for a submit.
     $node = node_submit($node);
     // Add nodesinblock settings to the node.

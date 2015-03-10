@@ -24,7 +24,7 @@ function devtrac7_solr_search_feature_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['link_display'] = 'map';
-  $handler->display->display_options['access']['type'] = 'none';
+  $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -461,7 +461,7 @@ function devtrac7_solr_search_feature_views_default_views() {
     'multiple_from' => '',
     'multiple_to' => '',
   );
-  /* Field: Public Summary: Text (indexed) */
+  /* Field: Report: Text (indexed) */
   $handler->display->display_options['fields']['field_ftritem_public_summary_value']['id'] = 'field_ftritem_public_summary_value';
   $handler->display->display_options['fields']['field_ftritem_public_summary_value']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
   $handler->display->display_options['fields']['field_ftritem_public_summary_value']['field'] = 'field_ftritem_public_summary_value';
@@ -573,7 +573,7 @@ function devtrac7_solr_search_feature_views_default_views() {
   $handler->display->display_options['fields']['taxonomy_vocabulary_7']['hide_alter_empty'] = FALSE;
   $handler->display->display_options['fields']['taxonomy_vocabulary_7']['link_to_entity'] = 1;
   $handler->display->display_options['fields']['taxonomy_vocabulary_7']['view_mode'] = 'full';
-  /* Field: Indexed Node: Public Summary */
+  /* Field: Indexed Node: Report */
   $handler->display->display_options['fields']['field_ftritem_public_summary']['id'] = 'field_ftritem_public_summary';
   $handler->display->display_options['fields']['field_ftritem_public_summary']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
   $handler->display->display_options['fields']['field_ftritem_public_summary']['field'] = 'field_ftritem_public_summary';
@@ -714,7 +714,7 @@ function devtrac7_solr_search_feature_views_default_views() {
   $handler->display->display_options['fields']['taxonomy_vocabulary_7']['hide_alter_empty'] = FALSE;
   $handler->display->display_options['fields']['taxonomy_vocabulary_7']['link_to_entity'] = 0;
   $handler->display->display_options['fields']['taxonomy_vocabulary_7']['view_mode'] = 'full';
-  /* Field: Indexed Node: Public Summary */
+  /* Field: Indexed Node: Report */
   $handler->display->display_options['fields']['field_ftritem_public_summary']['id'] = 'field_ftritem_public_summary';
   $handler->display->display_options['fields']['field_ftritem_public_summary']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
   $handler->display->display_options['fields']['field_ftritem_public_summary']['field'] = 'field_ftritem_public_summary';
@@ -821,12 +821,13 @@ function devtrac7_solr_search_feature_views_default_views() {
     'other_lat' => 'title',
     'other_lon' => 'title',
     'wkt' => 'field_ftritem_lat_long',
+    'projection' => 'EPSG:4326',
     'other_top' => 'title',
     'other_right' => 'title',
     'other_bottom' => 'title',
     'other_left' => 'title',
     'name_field' => 'title',
-    'description_field' => 'rendered_entity',
+    'description_field' => 'title',
   );
   $handler->display->display_options['defaults']['style_options'] = FALSE;
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
@@ -840,14 +841,16 @@ function devtrac7_solr_search_feature_views_default_views() {
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['hide_alter_empty'] = FALSE;
   $handler->display->display_options['fields']['title']['link_to_entity'] = 1;
-  /* Field: Indexed Node: Place Lat_Long */
+  /* Field: Indexed Node: Lat-Long */
   $handler->display->display_options['fields']['field_ftritem_lat_long']['id'] = 'field_ftritem_lat_long';
   $handler->display->display_options['fields']['field_ftritem_lat_long']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
   $handler->display->display_options['fields']['field_ftritem_lat_long']['field'] = 'field_ftritem_lat_long';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['label'] = '';
+  $handler->display->display_options['fields']['field_ftritem_lat_long']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_ftritem_lat_long']['click_sort_column'] = 'geom';
   $handler->display->display_options['fields']['field_ftritem_lat_long']['settings'] = array(
-    'data' => 'full',
-    );
+    'data' => 'centroid',
+  );
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Lat-Long: Well-known text (indexed) */
@@ -1041,7 +1044,7 @@ function devtrac7_solr_search_feature_views_default_views() {
     'multiple_from' => '',
     'multiple_to' => '',
   );
-  /* Field: Public Summary: Text (indexed) */
+  /* Field: Report: Text (indexed) */
   $handler->display->display_options['fields']['field_ftritem_public_summary_value']['id'] = 'field_ftritem_public_summary_value';
   $handler->display->display_options['fields']['field_ftritem_public_summary_value']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
   $handler->display->display_options['fields']['field_ftritem_public_summary_value']['field'] = 'field_ftritem_public_summary_value';
@@ -1108,7 +1111,7 @@ function devtrac7_solr_search_feature_views_default_views() {
   $handler->display->display_options['fields']['site_info_1']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['site_info_1']['alter']['text'] = '[site_info_1]/uuid/node/[field_ftritem_place_uuid]';
   $handler->display->display_options['fields']['site_info_1']['site_info'] = 'base_url';
-  /* Field: Indexed Node: Full Report */
+  /* Field: Indexed Node: Notes */
   $handler->display->display_options['fields']['field_ftritem_narrative']['id'] = 'field_ftritem_narrative';
   $handler->display->display_options['fields']['field_ftritem_narrative']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
   $handler->display->display_options['fields']['field_ftritem_narrative']['field'] = 'field_ftritem_narrative';

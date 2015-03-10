@@ -162,6 +162,7 @@ table tbody tr.even td.active {
 .zone-featured .nice-menu li ,
 .zone-featured .nice-menu li ul {
   border: none;
+  z-index: 12;
 }
 
 .zone-featured .nice-menu li {
@@ -2074,11 +2075,38 @@ div .collapsiblockCollapsed a {
   cursor: pointer;
 }
 
+/*============olControlScaleLine==============*/
+
+.olControlScaleLine {
+  padding: 10px 20px;
+  background: url(../images/alpha-black-bg.png);
+  color: #FFF;
+  left: auto !important;
+  right: 20px;
+	font-size: x-small !important;
+	border-radius: 3px;
+}
+
+.olControlScaleLine .olControlScaleLineTop ,
+.olControlScaleLine .olControlScaleLineBottom {
+  border: solid 2px #FFF;
+  text-align: center;
+}
+
+.olControlScaleLine .olControlScaleLineTop {
+  border-top: none;
+}
+
+.olControlScaleLine .olControlScaleLineBottom {
+  border-bottom: none;
+  margin-top: -2px;
+}
+
 /*=====================================================================================
  * Openlayers Zoom Panel Styles
  * ==================================================================================*/
 
-.openlayers-views-map .olControlZoomPanel {
+.olControlZoomPanel {
   left: auto !important;
   right: 20px;
   top: 20px;
@@ -2645,7 +2673,6 @@ html .olMapViewport .olControlMaptext .openlayers_plus-blockswitcher .layers.bas
 .olMapViewport .olControlMaptext #openlayersgeosearchresults  ul.openlayers-geosearch-result-struct.panels.openlayers-geosearch-result-struct-processed li a:hover {
   text-decoration: underline;
 }
-
 
 /*====================================================================
  *  Maintenance Page Styles
@@ -3508,7 +3535,7 @@ html .not-logged-in.page-user.context-user .zone-content .region-content-inner #
 }
 
 .page-frontpage-sitereports .zone-content .region-inner {
-  padding: 0;
+  /* padding: 0;  Sorry Joseph this messes up the outline of the block with the map*/ 
 }
 
 .page-frontpage-sitereports #block-system-main ,
@@ -3520,7 +3547,7 @@ html .not-logged-in.page-user.context-user .zone-content .region-content-inner #
   margin-bottom: 20px;
 }
 
-.page-frontpage-sitereports .block-nodesinblock-1 .field-name-body ,
+/*.page-frontpage-sitereports .block-nodesinblock-1 .field-name-body ,*/
 .page-frontpage-sitereports .block-nodesinblock-1 .block-title {
   display: none;
 }
@@ -3532,6 +3559,16 @@ html .not-logged-in.page-user.context-user .zone-content .region-content-inner #
 
 .page-frontpage-sitereports .block-nodesinblock-1 .teaser-button {
   display: none;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-1 header {
+  margin-left: 110px;
+}
+
+.page-frontpage-sitereports .block-nodesinblock-1 .field-name-field-image {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .page-frontpage-sitereports #block-system-main .view-footer p {
@@ -3594,8 +3631,16 @@ html .not-logged-in.page-user.context-user .zone-content .region-content-inner #
 
 .view-frontpage-recent-sitereports li .field-name-field-ftritem-images {
   display: inline-block;
+}
+
+.view-frontpage-recent-sitereports li.views-row-odd .field-name-field-ftritem-images {
   float: left;
   margin-right: 10px;
+}
+
+.view-frontpage-recent-sitereports li.views-row-even .field-name-field-ftritem-images {
+  float: right;
+  margin-left: 10px;
 }
 
 .field-name-field-ftritem-public-summary p {
@@ -3623,6 +3668,9 @@ html .not-logged-in.page-user.context-user .zone-content .region-content-inner #
   background-color: #333333;
 }
 
+.view-frontpage-recent-sitereports .node-readmore {
+  float: right;
+}
 
 
 /*===================================================================================*\

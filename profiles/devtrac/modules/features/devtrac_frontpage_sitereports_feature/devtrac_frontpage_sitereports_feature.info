@@ -1,7 +1,7 @@
 name = Devtrac Frontpage Sitereports Feature
 description = Contains module settings for creating a frontpage
 core = 7.x
-package = Features
+package = Devtrac Apps Features
 version = 7.x-1.0
 project = devtrac_frontpage_sitereports_feature
 dependencies[] = context
@@ -10,6 +10,7 @@ dependencies[] = nodesinblock
 dependencies[] = openlayers_blocks
 dependencies[] = strongarm
 dependencies[] = views_charts
+datestamp = 1425301217
 features[context][] = devtrac_frontpage_sitereports_context
 features[ctools][] = context:context:3
 features[ctools][] = flexslider:flexslider_default_preset:1
@@ -38,3 +39,11 @@ features[views_view][] = frontpage_slideshow
 features_exclude[dependencies][ctools] = ctools
 features_exclude[dependencies][openlayers] = openlayers
 features_exclude[dependencies][views] = views
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

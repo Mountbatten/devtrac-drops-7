@@ -112,7 +112,7 @@ function devtrac_frontpage_sitereports_feature_views_default_views() {
   $view->name = 'frontpage_recent_sitereports';
   $view->description = '';
   $view->tag = 'default';
-  $view->base_table = 'search_api_index_devtrac_solr_site_visits_index';
+  $view->base_table = 'node';
   $view->human_name = 'Frontpage Recent Sitereports';
   $view->core = 7;
   $view->api_version = '3.0';
@@ -136,64 +136,8 @@ function devtrac_frontpage_sitereports_feature_views_default_views() {
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
-  /* Field: Indexed Node: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['title']['link_to_entity'] = 1;
-  /* Field: Indexed Node: Images */
-  $handler->display->display_options['fields']['field_ftritem_images']['id'] = 'field_ftritem_images';
-  $handler->display->display_options['fields']['field_ftritem_images']['table'] = 'search_api_index_devtrac_solr_site_visits_index';
-  $handler->display->display_options['fields']['field_ftritem_images']['field'] = 'field_ftritem_images';
-  $handler->display->display_options['fields']['field_ftritem_images']['label'] = '';
-  $handler->display->display_options['fields']['field_ftritem_images']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_ftritem_images']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_ftritem_images']['settings'] = array(
-    'sizes' => '100pvW',
-    'image_styles' => array(
-      'media_thumbnail' => 'media_thumbnail',
-      'apps_logo' => 0,
-      'apps_logo_small' => 0,
-      'apps_screenshot' => 0,
-      'apps_featured_screenshot' => 0,
-      'devtrac_oecd_icons_bw' => 0,
-      'devtrac_oecd_icons_bw_small' => 0,
-      'devtrac_oecd_icons_color' => 0,
-      'devtrac_oecd_icons_color_small' => 0,
-      'grid' => 0,
-      'image_export' => 0,
-      'map-pop-image' => 0,
-      'slideshow_thumbnail' => 0,
-      'user_profile_img' => 0,
-      'gallery' => 0,
-      'gallery_popup_images' => 0,
-      'map_icon' => 0,
-      'map_icon_bw' => 0,
-      'print_thumbnail' => 0,
-      'user_comment_img' => 0,
-      'thumbnail' => 0,
-      'medium' => 0,
-      'large' => 0,
-      '_empty image_' => 0,
-      '_original image_' => 0,
-    ),
-    'fallback_image_style' => 'apps_logo',
-    'image_link' => 'content',
-  );
-  $handler->display->display_options['fields']['field_ftritem_images']['delta_offset'] = '0';
-
-  /* Display: Frontpage Recent Reports */
-  $handler = $view->new_display('block', 'Frontpage Recent Reports', 'block');
-  $handler->display->display_options['defaults']['header'] = FALSE;
-  /* Header: Global: Text area */
-  $handler->display->display_options['header']['area']['id'] = 'area';
-  $handler->display->display_options['header']['area']['table'] = 'views';
-  $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['content'] = '<h2>Recent Reports</h2>';
   $handler->display->display_options['header']['area']['format'] = '2';
-  $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Rendered Node */
   $handler->display->display_options['fields']['rendered_entity']['id'] = 'rendered_entity';
   $handler->display->display_options['fields']['rendered_entity']['table'] = 'views_entity_node';
@@ -204,6 +148,38 @@ function devtrac_frontpage_sitereports_feature_views_default_views() {
   $handler->display->display_options['fields']['rendered_entity']['display'] = 'view';
   $handler->display->display_options['fields']['rendered_entity']['view_mode'] = 'teaser';
   $handler->display->display_options['fields']['rendered_entity']['bypass_access'] = 0;
+  /* Sort criterion: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'ftritem' => 'ftritem',
+  );
+  /* Filter criterion: Content: Promoted to front page */
+  $handler->display->display_options['filters']['promote']['id'] = 'promote';
+  $handler->display->display_options['filters']['promote']['table'] = 'node';
+  $handler->display->display_options['filters']['promote']['field'] = 'promote';
+  $handler->display->display_options['filters']['promote']['value'] = '1';
+  /* Filter criterion: Content: Images (field_ftritem_images:fid) */
+  $handler->display->display_options['filters']['field_ftritem_images_fid']['id'] = 'field_ftritem_images_fid';
+  $handler->display->display_options['filters']['field_ftritem_images_fid']['table'] = 'field_data_field_ftritem_images';
+  $handler->display->display_options['filters']['field_ftritem_images_fid']['field'] = 'field_ftritem_images_fid';
+  $handler->display->display_options['filters']['field_ftritem_images_fid']['operator'] = 'not empty';
+
+  /* Display: Frontpage Recent Reports */
+  $handler = $view->new_display('block', 'Frontpage Recent Reports', 'block');
   $handler->display->display_options['block_description'] = 'Recent Reports';
   $export['frontpage_recent_sitereports'] = $view;
 
@@ -248,6 +224,11 @@ function devtrac_frontpage_sitereports_feature_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'image' => 'image',
   );
+  /* Filter criterion: File Usage: Entity type */
+  $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
+  $handler->display->display_options['filters']['type_1']['table'] = 'file_usage';
+  $handler->display->display_options['filters']['type_1']['field'] = 'type';
+  $handler->display->display_options['filters']['type_1']['value'] = 'node';
 
   /* Display: Frontpage Slideshow */
   $handler = $view->new_display('block', 'Frontpage Slideshow', 'block');

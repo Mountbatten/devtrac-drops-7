@@ -21,14 +21,12 @@ dependencies[] = quicktabs
 dependencies[] = strongarm
 dependencies[] = views
 dependencies[] = views_modes
-datestamp = 1415266303
 features[context][] = context_all_pages
 features[context][] = context_node_view_actionitem
 features[context][] = context_node_view_field_trip
 features[context][] = context_node_view_ftritem
 features[context][] = context_node_view_ftritem_anonymous
 features[context][] = context_node_view_location
-features[context][] = context_node_view_page
 features[context][] = context_term_admin_unit
 features[context][] = context_term_sector
 features[context][] = context_user_view
@@ -133,3 +131,11 @@ features[variable][] = node_admin_theme
 features[variable][] = realname_fields
 features[variable][] = realname_pattern
 mtime = 1420700927
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

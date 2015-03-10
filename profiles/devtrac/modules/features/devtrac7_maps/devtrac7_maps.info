@@ -13,7 +13,7 @@ dependencies[] = openlayers_geosearch
 dependencies[] = openlayers_plus
 dependencies[] = strongarm
 dependencies[] = views
-datestamp = 1419061520
+datestamp = 1425301217
 features[ctools][] = context:context:3
 features[ctools][] = openlayers:openlayers_layers:1
 features[ctools][] = openlayers:openlayers_maps:1
@@ -81,4 +81,11 @@ features[variable][] = openlayers_geosearch_zoomonselect
 features[variable][] = openlayers_source
 features[variable][] = openlayers_source_internal_variant
 features[variable][] = openlayers_source_type
-mtime = 1419061520
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

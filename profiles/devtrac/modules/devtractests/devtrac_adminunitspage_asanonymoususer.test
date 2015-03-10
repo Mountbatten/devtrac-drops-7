@@ -111,7 +111,7 @@ class VisitAdminUnitsAsAnonymousTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">19 Admin Units</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('\u003Cp\u003EThis is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.\u003C\/p\u003E', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Full text search block
     $this->assertRaw('\u003Cform id=\u0022facetapi-textfield-widget-form\u0022 class=\u0022facetapi-textfield-widget-form\u0022 action=\u0022adminunits\u0022 method=\u0022GET\u0022 onsubmit=\u0022return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)\u0022\u003E\n  \u003Cinput type=\u0022textfield\u0022 name=\u0022search_api_aggregation_1\u0022 value=\u0022\u0022 \/\u003E\n  \u003Cdiv id=\u0022edit-actions\u0022 class=\u0022form-actions form-wrapper\u0022\u003E\n    \u003Cinput type=\u0022submit\u0022 class=\u0022form-submit\u0022 value=\u0022Search\u0022 \/\u003E\n  \u003C\/div\u003E\n\u003C\/form\u003E', t('Full Text Search Block is present on the page'), t('Devtrac'));
@@ -189,7 +189,7 @@ class VisitAdminUnitsAsAnonymousTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">19 Admin Units</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Full text search block
     $this->assertRaw('<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="adminunits" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)">
@@ -318,7 +318,7 @@ class VisitAdminUnitsAsAnonymousTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">19 Admin Units</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('This is the first level of Admin Units. The district page has a list or map of the districts of Uganda. Click on the icons to have a small overview of the district including the site reports of users that have visited the district and the photos they have taken.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Full text search block
     $this->assertRaw('<form id="facetapi-textfield-widget-form" class="facetapi-textfield-widget-form" action="adminunits" method="GET" onsubmit="return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)">

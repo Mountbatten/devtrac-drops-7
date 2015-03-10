@@ -104,6 +104,13 @@ function charts_graphs_main_settings_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
+  $form['charts_graphs_default_series'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your default palette'),
+    '#description' => t('Fill in the default colour palette for all your charts as a series of comma separated hexadecimal colour definitions. Ex: #123456,#654321,#1177ff'),
+    '#default_value' => variable_get("charts_graphs_default_series", ""),
+  );
+
   return system_settings_form($form);
 }
 

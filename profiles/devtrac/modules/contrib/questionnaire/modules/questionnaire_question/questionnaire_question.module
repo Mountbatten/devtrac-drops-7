@@ -145,7 +145,7 @@ function questionnaire_question_menu() {
    * The setting can be added to the entity(Questionnaire/Node/Other Entity) 
    * as a checkbox and stored in a variable that the 
    * questionnaire_submission_find function can then use to find the submission.
-   *
+   */
   $items['node/%node/editsubmission'] = array(
     'title' => t('Edit Submission'),
     'description' => t('Edit Submission of questionnaire.'),
@@ -157,7 +157,6 @@ function questionnaire_question_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'questionnaire_question.page.inc',
   );
-   **/
 
   return $items;
 }
@@ -389,14 +388,15 @@ function questionnaire_question_addsubmission_access($node) {
     // function  execute and we need that to happen.
     // return TRUE;
 
-    // @todo
-    // <---
-//    if ((questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user' => $user), array('node' => $node), 'node page'))) !== FALSE) {
-    if ((questionnaire_submission_find($node->nid, questionnaire_question_getcontext('node', $node, 'node page'))) !== FALSE) {
+    $contexts = questionnaire_question_getcontext('node', $node, 'node page');
+    $context = reset($contexts['node']);
+    if ((questionnaire_submission_find($node->nid, $context)) !== FALSE) {
       // TODO make this configurable on the questionnaire settings:
       // either this questionnaire can only be filled once, or many times
       // (per user!)
-      return FALSE;
+//      if (empty(variable_get('questionnaire_question_context_' . $node->type))) {
+        return FALSE;
+//      }
     }
     // Last check, there have to be questions. No questions, no submission
     // @todo clean up..
@@ -461,7 +461,10 @@ function questionnaire_question_editsubmission_access($node, $submission) {
       // disabled, the submissions migh still be there)
       // Only show this menu if there is only 1 submission, otherwise, you have
       // to use some other means to get to the submission you need to edit
-      if (questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user' ,$node), array('node', $node), 'node page')) !== FALSE) {
+      // if (questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user' ,$node), array('node', $node), 'node page')) !== FALSE) {
+      $contexts = questionnaire_question_getcontext('node', $node, 'node page');
+      $context = reset($contexts['node']);
+      if ((questionnaire_submission_find($node->nid, $context)) !== FALSE) {
         // TODO make this configurable on the questionnaire settings:
         // either this questionnaire can only be filled once, or many times
         // (per user!)
@@ -492,7 +495,7 @@ function questionnaire_question_editsinglesubmission_access($node) {
     //  if (($user->uid == $node->uid) && user_access('submit questions') && questionnaire_question_isquestionnaire($node->type)) { 
     // and does this nodetype support questionnaires?
     if (($user->uid == $node->uid) && (node_access('update', $node)) && (questionnaire_question_isquestionnaire($node->type))) {
-      return true;
+      //return true;
 
       // @todo
       //
@@ -501,7 +504,10 @@ function questionnaire_question_editsinglesubmission_access($node) {
       // make sure there are questions for this questionnairetype.
       //TODO, also check if there are submissions (when questions become disabled, the submissions migh still be there)
       // Only show this menu if there is only 1 submission, otherwise, you have to use some other means to get to the submission you need to edit
-      $submissions = questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user', $user), array('node', $node), 'node page'));
+      // $submissions = questionnaire_submission_find($node->nid, questionnaire_question_getcontext(array('user', $user), array('node', $node), 'node page'));
+      $contexts = questionnaire_question_getcontext('node', $node, 'node page');
+      $context = reset($contexts['node']);
+      $submissions = questionnaire_submission_find($node->nid, $context);
       if (($submissions !== FALSE) && (count($submissions) == 1)) {
         // TODO make this configurable on the questionnaire settings: either this questionnaire can only be filled once, or many times (per user!)
         return TRUE;

@@ -175,6 +175,17 @@ function devtrac7_views_views_pre_view(&$view, &$display_id, &$args){
       unset ($view->display['default']->handler->options['fields']['author']);
     }
   }
+
+  /*
+   *  On solr list view for images, remove the Owner column for anonymous users
+   */
+  if ($view->name === 'devtrac_solr_view_images' && $view->current_display === 'page_1'){
+    if ($user->uid == 0) {
+      unset ($view->display['list']->handler->options['fields']['owner']);
+      // just to be on the safe side
+      unset ($view->display['default']->handler->options['fields']['owner']);
+    }
+  }
 }
 
 /*

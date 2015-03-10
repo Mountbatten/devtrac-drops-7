@@ -4,24 +4,24 @@
 * Function to call class for the code lists to be imported.
 */
 function devtrac_imports_migrate_api() {
-	$api = array(
-			'api' => 2,
-			'migrations' => array(
-					'DevtracImportsPurpose' => array('class_name' => 'DevtracImportsPurpose'),
-					'DevtracImportsFunction' => array('class_name' => 'DevtracImportsFunction'),
-					'DevtracImportsDepartment' => array('class_name' => 'DevtracImportsDepartment'),					
-					'DevtracImportsSectorsLevel0' => array('class_name' => 'DevtracImportsSectorsLevel0'),
-				  'DevtracImportsSectorsLevel1' => array('class_name' => 'DevtracImportsSectorslevel1'),
-					'DevtracImportsSectorIcons' => array('class_name' => 'DevtracImportsSectorIcons'),
-					'DevtracImportsPlacetypeIcons' => array('class_name' => 'DevtracImportsPlacetypeIcons'),
-					'DevtracImportsSiteReportType' => array('class_name' => 'DevtracImportsSiteReportType'),	
-					'DevtracImportsPlacetypeLevel0' => array('class_name' => 'DevtracImportsPlacetypeLevel0'),
-					'DevtracImportsPlacetypeLevel1' => array('class_name' => 'DevtracImportsPlacetypeLevel1'),
-					'DevtracImportsPlacetypeLevel2' => array('class_name' => 'DevtracImportsPlacetypeLevel2'),
-					
-			),
-	);
-	return $api;
+  $api = array(
+    'api' => 2,
+    'migrations' => array(
+      'DevtracImportsPurpose' => array('class_name' => 'DevtracImportsPurpose'),
+      'DevtracImportsFunction' => array('class_name' => 'DevtracImportsFunction'),
+      'DevtracImportsDepartment' => array('class_name' => 'DevtracImportsDepartment'),
+      'DevtracImportsSectorsLevel0' => array('class_name' => 'DevtracImportsSectorsLevel0'),
+      'DevtracImportsSectorsLevel1' => array('class_name' => 'DevtracImportsSectorslevel1'),
+      'DevtracImportsSectorIcons' => array('class_name' => 'DevtracImportsSectorIcons'),
+      'DevtracImportsSectorCategoryIcons' => array('class_name' => 'DevtracImportsSectorCategoryIcons'),
+      'DevtracImportsPlacetypeIcons' => array('class_name' => 'DevtracImportsPlacetypeIcons'),
+      'DevtracImportsSiteReportType' => array('class_name' => 'DevtracImportsSiteReportType'),
+      'DevtracImportsPlacetypeLevel0' => array('class_name' => 'DevtracImportsPlacetypeLevel0'),
+      'DevtracImportsPlacetypeLevel1' => array('class_name' => 'DevtracImportsPlacetypeLevel1'),
+      'DevtracImportsPlacetypeLevel2' => array('class_name' => 'DevtracImportsPlacetypeLevel2'),
+      ),
+    );
+  return $api;
 }
 /**
  * Implement hook_menu().
@@ -51,90 +51,81 @@ function devtrac_imports_menu(){
 
 }
  */
-function devtrac_imports_import_terms()
-{
-
-	$batch = devtrac_imports_batch();
-	batch_set($batch);
-
-	batch_process('admin/config/devtrac_imports_imported');
-	//batch_process();
-	 
+function devtrac_imports_import_terms() {
+  $batch = devtrac_imports_batch();
+  batch_set($batch);
+  batch_process('admin/config/devtrac_imports_imported');
+//batch_process();
 }
 
 
 function devtrac_imports_batch($operation="import") {
-	//$operation = 'import';
-	$limit = array( 'value' => 0,	'unit' => 'items', );
-	 
-	$update = 0;
-	$force = 0;
-	 
-	migrate_migrations();
+  //$operation = 'import';
+  $limit = array( 'value' => 0,	'unit' => 'items', );
+  $update = 0;
+  $force = 0;
+  migrate_migrations();
+  $machine_names = array(
+    'DevtracImportsPurpose',
+    'DevtracImportsFunction',
+    'DevtracImportsDepartment',
+    'DevtracImportsSectorCategoryIcons',
+    'DevtracImportsSectorIcons',
+    'DevtracImportsSectorsLevel0',
+    'DevtracImportsSectorsLevel1',
+    'DevtracImportsSiteReportType',
+    'DevtracImportsPlacetypeIcons',
+    'DevtracImportsPlacetypeLevel0',
+    'DevtracImportsPlacetypeLevel1',
+    'DevtracImportsPlacetypeLevel2',
+    );
+  $operations = array();
+  // Rollback in reverse order.
+  if (in_array($operation, array('rollback', 'rollback_and_import'))) {
+    $machine_names = array_reverse($machine_names);
+    foreach ($machine_names as $machine_name) {
+      $operations[] = array('migrate_ui_batch', array('rollback', $machine_name, $limit, $force));
+    }
+    // Reset order of machines names in preparation for final operation.
+    $machine_names = array_reverse($machine_names);
+    $operation = ($operation == 'rollback_and_import') ? 'import' : NULL;
+  }
 
-	$machine_names = array(
-			'DevtracImportsPurpose', 
-			'DevtracImportsFunction',
-	    'DevtracImportsDepartment',
-			'DevtracImportsSectorIcons',
-			'DevtracImportsSectorsLevel0',
-			'DevtracImportsSectorsLevel1',
-			'DevtracImportsSiteReportType',
-			'DevtracImportsPlacetypeIcons',
-			'DevtracImportsPlacetypeLevel0',
-			'DevtracImportsPlacetypeLevel1',
-			'DevtracImportsPlacetypeLevel2',
-	);
+  // Perform non-rollback operation, if one exists.
+  if ($operation) {
+    foreach ($machine_names as $machine_name) {
+      $migration = Migration::getInstance($machine_name);
+      switch ($operation) {
+        case 'import':
+          // Update (if necessary) once, before starting
+          if ($update && method_exists($migration, 'prepareUpdate')) {
+            $migration->prepareUpdate();
+          }
+          $operations[] = array('migrate_ui_batch', array($operation, $machine_name, $limit, $force));
+          break;
+        case 'stop':
+          $migration->stopProcess();
+          break;
+        case 'reset':
+          $migration->resetStatus();
+          break;
+      }
+    }
+  }
 
-	$operations = array();
-	 
-	// Rollback in reverse order.
-	if (in_array($operation, array('rollback', 'rollback_and_import'))) {
-		$machine_names = array_reverse($machine_names);
-		foreach ($machine_names as $machine_name) {
-			$operations[] = array('migrate_ui_batch', array('rollback', $machine_name, $limit, $force));
-		}
-		// Reset order of machines names in preparation for final operation.
-		$machine_names = array_reverse($machine_names);
-		$operation = ($operation == 'rollback_and_import') ? 'import' : NULL;
-	}
-	 
-	// Perform non-rollback operation, if one exists.
-	if ($operation) {
-		foreach ($machine_names as $machine_name) {
-			$migration = Migration::getInstance($machine_name);
-			switch ($operation) {
-			  case 'import':
-			  	// Update (if necessary) once, before starting
-			  	if ($update && method_exists($migration, 'prepareUpdate')) {
-			  		$migration->prepareUpdate();
-			  	}
-			  	$operations[] = array('migrate_ui_batch', array($operation, $machine_name, $limit, $force));
-			  	break;
-			  case 'stop':
-			  	$migration->stopProcess();
-			  	break;
-			  case 'reset':
-			  	$migration->resetStatus();
-			  	break;
-			}
-		}
-	}
-	 
-	// Only rollback and import operations will need to go through Batch API.
-	if (count($operations) > 0) {
-		$batch = array(
-				'operations' => $operations,
-				'title' => t('Migration processing'),
-				'file' => drupal_get_path('module', 'migrate_ui') . '/migrate_ui.pages.inc',
-				'init_message' => t('Starting migration process'),
-				'progress_message' => t(''),
-				'error_message' => t('An error occurred. Some or all of the migrate processing has failed.'),
-				'finished' => 'migrate_ui_batch_finish',
-		);
-		return ($batch);
-	}
-	return FALSE;
+  // Only rollback and import operations will need to go through Batch API.
+  if (count($operations) > 0) {
+    $batch = array(
+      'operations' => $operations,
+      'title' => t('Migration processing'),
+      'file' => drupal_get_path('module', 'migrate_ui') . '/migrate_ui.pages.inc',
+      'init_message' => t('Starting migration process'),'progress_message' => t(''),
+      'error_message' => t('An error occurred. Some or all of the migrate processing has failed.'),
+      'finished' => 'migrate_ui_batch_finish',
+      );
+    return ($batch);
+  }
+  return FALSE;
 }
 
 /**
@@ -142,31 +133,28 @@ function devtrac_imports_batch($operation="import") {
  * @return boolean
  */
 function devtrac_imports_imported() {
-	//$groups =  iati_import_codelists_migrate_api();
-
-	$machine_names = array('DevtracImportsPurpose');
-
-	try {
-		foreach ($machine_names as $machine_name) {
-			$migration = Migration::getInstance($machine_name);
-			// $has_counts = TRUE;
-			if (method_exists($migration, 'sourceCount') && method_exists($migration, 'importedCount')) {
-				$total = $migration->sourceCount("");
-				$imported = $migration->importedCount();
-				if($total == $imported) {
-					return TRUE;
-				}
-			}
-		}
-		return FALSE;
-	}
-	catch (MigrateException $e) {
-		drupal_set_message($e->getMessage());
-		return FALSE;
-	}
+  //$groups =  iati_import_codelists_migrate_api();
+  $machine_names = array('DevtracImportsPurpose');
+  try {
+    foreach ($machine_names as $machine_name) {
+      $migration = Migration::getInstance($machine_name);
+      // $has_counts = TRUE;
+      if (method_exists($migration, 'sourceCount') && method_exists($migration, 'importedCount')) {
+        $total = $migration->sourceCount("");
+        $imported = $migration->importedCount();
+        if($total == $imported) {
+          return TRUE;
+        }
+      }
+    }
+    return FALSE;
+  }
+  catch (MigrateException $e) {
+    drupal_set_message($e->getMessage());
+    return FALSE;
+  }
 }
 
-
 function devtrac_imports_complete() {
-	return "done";
+  return "done";
 }

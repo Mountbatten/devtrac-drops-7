@@ -101,7 +101,7 @@ class VisitSiteReportsAsFieldWorkerTestCase extends DevtracTestCase {
     // Attribution.
     $this->assertRaw('"attribution":"\u0026copy;\u003Ca href=\u0022http:\/\/creativecommons.org\/licenses\/by-sa\/2.0\/\u0022\u003ECCBYSA\u003C\/a\u003E \u003Ca href=\u0022http:\/\/www.openstreetmap.org\/copyright\u0022\u003E\u0026copy; OpenStreetMap contributors\u003C\/a\u003E"', t('Attribution is present on the map.'), t('Devtrac'));
     // Check for Info pane text.
-    $this->assertRaw('\u003Cdiv class=\u0022block block-pane block-front-about-information block-pane-front-about-information even block-without-title\u0022 id=\u0022block-pane-front-about-information\u0022\u003E\n  \u003Cdiv class=\u0022block-inner clearfix\u0022\u003E\n                \n    \u003Cdiv class=\u0022content clearfix\u0022\u003E\n      \u003Cp\u003EThese are reports that are filled in at a visited Location. It includes all details about the visit. These include a narrative report, the sector of intervention at the location, the date visited and a descriptive title that can be understood clearly.\u003C\/p\u003E\n    \u003C\/div\u003E\n  \u003C\/div\u003E\n\u003C\/div\u003E', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are reports that are filled in at a visited Location. It includes all details about the visit. These include a narrative report, the sector of intervention at the location, the date visited and a descriptive title that can be understood clearly.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Search Api Elements.
     // Check for Facets.
@@ -304,13 +304,7 @@ class VisitSiteReportsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertPattern('/([012]?[1-9]|[12]0|3[01])\-(0?[1-9]|1[012])\-([0-9]{4})/', t('Date format is correct'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('</div><section class="block block-pane block-front-about-information block-pane-front-about-information even" id="block-pane-front-about-information">
-  <div class="block-inner clearfix">
-              <h2 class="block-title"> </h2>
-            
-    <div class="content clearfix">
-      <p>These are reports that are filled in at a visited Location. It includes all details about the visit. These include a narrative report, the sector of intervention at the location, the date visited and a descriptive title that can be understood clearly.</p>
-    </div>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are reports that are filled in at a visited Location. It includes all details about the visit. These include a narrative report, the sector of intervention at the location, the date visited and a descriptive title that can be understood clearly.', t('Info pane is present on the page'), t('Devtrac'));
 
     // GRAPHS VIEW MODE.
     // Check that link to graphs view mode goes to the right page.
@@ -364,13 +358,7 @@ class VisitSiteReportsAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('</div><section class="block block-pane block-front-about-information block-pane-front-about-information even" id="block-pane-front-about-information">
-  <div class="block-inner clearfix">
-              <h2 class="block-title"> </h2>
-            
-    <div class="content clearfix">
-      <p>These are reports that are filled in at a visited Location. It includes all details about the visit. These include a narrative report, the sector of intervention at the location, the date visited and a descriptive title that can be understood clearly.</p>
-    </div>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are reports that are filled in at a visited Location. It includes all details about the visit. These include a narrative report, the sector of intervention at the location, the date visited and a descriptive title that can be understood clearly.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Search Api Elements.
     // Check for Facets.

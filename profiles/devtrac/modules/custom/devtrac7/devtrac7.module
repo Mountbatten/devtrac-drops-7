@@ -138,6 +138,30 @@ function devtrac7_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'weight' => 4,
   );
+  $items['node/%/promote'] = array(
+    'title' => 'Promote to front page',
+    'description' => 'Promote the Site Report to the front page',
+    'title callback' => 'check_plain',
+    'page callback' => 'devtrac7_ftritem_promote_to_frontpage',
+    'page arguments' => array(1),
+    'access callback' => array('devtrac7_ftritem_promote_to_frontpage_access'),
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_ACTION,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'weight' => 5,
+  );
+  $items['node/%/demote'] = array(
+    'title' => 'Demote from front page',
+    'description' => 'Demote the Site Report from the front page',
+    'title callback' => 'check_plain',
+    'page callback' => 'devtrac7_ftritem_demote_from_frontpage',
+    'page arguments' => array(1),
+    'access callback' => array('devtrac7_ftritem_demote_from_frontpage_access'),
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_ACTION,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'weight' => 5,
+  );
   $items['user/%/addfieldtrip'] = array(
     'title' => 'Add New Fieldtrip',
     'description' => 'Create a new Field Trip',
@@ -531,6 +555,67 @@ function devtrac7_addactionitem_access($nid) {
     //   $node = node_load($arg1);
     //   return (($user->uid == $node->uid) && user_access('create actionitem content'));
     // }
+  }
+  return FALSE;
+}
+
+/**
+ * This function promotes the Site Report to the frontpage.
+ */
+function devtrac7_ftritem_promote_to_frontpage($node) {
+  $ftritem = node_load($node);
+  $ftritem->promote = 1;
+  node_save($ftritem);
+  drupal_set_message('Site Report ' . $ftritem->title . 'was promoted to the frontpage.');
+  drupal_goto('node/' . $node);
+}
+
+/**
+ * This function checks if the Site Report can be promoted to the frontpage.
+ * It returns TRUE if it does.
+ * It returns FALSE if it doesn't.
+ */
+function devtrac7_ftritem_promote_to_frontpage_access($node) {
+  if (module_exists('devtrac_frontpage_sitereports')) {
+    // Allow user with uid 1 and all users with role "administrator".
+    global $user;
+    if (($user->uid == 1) || in_array('administrator', $user->roles) || in_array('devtrac admin', $user->roles)) {
+      // Load the .inc file that implements devtrac7_ftritem_imagesset().
+      module_load_include('inc', 'devtrac7', 'devtrac7_ftritem');
+      $ftritem = node_load($node);
+      // Only allow when there is at least one image on the Site Report.
+      if (devtrac7_ftritem_imagesset($ftritem)) {
+        // Only makes sense when the Site Report is not promoted yet.
+        return !$ftritem->promote;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * This function demotes the Site Report from the frontpage.
+ */
+function devtrac7_ftritem_demote_from_frontpage($node) {
+  $ftritem = node_load($node);
+  $ftritem->promote = 0;
+  node_save($ftritem);
+  drupal_set_message('Site Report ' . $ftritem->title . 'was demoted from the frontpage.');
+  drupal_goto('node/' . $node);
+}
+
+/**
+ * This function checks if the Site Report can be demoted from the frontpage.
+ * It returns TRUE if it does.
+ * It returns FALSE if it doesn't.
+ */
+function devtrac7_ftritem_demote_from_frontpage_access($node) {
+  // Allow user with uid 1 and all users with role "administrator" or "devtrac admin".
+  global $user;
+  if (($user->uid == 1) || in_array('administrator', $user->roles) || in_array('devtrac admin', $user->roles)) {
+    $ftritem = node_load($node);
+    // Only makes sense when the Site Report is already promoted.
+    return $ftritem->promote;
   }
   return FALSE;
 }
@@ -1205,6 +1290,10 @@ function devtrac7_node_presave($node) {
         $node->revision_uid = $node->original->revision_uid;
         // Cleaning up the mess we are making during the bulk update
         unset($node->bulk_update);
+      }
+      // Demote the Site Report when the last image is removed from it.
+      if (isset($node->promote) && ($node->promote) && (!devtrac7_ftritem_imagesset($node))) {
+        $node->promote = 0;
       }
       break;
     case 'fieldtrip':
@@ -2628,9 +2717,18 @@ function devtrac7_theme_registry_alter(&$theme_registry) {
 /**
  * Implements hook_views_pre_render().
  *
- * The access on the views blocks that show the progress on the fieldtrip and
- * the sitereport has to be implemented in code so we can hide the tabs when
- * they do not return any progress links.
+ * Although the fields in a views row can all be empty. Views still returns a
+ * row. This empty row genereates some html, so the view is not empty. The
+ * quicktab module does not handle this properly. So here we make sure the html
+ * is removed from the views output.
+ *
+ * The html on the views blocks that show the progress on the fieldtrip and the
+ * sitereport has to be emptied in code so we can hide the tabs when they do not
+ * return any progress links.
+ *
+ * A similar problem occurs with the description of a location. There is a row
+ * returned with no content. So the quicktab is showing even when there is no
+ * description.
  */
 function devtrac7_views_pre_render(&$view) {
   // The progress on the fieldtrip and the sitereport.
@@ -2645,6 +2743,10 @@ function devtrac7_views_pre_render(&$view) {
     if (isset($items['links']) && (count($items['links']) > 0)) {
       return;
     }
+    unset($view->result[0]);
+  }
+  // The description quicktab on the Location detail pages.
+  if (($view->name == 'dvtrc_locations') && ($view->current_display == 'location_description') && empty($view->result[0]->field_body[0]['rendered']['#markup'])) {
     unset($view->result[0]);
   }
 }

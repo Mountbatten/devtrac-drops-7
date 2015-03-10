@@ -56,7 +56,6 @@ Drupal.quicktabs.clickHandler = function(event) {
   }
 
   tab.tabpage.removeClass('quicktabs-hide');
-  $(element).trigger('switchtab');
   return false;
 }
 

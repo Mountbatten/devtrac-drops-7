@@ -283,7 +283,7 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertPattern('/([012]?[1-9]|[12]0|3[01])\-(0?[1-9]|1[012])\-([0-9]{4})/', t('Date format is correct'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>These are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.', t('Info pane is present on the page'), t('Devtrac'));
 
     
     // FACET DEFAULT STATES.
@@ -365,7 +365,7 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>These are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Search Api Elements.
     // Check for Facets.
@@ -503,7 +503,7 @@ class VisitImagesAsFieldWorkerTestCase extends DevtracTestCase {
     $this->assertLink('Subscribe to RSS Feed', 0, t('Subscribe to RSS Feed link is present on the page.'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('<p>These are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.</p>', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are images that have been added to site reports to shed more light on the activities carried out and discoveries made while reporting.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Search Api Elements.
     // Check for Facets.

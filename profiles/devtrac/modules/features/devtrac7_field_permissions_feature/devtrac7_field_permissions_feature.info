@@ -6,6 +6,7 @@ version = 7.x-1.0-beta1
 project = devtrac7_field_permissions_feature
 dependencies[] = better_messages
 dependencies[] = comment
+dependencies[] = contextual
 dependencies[] = devtrac7
 dependencies[] = draggableviews
 dependencies[] = features
@@ -15,6 +16,7 @@ dependencies[] = filter
 dependencies[] = hidden_comment
 dependencies[] = media
 dependencies[] = node
+dependencies[] = nodesinblock
 dependencies[] = questionnaire_answer
 dependencies[] = questionnaire_question
 dependencies[] = role_delegation
@@ -27,6 +29,7 @@ features[user_permission][] = access administration pages
 features[user_permission][] = access better messages
 features[user_permission][] = access comments
 features[user_permission][] = access content
+features[user_permission][] = access contextual links
 features[user_permission][] = access draggableviews
 features[user_permission][] = access media browser
 features[user_permission][] = access site reports
@@ -107,9 +110,11 @@ features[user_permission][] = delete own fieldtrip content
 features[user_permission][] = delete own ftritem content
 features[user_permission][] = delete own place content
 features[user_permission][] = delete own questionnaire_question content
+features[user_permission][] = deny configuration on node form
 features[user_permission][] = edit any actionitem content
 features[user_permission][] = edit any fieldtrip content
 features[user_permission][] = edit any ftritem content
+features[user_permission][] = edit any page content
 features[user_permission][] = edit any place content
 features[user_permission][] = edit any questionnaire_question
 features[user_permission][] = edit any questionnaire_question content
@@ -315,3 +320,11 @@ features[user_permission][] = view taxonomy_vocabulary_7
 features[user_permission][] = view taxonomy_vocabulary_8
 features[user_permission][] = view the administration theme
 mtime = 1417861771
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

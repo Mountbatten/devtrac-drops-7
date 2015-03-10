@@ -54,12 +54,15 @@ function devtrac_frontpage_sitereports_feature_flexslider_default_presets() {
     'playText' => 'Play',
     'randomize' => 0,
     'thumbCaptions' => 0,
- 	 	'thumbCaptionsBoth' => 0,
+    'thumbCaptionsBoth' => 0,
     'animationLoop' => 0,
     'pauseOnAction' => 1,
     'pauseOnHover' => 0,
     'manualControls' => '',
   );
+  $preset->imagestyle_type = '';
+  $preset->mapping = '';
+  $preset->fallback = '';
   $export['flexslider_default_thumbnail_slider'] = $preset;
 
   return $export;

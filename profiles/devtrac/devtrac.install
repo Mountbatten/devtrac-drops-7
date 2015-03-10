@@ -379,7 +379,7 @@ function devtrac_install() {
   );
   field_create_instance($instance);
 
-  // Create an image field named "Image", enabled for the 'article' content type.
+  // Create an image field named "Image", enabled for the 'article' and 'page' content types.
   // Many of the following values will be defaulted, they're included here as an illustrative examples.
   // See http://api.drupal.org/api/function/field_create_field/7
   $field = array(
@@ -410,7 +410,7 @@ function devtrac_install() {
     'description' => st('Upload an image to go with this article.'),
     'required' => FALSE,
     'settings' => array(
-      'file_directory' => 'field/image',
+      'file_directory' => '',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
       'max_resolution' => '',
@@ -419,7 +419,7 @@ function devtrac_install() {
       'title_field' => '',
     ),
     'widget' => array(
-      'type' => 'image_image',
+      'type' => 'media_browser',
       'settings' => array(
         'progress_indicator' => 'throbber',
         'preview_image_style' => 'thumbnail',
@@ -439,6 +439,75 @@ function devtrac_install() {
         'settings' => array('image_style' => 'medium', 'image_link' => 'content'),
         'weight' => -1,
       ),
+    ),
+  );
+  field_create_instance($instance);
+
+  // Many of the following values will be defaulted, they're included here as an illustrative examples.
+  // See http://api.drupal.org/api/function/field_create_instance/7
+  $instance = array(
+    'bundle' => 'page',
+    'deleted' => 0,
+    'description' => st('Upload an image to go with this page.'),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => '',
+          'image_style' => 'large',
+        ),
+        'type' => 'image',
+        'weight' => -1,
+      ),
+      'teaser' => array(
+        'label' => 'hidden',
+        'module' => 'image',
+        'settings' => array(
+          'image_link' => 'content',
+          'image_style' => 'preview',
+        ),
+        'type' => 'image',
+        'weight' => -1,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_image',
+    'label' => 'Image',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 1,
+      'default_image' => 0,
+      'file_directory' => '',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'media',
+      'settings' => array(
+        'allowed_schemes' => array(
+          'public' => 'public',
+        ),
+        'allowed_types' => array(
+          'audio' => 0,
+          'document' => 0,
+          'image' => 'image',
+          'video' => 0,
+        ),
+        'browser_plugins' => array(
+          'devtrac_media_browser_extensions--attached_files' => 0,
+          'media_default--media_browser_1' => 0,
+          'media_default--media_browser_my_files' => 0,
+          'upload' => 0,
+        ),
+      ),
+      'type' => 'media_generic',
+      'weight' => -1,
     ),
   );
   field_create_instance($instance);
@@ -500,7 +569,7 @@ function devtrac_install_tasks(&$install_state) {
   $tasks['devtrac_import_codelists'] = array(
     'display_name' => st('Import CodeLists'),
     'type' => 'batch',
-  );  
+  );
   $tasks['devtrac_install_additional_modules'] = array(
     'display_name' => st('Install additional functionality'),
     'type' => 'batch',
@@ -674,7 +743,8 @@ function devtrac_install_additional_modules(&$install_state) {
   $modules = array(
     // 'devtrac7_profile_menu',
     'search_api_db',
-    'devtrac7_site_configuration_feature',
+    'pathauto',
+    'devtrac7_pathauto_feature',
     'devtrac7_solr_search_feature',
     'devtrac7_solr_search_district_feature',
     'devtrac7_solr_search_location_feature',
@@ -731,6 +801,7 @@ function devtrac_install_additional_modules(&$install_state) {
 
   return $batch;
 }
+
 /**
  * Imports devtrac_search_server.
  */

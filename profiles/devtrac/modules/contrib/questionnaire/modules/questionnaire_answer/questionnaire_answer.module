@@ -362,11 +362,13 @@ function questionnaire_submission_load($sid) {
  * @todo
  */
 function questionnaire_submission_find($qnid, $context) {
-  /**
+ global $user;
   $query = db_select('questionnaire_submission', 'a')
   ->fields('a', array('sid'))
-  ->condition('qnid', $qnid)
-  ->condition('context', $context);
+  ->condition('questionnaire_id', $qnid)
+  ->condition('context_id', $context->nid)
+  ->condition('recipient_id', $user->uid);
+  
   if ($sids = $query->execute()->fetchAllAssoc('sid', PDO::FETCH_ASSOC)) {
     // $sids is now keyed by the fields sid, which is what we need, so we use array_keys to get an array of sids
     $sids = array_keys($sids);
@@ -374,8 +376,6 @@ function questionnaire_submission_find($qnid, $context) {
       return $submissions;
     }
   }
-   * 
-   */
   return FALSE;
 }
 

@@ -11,6 +11,7 @@ files[] = includes/devtrac_imports_function.inc
 files[] = includes/devtrac_imports_department.inc
 files[] = includes/devtrac_imports_sectors_level0.inc
 files[] = includes/devtrac_imports_sectors_level1.inc
+files[] = includes/devtrac_imports_sector_category_icons.inc
 files[] = includes/devtrac_imports_sector_icons.inc
 files[] = includes/devtrac_imports_placetype_icons.inc
 files[] = includes/devtrac_imports_placetype_level0.inc
@@ -18,9 +19,10 @@ files[] = includes/devtrac_imports_placetype_level1.inc
 files[] = includes/devtrac_imports_placetype_level2.inc
 files[] = includes/devtrac_imports_site_report_type.inc
 
-; Information added by drush on 2014-08-12
+
+; Information added by drush on 2015-03-10
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "devtrac"
-datestamp = "1407834197"
+datestamp = "1425987521"
 

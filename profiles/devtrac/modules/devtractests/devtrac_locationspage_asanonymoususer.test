@@ -115,7 +115,7 @@ class VisitLocationsAsAnonymousTestCase extends DevtracTestCase {
     $this->assertRaw('<div class="current-search-item current-search-item-text current-search-item-results"><h3 class="">14 Locations</h3></div>', t('Current search counter is present on the page'), t('Devtrac'));
 
     // Check for Info pane text.
-    $this->assertRaw('\u003Cp\u003EThese are the locations where which have been visited by Devtrac users. These locations are differentiated by their place types as seen on the map. Site reports are filled out for a specific location.', t('Info pane is present on the page'), t('Devtrac'));
+    $this->assertRaw('These are the locations where which have been visited by Devtrac users. These locations are differentiated by their place types as seen on the map. Site reports are filled out for a specific location.', t('Info pane is present on the page'), t('Devtrac'));
 
     // Full text search block
     $this->assertRaw('\u003Cform id=\u0022facetapi-textfield-widget-form\u0022 class=\u0022facetapi-textfield-widget-form\u0022 action=\u0022locations\u0022 method=\u0022GET\u0022 onsubmit=\u0022return Drupal.facetapiTextfieldWidget.submitForm(search_api_aggregation_1)\u0022\u003E\n  \u003Cinput type=\u0022textfield\u0022 name=\u0022search_api_aggregation_1\u0022 value=\u0022\u0022 \/\u003E\n  \u003Cdiv id=\u0022edit-actions\u0022 class=\u0022form-actions form-wrapper\u0022\u003E\n    \u003Cinput type=\u0022submit\u0022 class=\u0022form-submit\u0022 value=\u0022Search\u0022 \/\u003E\n  \u003C\/div\u003E\n\u003C\/form\u003E', t('Full Text Search Block is present on the page'), t('Devtrac'));

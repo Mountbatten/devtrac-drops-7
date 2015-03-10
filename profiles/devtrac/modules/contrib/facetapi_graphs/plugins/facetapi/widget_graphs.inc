@@ -62,7 +62,7 @@ class FacetAPIGraphsWidgetGraphs extends FacetapiWidget {
     $graph->background_colour = (!empty($this->settings->settings[$miniid . 'background_colour'])) ? $this->settings->settings[$miniid . 'background_colour'] : NULL;
     $graph->series_colours = (!empty($this->settings->settings[$miniid . 'series_colours'])) ?
                               explode(',', $this->settings->settings[$miniid . 'series_colours']) :
-                              array('#123456', '#654321', '#1177ff');
+                              $graph->series_colours();
     $graph->showlegend = $this->settings->settings[$miniid . 'showlegend'];
     $graph->zoom = $this->settings->settings[$miniid . 'showzoom'];
     /*

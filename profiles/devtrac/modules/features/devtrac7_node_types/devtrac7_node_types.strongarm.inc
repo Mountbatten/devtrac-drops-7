@@ -971,7 +971,7 @@ function devtrac7_node_types_strongarm() {
           'weight' => '1',
         ),
         'path' => array(
-          'weight' => '7',
+          'weight' => '8',
         ),
       ),
       'display' => array(),
@@ -1006,6 +1006,15 @@ function devtrac7_node_types_strongarm() {
       ),
       'map_popup_view_mode' => array(
         'custom_settings' => TRUE,
+      ),
+      'diff_standard' => array(
+        'custom_settings' => FALSE,
+      ),
+      'location_type_icon' => array(
+        'custom_settings' => FALSE,
+      ),
+      'sector_code_icon' => array(
+        'custom_settings' => FALSE,
       ),
     ),
   );

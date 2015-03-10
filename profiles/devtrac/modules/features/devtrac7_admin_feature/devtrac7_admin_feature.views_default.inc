@@ -1149,11 +1149,9 @@ function devtrac7_admin_feature_views_default_views() {
   $handler->display->display_options['fields']['field_term_icon']['table'] = 'field_data_field_term_icon';
   $handler->display->display_options['fields']['field_term_icon']['field'] = 'field_term_icon';
   $handler->display->display_options['fields']['field_term_icon']['group_type'] = 'sum';
-  $handler->display->display_options['fields']['field_term_icon']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_term_icon']['alter']['text'] = '<img src="/profiles/devtrac/themes/devtrack_theme/icons/[name_1]_c.png" title="[name_1]" />';
   $handler->display->display_options['fields']['field_term_icon']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_term_icon']['settings'] = array(
-    'image_style' => '',
+    'image_style' => 'devtrac_oecd_icons_color',
     'image_link' => '',
   );
   $handler->display->display_options['fields']['field_term_icon']['group_column'] = 'entity_id';
@@ -1193,7 +1191,7 @@ function devtrac7_admin_feature_views_default_views() {
     'min' => '',
     'max' => '',
     'value' => '',
-    'vocabulary_8' => 'vocabulary_8',
+    'vocabulary_1' => 'vocabulary_1',
   );
   $handler->display->display_options['filters']['machine_name']['expose']['operator_id'] = 'machine_name_op';
   $handler->display->display_options['filters']['machine_name']['expose']['label'] = 'Machine name';
@@ -1202,7 +1200,7 @@ function devtrac7_admin_feature_views_default_views() {
 
   /* Display: Location Type Analysis */
   $handler = $view->new_display('page', 'Location Type Analysis', 'page_location_types');
-  $handler->display->display_options['display_description'] = 'Shows a list of locationtypes and the number of nodes its been tagged on to.';
+  $handler->display->display_options['display_description'] = 'Shows a list of location types and the number of nodes they have been tagged on to.';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -1212,14 +1210,19 @@ function devtrac7_admin_feature_views_default_views() {
     3 => '3',
     4 => '4',
   );
-  $handler->display->display_options['path'] = 'admin/devtrac7/statistics/reports';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Statistics';
-  $handler->display->display_options['menu']['description'] = 'Reports with statistics about the Devtrac database';
-  $handler->display->display_options['menu']['weight'] = '6';
+  $handler->display->display_options['path'] = 'admin/devtrac7/statistics/reports/locationtypes';
+  $handler->display->display_options['menu']['type'] = 'default tab';
+  $handler->display->display_options['menu']['title'] = 'Location Type Analysis';
+  $handler->display->display_options['menu']['description'] = 'Shows a list of location types and the number of nodes they have been tagged on to.';
+  $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['type'] = 'normal';
+  $handler->display->display_options['tab_options']['title'] = 'Statistics';
+  $handler->display->display_options['tab_options']['description'] = 'Reports with statistics about the Devtrac database';
+  $handler->display->display_options['tab_options']['weight'] = '0';
+  $handler->display->display_options['tab_options']['name'] = 'management';
 
   /* Display: Term Counts */
   $handler = $view->new_display('page', 'Term Counts', 'term_counts');
@@ -1231,11 +1234,9 @@ function devtrac7_admin_feature_views_default_views() {
   $handler->display->display_options['fields']['field_term_icon']['table'] = 'field_data_field_term_icon';
   $handler->display->display_options['fields']['field_term_icon']['field'] = 'field_term_icon';
   $handler->display->display_options['fields']['field_term_icon']['group_type'] = 'sum';
-  $handler->display->display_options['fields']['field_term_icon']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_term_icon']['alter']['text'] = '<img src="/profiles/devtrac/themes/devtrack_theme/icons/[name_1]_c.png" title="[name_1]" />';
   $handler->display->display_options['fields']['field_term_icon']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_term_icon']['settings'] = array(
-    'image_style' => '',
+    'image_style' => 'devtrac_oecd_icons_color',
     'image_link' => '',
   );
   $handler->display->display_options['fields']['field_term_icon']['group_column'] = 'entity_id';
@@ -1302,7 +1303,48 @@ function devtrac7_admin_feature_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Term Counts';
   $handler->display->display_options['menu']['description'] = 'Shows the usage of terms across the database';
-  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['weight'] = '2';
+  $handler->display->display_options['menu']['name'] = 'management';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['type'] = 'tab';
+  $handler->display->display_options['tab_options']['title'] = 'Statistics';
+  $handler->display->display_options['tab_options']['description'] = 'Statistics of what is in the Devtrac database';
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: Sector Analysis */
+  $handler = $view->new_display('page', 'Sector Analysis', 'page_sectors');
+  $handler->display->display_options['display_description'] = 'Shows a list of sectors and the number of nodes they have been tagged on to.';
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Sector Analysis';
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    7 => '7',
+    3 => '3',
+    4 => '4',
+  );
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Taxonomy vocabulary: Machine name */
+  $handler->display->display_options['filters']['machine_name']['id'] = 'machine_name';
+  $handler->display->display_options['filters']['machine_name']['table'] = 'taxonomy_vocabulary';
+  $handler->display->display_options['filters']['machine_name']['field'] = 'machine_name';
+  $handler->display->display_options['filters']['machine_name']['value'] = array(
+    'vocabulary_8' => 'vocabulary_8',
+  );
+  $handler->display->display_options['filters']['machine_name']['expose']['operator_id'] = 'machine_name_op';
+  $handler->display->display_options['filters']['machine_name']['expose']['label'] = 'Machine name';
+  $handler->display->display_options['filters']['machine_name']['expose']['operator'] = 'machine_name_op';
+  $handler->display->display_options['filters']['machine_name']['expose']['identifier'] = 'machine_name';
+  $handler->display->display_options['path'] = 'admin/devtrac7/statistics/reports/sectors';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Sector Analysis';
+  $handler->display->display_options['menu']['description'] = 'Shows the usage of terms across the database';
+  $handler->display->display_options['menu']['weight'] = '1';
+  $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['type'] = 'tab';

@@ -771,10 +771,25 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['arguments']['context_id']['table'] = 'questionnaire_answer';
   $handler->display->display_options['arguments']['context_id']['field'] = 'context_id';
   $handler->display->display_options['arguments']['context_id']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['context_id']['default_argument_type'] = 'node';
+  $handler->display->display_options['arguments']['context_id']['default_argument_type'] = 'raw';
+  $handler->display->display_options['arguments']['context_id']['default_argument_options']['index'] = '1';
   $handler->display->display_options['arguments']['context_id']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['context_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['context_id']['summary_options']['items_per_page'] = '25';
+  /* Contextual filter: Field: Sector (taxonomy_vocabulary_8) */
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['id'] = 'taxonomy_vocabulary_8_tid';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['table'] = 'field_data_taxonomy_vocabulary_8';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['field'] = 'taxonomy_vocabulary_8_tid';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['relationship'] = 'question';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['specify_validation'] = TRUE;
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['validate']['type'] = 'taxonomy_term';
+  $handler->display->display_options['arguments']['taxonomy_vocabulary_8_tid']['validate_options']['vocabularies'] = array(
+    'vocabulary_8' => 'vocabulary_8',
+  );
   /* Filter criterion: Content: The type of question. (questionnaire_question_type) */
   $handler->display->display_options['filters']['questionnaire_question_type_value']['id'] = 'questionnaire_question_type_value';
   $handler->display->display_options['filters']['questionnaire_question_type_value']['table'] = 'field_data_questionnaire_question_type';
@@ -784,10 +799,10 @@ function devtrac7_questionnaire_feature_views_default_views() {
     'number' => 'number',
   );
 
-  /* Display: Siteviisit Answer Pie Block */
-  $handler = $view->new_display('block', 'Siteviisit Answer Pie Block', 'block_1');
+  /* Display: Sitevisit Answer Pie Block */
+  $handler = $view->new_display('block', 'Sitevisit Answer Pie Block', 'piechart');
   $handler->display->display_options['display_comment'] = 'This view is *always* called as a field on the Devtrac Sitevisit Answer Sector';
-  $handler->display->display_options['display_description'] = 'Shows answers for a siteviisit in a Pie, filtered by Sector tag.';
+  $handler->display->display_options['display_description'] = 'Shows answers for a sitevisit in a Pie, filtered by Sector tag.';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
@@ -806,8 +821,23 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['question']['id'] = 'question';
   $handler->display->display_options['fields']['question']['table'] = 'questionnaire_answer';
   $handler->display->display_options['fields']['question']['field'] = 'question';
+  $handler->display->display_options['fields']['question']['label'] = '';
   $handler->display->display_options['fields']['question']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['question']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['question']['separator'] = '';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['relationship'] = 'question';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['text'] = '<h3>[title]</h3>';
+  $handler->display->display_options['fields']['title']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['path'] = 'statistics/answers?f[0]=questionnaire_answer_question:[question]';
+  $handler->display->display_options['fields']['title']['alter']['alt'] = 'Click to see statistics on this question for all answers ever given';
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
   /* Field: The Pie Chart */
   $handler->display->display_options['fields']['view']['id'] = 'view';
   $handler->display->display_options['fields']['view']['table'] = 'views';
@@ -818,14 +848,6 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['view']['view'] = 'devtrac_answers_piecharts';
   $handler->display->display_options['fields']['view']['display'] = 'block';
   $handler->display->display_options['fields']['view']['arguments'] = '[!question]/[!context_id]';
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['relationship'] = 'question';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
   $handler->display->display_options['fields']['title_1']['table'] = 'node';
@@ -846,10 +868,10 @@ function devtrac7_questionnaire_feature_views_default_views() {
     'checkboxes' => 'checkboxes',
   );
 
-  /* Display: Siteviisit Answer Table Block (Select & Checkbox) */
-  $handler = $view->new_display('block', 'Siteviisit Answer Table Block (Select & Checkbox)', 'block');
+  /* Display: Sitevisit Answer Table Block (Select & Checkbox) */
+  $handler = $view->new_display('block', 'Sitevisit Answer Table Block (Select & Checkbox)', 'table');
   $handler->display->display_options['display_comment'] = 'This view is *always* called as a field on the Devtrac Sitevisit Answer Sector view';
-  $handler->display->display_options['display_description'] = 'Shows answers for a siteviisit in a table, filtered by Sector tag.';
+  $handler->display->display_options['display_description'] = 'Shows answers for a sitevisit in a table, filtered by Sector tag.';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
@@ -875,11 +897,12 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
   $handler->display->display_options['fields']['title_1']['table'] = 'node';
   $handler->display->display_options['fields']['title_1']['field'] = 'title';
-  $handler->display->display_options['fields']['title_1']['relationship'] = 'questionnaire_answer_question_target_id';
+  $handler->display->display_options['fields']['title_1']['relationship'] = 'question';
   $handler->display->display_options['fields']['title_1']['label'] = 'Question';
+  $handler->display->display_options['fields']['title_1']['exclude'] = TRUE;
   $handler->display->display_options['fields']['title_1']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['title_1']['alter']['path'] = 'statistics/answers?f[0]=questionnaire_answer_question:[question]';
-  $handler->display->display_options['fields']['title_1']['alter']['alt'] = 'See results for this question on national level';
+  $handler->display->display_options['fields']['title_1']['alter']['alt'] = 'Click to see statistics on this question for all answers ever given';
   $handler->display->display_options['fields']['title_1']['link_to_node'] = FALSE;
   /* Field: Answer: Answer Text */
   $handler->display->display_options['fields']['answertext_1']['id'] = 'answertext_1';
@@ -905,10 +928,10 @@ function devtrac7_questionnaire_feature_views_default_views() {
     'checkboxes' => 'checkboxes',
   );
 
-  /* Display: Siteviisit Answer Select and Radio Table Block */
-  $handler = $view->new_display('block', 'Siteviisit Answer Select and Radio Table Block', 'block_2');
+  /* Display: Sitevisit Answer Select and Radio Table Block */
+  $handler = $view->new_display('block', 'Sitevisit Answer Select and Radio Table Block', 'block_2');
   $handler->display->display_options['display_comment'] = 'This view is *always* called as a field on the Devtrac Sitevisit Answer Sector view';
-  $handler->display->display_options['display_description'] = 'Shows answers for a siteviisit in a table for Select and Radio fields, filtered by Sector tag.';
+  $handler->display->display_options['display_description'] = 'Shows answers for a sitevisit in a table for Select and Radio fields, filtered by Sector tag.';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
@@ -976,7 +999,7 @@ function devtrac7_questionnaire_feature_views_default_views() {
   );
 
   /* Display: Sitevisit Answer Bar Block */
-  $handler = $view->new_display('block', 'Sitevisit Answer Bar Block', 'block_4');
+  $handler = $view->new_display('block', 'Sitevisit Answer Bar Block', 'linechart');
   $handler->display->display_options['display_comment'] = 'This view is *always* called as a field on the Devtrac Sitevisit Answer Sector view';
   $handler->display->display_options['display_description'] = 'Shows answers for a siteviisit in a Bar for Number questions, filtered by Sector tag.';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
@@ -1000,6 +1023,18 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['question']['field'] = 'question';
   $handler->display->display_options['fields']['question']['exclude'] = TRUE;
   $handler->display->display_options['fields']['question']['separator'] = '';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['relationship'] = 'question';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['text'] = '<h3>[title]</h3>';
+  $handler->display->display_options['fields']['title']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['path'] = 'statistics/answers?f[0]=questionnaire_answer_question:[question]';
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
   /* Field: The Bar Chart */
   $handler->display->display_options['fields']['view']['id'] = 'view';
   $handler->display->display_options['fields']['view']['table'] = 'views';
@@ -1010,16 +1045,6 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['view']['view'] = 'devtrac_answers_barcharts';
   $handler->display->display_options['fields']['view']['display'] = 'block';
   $handler->display->display_options['fields']['view']['arguments'] = '[!question]/[!context_id] ';
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['relationship'] = 'question';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['alter']['make_link'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['path'] = 'statistics/answers?f[0]=questionnaire_answer_question:[question]';
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
   $handler->display->display_options['fields']['title_1']['table'] = 'node';
@@ -1046,10 +1071,10 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['filters']['id']['operator'] = '>';
   $handler->display->display_options['filters']['id']['value']['value'] = '1';
 
-  /* Display: Siteviisit Answer Points Block */
-  $handler = $view->new_display('block', 'Siteviisit Answer Points Block', 'block_3');
+  /* Display: Sitevisit Answer Points Block */
+  $handler = $view->new_display('block', 'Sitevisit Answer Points Block', 'yesno');
   $handler->display->display_options['display_comment'] = 'This view is *always* called as a field on the Devtrac Sitevisit Answer Sector view';
-  $handler->display->display_options['display_description'] = 'Shows answers for a siteviisit in a Point Graph, filtered by Sector tag.';
+  $handler->display->display_options['display_description'] = 'Shows answers for a sitevisit in a Point Graph, filtered by Sector tag.';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'flipped';
@@ -1100,8 +1125,9 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['created']['field'] = 'created';
   $handler->display->display_options['fields']['created']['label'] = 'Date';
   $handler->display->display_options['fields']['created']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['created']['date_format'] = 'short';
+  $handler->display->display_options['fields']['created']['date_format'] = 'date_only';
   $handler->display->display_options['fields']['created']['custom_date_format'] = 'U';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'date_only';
   /* Field: Answer: Question */
   $handler->display->display_options['fields']['question']['id'] = 'question';
   $handler->display->display_options['fields']['question']['table'] = 'questionnaire_answer';
@@ -1114,9 +1140,11 @@ function devtrac7_questionnaire_feature_views_default_views() {
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['relationship'] = 'questionnaire_answer_question_target_id';
-  $handler->display->display_options['fields']['title']['label'] = 'Question';
+  $handler->display->display_options['fields']['title']['relationship'] = 'question';
+  $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['text'] = '<h3>[title]</h3>';
   $handler->display->display_options['fields']['title']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['title']['alter']['path'] = 'statistics/answers?f[0]=questionnaire_answer_question:[question]';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
@@ -1140,10 +1168,10 @@ function devtrac7_questionnaire_feature_views_default_views() {
     'radios' => 'radios',
   );
 
-  /* Display: Siteviisit Answer Sidebar Block */
-  $handler = $view->new_display('block', 'Siteviisit Answer Sidebar Block', 'sidebar');
+  /* Display: Sitevisit Answer Sidebar Block */
+  $handler = $view->new_display('block', 'Sitevisit Answer Sidebar Block', 'sidebar');
   $handler->display->display_options['display_comment'] = 'This view is *always* called as a field on the Devtrac Sitevisit Answer Sector view';
-  $handler->display->display_options['display_description'] = 'Shows answers for a siteviisit in a Sidebar, filtered by Sector tag. (for numbers)';
+  $handler->display->display_options['display_description'] = 'Shows answers for a sitevisit in a Sidebar, filtered by Sector tag. (for numbers)';
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;

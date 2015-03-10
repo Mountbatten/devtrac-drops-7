@@ -116,24 +116,31 @@ function devtrac7_theme_feature_quicktabs_default_quicktabs() {
   $quicktabs->title = 'Details of this Location ';
   $quicktabs->tabs = array(
     0 => array(
-      'bid' => 'views_delta_dvtrc_site_visits-block_6',
+      'bid' => 'views_delta_dvtrc_locations-location_description',
       'hide_title' => 1,
-      'title' => 'SiteVisits',
+      'title' => 'Description',
       'weight' => '-99',
       'type' => 'block',
     ),
     1 => array(
-      'bid' => 'views_delta_dvtrc_action_items-block_6',
+      'bid' => 'views_delta_dvtrc_site_visits-block_6',
       'hide_title' => 1,
-      'title' => 'Contact Information',
+      'title' => 'SiteVisits',
       'weight' => '-98',
       'type' => 'block',
     ),
     2 => array(
+      'bid' => 'views_delta_dvtrc_action_items-block_6',
+      'hide_title' => 1,
+      'title' => 'Contact Information',
+      'weight' => '-97',
+      'type' => 'block',
+    ),
+    3 => array(
       'bid' => 'views_delta_dvtrc_locations-block_5',
       'hide_title' => 1,
       'title' => 'Action Items',
-      'weight' => '-97',
+      'weight' => '-96',
       'type' => 'block',
     ),
   );
@@ -145,6 +152,7 @@ function devtrac7_theme_feature_quicktabs_default_quicktabs() {
   // Included for use with string extractors like potx.
   t('Action Items');
   t('Contact Information');
+  t('Description');
   t('Details of this Location ');
   t('SiteVisits');
 

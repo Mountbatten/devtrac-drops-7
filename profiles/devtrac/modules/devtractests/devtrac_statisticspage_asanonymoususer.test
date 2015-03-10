@@ -501,8 +501,7 @@ class VisitStatisticsAsAnonymousTestCase extends DevtracTestCase {
     <![CDATA[Mediocre]]>
   </name>', t('Name field is mapped correctly.'), t('Devtrac'));
     // Description : Report.
-    $this->assertRaw('/question/how-would-you-rate-water-point"></a>]]>
-  </description>', t('Description field is mapped correctly.'), t('Devtrac'));
+    $this->assertRaw('/question/how-would-you-rate-water-point">How would you rate this water point?</a>]]>', t('Description field is mapped correctly.'), t('Devtrac'));
     // Point : Lon - Lat.
     $this->assertRaw('<Point>
     <coordinates>34.876800537100,2.126319885300,0</coordinates>
@@ -521,7 +520,7 @@ class VisitStatisticsAsAnonymousTestCase extends DevtracTestCase {
     // Category : Location Placetype.
     $this->assertRaw('/category/location-type/gfs-or-tap&quot;&gt;Gfs or Tap&lt;/a&gt;</category>', t('Category is mapped correctly'), t('Devtrac'));
     // Description : Question.
-    $this->assertRaw('/question/how-would-you-rate-water-point&quot;&gt;&lt;/a&gt;</description>', t('Description mapped correctly'), t('Devtrac'));
+    $this->assertRaw('/question/how-would-you-rate-water-point&quot;&gt;How would you rate this water point?&lt;/a&gt;</description>', t('Description mapped correctly'), t('Devtrac'));
     // Published Date : Date Created (Subject to change).
     $this->assertRaw('<pubDate>' . date("d-m-Y") . '</pubDate>', t('Published Date is mapped correctly'), t('Devtrac'));
 
@@ -531,7 +530,7 @@ class VisitStatisticsAsAnonymousTestCase extends DevtracTestCase {
     // Category : Location Placetype.
     $this->assertRaw('/category/location-type/gfs-or-tap&quot;&gt;Gfs or Tap&lt;/a&gt;</dc:subject>', t('dc Category is mapped'), t('Devtrac'));
     // Description : Question.
-    $this->assertRaw('/question/how-would-you-rate-water-point&quot;&gt;&lt;/a&gt;</dc:description>', t('dc Description mapped correctly'), t('Devtrac'));
+    $this->assertRaw('/question/how-would-you-rate-water-point&quot;&gt;How would you rate this water point?&lt;/a&gt;</dc:description>', t('dc Description mapped correctly'), t('Devtrac'));
     // Date : Date Created (Subject to change)..
     $this->assertRaw('<dc:date>' . date("d-m-Y") . '</dc:date>', t('Date is mapped correctly'), t('Devtrac'));
     // Type : Location Placetype.

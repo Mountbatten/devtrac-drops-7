@@ -40,3 +40,11 @@ files[] = devtrac_locationspage_asfieldworker.test
 files[] = devtrac_userspage_asanonymoususer.test
 files[] = devtrac_userspage_asfieldworker.test
 core = 7.x
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

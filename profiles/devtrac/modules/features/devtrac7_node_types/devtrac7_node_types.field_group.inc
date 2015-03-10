@@ -21,7 +21,7 @@ function devtrac7_node_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Contact Details',
-    'weight' => '4',
+    'weight' => '5',
     'children' => array(
       0 => 'field_place_email',
       1 => 'field_place_phone',
@@ -81,7 +81,7 @@ function devtrac7_node_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'ID',
-    'weight' => '9',
+    'weight' => '10',
     'children' => array(
       0 => 'field_place_sourcelayer',
       1 => 'field_place_sourceuri',
@@ -109,7 +109,7 @@ function devtrac7_node_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'ID',
-    'weight' => '5',
+    'weight' => '6',
     'children' => array(
       0 => 'field_place_sourcelayer',
       1 => 'field_place_sourceuri',

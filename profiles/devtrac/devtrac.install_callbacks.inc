@@ -36,3 +36,26 @@ function _devtrac_flush_caches($operation, &$context) {
   $context['message'] = t('@operation', array('@operation' => $operation));
   drupal_flush_all_caches();
 }
+/**
+ * BatchAPI callback.
+ *
+ * @see devtrac_import_oecd_icons()
+ */
+function _devtrac_import_icons($file, $importers, &$context) {
+  foreach($importers as $importer) {
+    $myfeed = feeds_source($importer);
+    $config = array('FeedsFileFetcher' => array('source' => $file));
+    $myfeed->addConfig($config);
+    $myfeed->save();
+    try {
+      watchdog('OECD Codes Import', 'Starting Import : %importer', array('%importer' => $importer));
+      $myfeed->startImport();
+      watchdog('OECD Codes Import', 'Done with Import : %importer', array('%importer' => $importer));
+    }
+    catch (Exception $exept) {
+      drupal_set_message("error", $except->getMessage(), "error");
+    }
+  }
+  watchdog('OECD Codes Import', 'Done with Import task.');
+  $context['message'] = st('OECD Codes Imported.');
+}

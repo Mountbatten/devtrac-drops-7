@@ -42,6 +42,11 @@ class DevtracImportsSectorsLevel0 extends XMLMigration {
     $this->addFieldMapping('field_oecd_code', 'category')->xpath('category');
     $this->addFieldMapping('name', 'category-name')->xpath('category-name');
     $this->addFieldMapping('description', 'category-description')->xpath('category-description');
+    $this->addFieldMapping('field_term_icon', 'category')
+      ->xpath('category')
+      ->sourceMigration('DevtracImportsSectorCategoryIcons');
+    $this->addFieldMapping('field_term_icon:file_class')
+      ->defaultValue('MigrateFileFid');
   }
 }
 

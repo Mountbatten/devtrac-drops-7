@@ -421,3 +421,11 @@ stylesheets[print][] = css/print-page.css
 dependencies[] = omega
 dependencies[] = delta
 
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac7_theme"
+datestamp = "1425988039"
+

@@ -49,3 +49,11 @@ features[views_view][] = devtrac_sitevisit_answer_subjects
 features[views_view][] = devtrac_sitevisit_answers
 features[views_view][] = edit_questions
 features_exclude[dependencies][iati_feature] = iati_feature
+
+
+; Information added by drush on 2015-03-10
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "devtrac"
+datestamp = "1425987521"
+

@@ -1,5 +1,7 @@
 Search API Saved Searches 1.x, dev (xx/xx/xxxx):
 ------------------------------------------------
+- #2346677 by drunken monkey, dcmul: Fixed firing of saved searches for
+  disabled users.
 - #2387155 by Dimiona, drunken monkey: Fixed default value for custom
   notification interval.
 - #2359003 by drunken monkey: Fixed removal of cron queue items of deleted

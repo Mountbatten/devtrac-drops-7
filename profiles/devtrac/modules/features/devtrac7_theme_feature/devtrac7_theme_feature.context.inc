@@ -431,56 +431,6 @@ function devtrac7_theme_feature_context_default_contexts() {
   $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
-  $context->name = 'context_node_view_page';
-  $context->description = 'Context for Informational Pages';
-  $context->tag = 'nodetype';
-  $context->conditions = array(
-    'node' => array(
-      'values' => array(
-        'page' => 'page',
-      ),
-      'options' => array(
-        'node_form' => '1',
-      ),
-    ),
-    'path' => array(
-      'values' => array(
-        'contact-us' => 'contact-us',
-      ),
-    ),
-  );
-  $context->reactions = array(
-    'block' => array(
-      'blocks' => array(
-        'system-main' => array(
-          'module' => 'system',
-          'delta' => 'main',
-          'region' => 'content',
-          'weight' => '-10',
-        ),
-        'menu-menu-funding-partners' => array(
-          'module' => 'menu',
-          'delta' => 'menu-funding-partners',
-          'region' => 'sidebar_first',
-          'weight' => '-8',
-        ),
-      ),
-    ),
-    'delta' => array(
-      'delta_template' => 'informationalpage_layout',
-    ),
-  );
-  $context->condition_mode = 0;
-
-  // Translatables
-  // Included for use with string extractors like potx.
-  t('Context for Informational Pages');
-  t('nodetype');
-  $export['context_node_view_page'] = $context;
-
-  $context = new stdClass();
-  $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
-  $context->api_version = 3;
   $context->name = 'context_term_admin_unit';
   $context->description = 'Admin Unit term pages';
   $context->tag = 'taxonomy';

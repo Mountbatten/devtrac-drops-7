@@ -35,7 +35,7 @@ class views_plugin_style_chart extends views_plugin_style {
     $options['y_step'] = array('default' => '25');
     $options['y_legend'] = array('default' => FALSE);
     $options['background_colour'] = array('default' => '#FFFFFF');
-    $options['series_colours'] = array('default' => '#123456,#654321,#1177ff');
+    $options['series_colours'] = array('default' => array());
 
     return $options;
   }
@@ -241,11 +241,14 @@ class views_plugin_style_chart extends views_plugin_style {
           $canvas->colour = $background_colour;
         }
       }
-      if (isset($this->options['series_colours'])) {
+      if (!empty($this->options['series_colours'])) {
         $series_colours = explode(',', $this->options['series_colours']);
         if (count($series_colours)) {
           $canvas->series_colours = $series_colours;
         }
+      }
+      else {
+        $canvas->series_colours = $canvas->series_colours();
       }
       // make the user input a bit more resilient;
       $width = str_replace("px", "", $this->options['width']); // just for people who are confused and still added this

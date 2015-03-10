@@ -29,9 +29,9 @@ features[node_export_features][] = f1c32475-a221-453e-9582-192fcbc00012
 features[node_export_features][] = feaf634b-0da5-4703-8533-c3996b503ae9
 features_exclude[node][questionnaire_question] = questionnaire_question
 
-; Information added by Drupal.org packaging script on 2015-01-16
+; Information added by Drupal.org packaging script on 2015-03-10
 version = "7.x-1.x-dev"
 core = "7.x"
 project = "questionnaire"
-datestamp = "1421407215"
+datestamp = "1425970089"
 
